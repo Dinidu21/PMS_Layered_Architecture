@@ -2,7 +2,7 @@ package com.dinidu.lk.pmt.controller;
 
 import com.dinidu.lk.pmt.controller.dashboard.NotifyViewController;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
-import com.dinidu.lk.pmt.dto.TaskDTO;
+import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TaskReportData;
 import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.model.ReportModel;
@@ -191,7 +191,7 @@ public class DashboardViewController extends BaseController {
     private void loadUnresolvedTasks() {
         tasksContainer.getChildren().clear();
 
-        List<TaskDTO> unresolvedTasks = null;
+        List<TasksDTO> unresolvedTasks = null;
         try {
             unresolvedTasks = taskModel.getTasksByStatus(TaskStatus.NOT_STARTED);
             System.out.println("Unresolved tasks: " + unresolvedTasks);
@@ -201,13 +201,13 @@ public class DashboardViewController extends BaseController {
         }
 
         assert unresolvedTasks != null;
-        for (TaskDTO task : unresolvedTasks) {
+        for (TasksDTO task : unresolvedTasks) {
             HBox taskItem = createTaskItem(task);
             tasksContainer.getChildren().add(taskItem);
         }
     }
 
-    private HBox createTaskItem(TaskDTO task) {
+    private HBox createTaskItem(TasksDTO task) {
         HBox taskItem = new HBox();
         taskItem.getStyleClass().add("task-item");
         taskItem.setAlignment(Pos.CENTER_LEFT);
@@ -245,7 +245,7 @@ public class DashboardViewController extends BaseController {
         return taskItem;
     }
 
-    private void handleTaskClick(TaskDTO task) {
+    private void handleTaskClick(TasksDTO task) {
         System.out.println("Task clicked: " + task.getName());
     }
 

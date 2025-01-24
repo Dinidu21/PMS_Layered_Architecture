@@ -1,21 +1,17 @@
-package com.dinidu.lk.pmt.dto;
+package com.dinidu.lk.pmt.entity;
 
 import com.dinidu.lk.pmt.utils.projectTypes.ProjectPriority;
 import com.dinidu.lk.pmt.utils.projectTypes.ProjectStatus;
 import com.dinidu.lk.pmt.utils.projectTypes.ProjectVisibility;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import lombok.*;
-
 import java.util.Date;
 @NoArgsConstructor
 @ToString
 @Getter
 @Setter
 @AllArgsConstructor
-public class ProjectDTO {
+public class Project {
     private String id;
     private StringProperty name = new SimpleStringProperty();
     private StringProperty description = new SimpleStringProperty();

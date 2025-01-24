@@ -1,7 +1,7 @@
 package com.dinidu.lk.pmt.model;
 
 import com.dinidu.lk.pmt.db.DBConnection;
-import com.dinidu.lk.pmt.dto.TaskDTO;
+import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.utils.CrudUtil;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.taskTypes.TaskPriority;
@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskModel {
-    public static List<TaskDTO> searchTasksByName(String searchQuery) {
+    public static List<TasksDTO> searchTasksByName(String searchQuery) {
         String sql = "SELECT * FROM tasks WHERE name LIKE ? ORDER BY created_at DESC";
         Connection connection;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        List<TaskDTO> taskList = new ArrayList<>();
+        List<TasksDTO> taskList = new ArrayList<>();
 
         try {
             connection = DBConnection.getInstance().getConnection();
@@ -26,18 +26,18 @@ public class TaskModel {
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                TaskDTO taskDTO = new TaskDTO();
-                taskDTO.idProperty().set(rs.getLong("id"));
-                taskDTO.projectIdProperty().set(rs.getString("project_id"));
-                taskDTO.nameProperty().set(rs.getString("name"));
-                taskDTO.descriptionProperty().set(rs.getString("description"));
-                taskDTO.assignedToProperty().set(rs.getLong("assigned_to"));
-                taskDTO.priorityProperty().set(TaskPriority.valueOf(rs.getString("priority")));
-                taskDTO.statusProperty().set(TaskStatus.valueOf(rs.getString("status")));
-                taskDTO.dueDateProperty().set(rs.getDate("due_date"));
-                taskDTO.createdAtProperty().set(rs.getTimestamp("created_at"));
-                taskDTO.updatedAtProperty().set(rs.getTimestamp("updated_at"));
-                taskList.add(taskDTO);
+                TasksDTO tasksDTO = new TasksDTO();
+                tasksDTO.idProperty().set(rs.getLong("id"));
+                tasksDTO.projectIdProperty().set(rs.getString("project_id"));
+                tasksDTO.nameProperty().set(rs.getString("name"));
+                tasksDTO.descriptionProperty().set(rs.getString("description"));
+                tasksDTO.assignedToProperty().set(rs.getLong("assigned_to"));
+                tasksDTO.priorityProperty().set(TaskPriority.valueOf(rs.getString("priority")));
+                tasksDTO.statusProperty().set(TaskStatus.valueOf(rs.getString("status")));
+                tasksDTO.dueDateProperty().set(rs.getDate("due_date"));
+                tasksDTO.createdAtProperty().set(rs.getTimestamp("created_at"));
+                tasksDTO.updatedAtProperty().set(rs.getTimestamp("updated_at"));
+                taskList.add(tasksDTO);
             }
         } catch (SQLException e) {
             System.out.println("Error searching tasks: " + e.getMessage());
@@ -57,12 +57,12 @@ public class TaskModel {
         return taskList;
     }
 
-    public static List<TaskDTO> getAllTasks() {
+    public static List<TasksDTO> getAllTasks() {
         String sql = "SELECT * FROM tasks ORDER BY created_at DESC";
         Connection connection;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        List<TaskDTO> taskList = new ArrayList<>();
+        List<TasksDTO> taskList = new ArrayList<>();
 
         try {
             connection = DBConnection.getInstance().getConnection();
@@ -70,18 +70,18 @@ public class TaskModel {
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                TaskDTO taskDTO = new TaskDTO();
-                taskDTO.idProperty().set(rs.getLong("id"));
-                taskDTO.projectIdProperty().set(rs.getString("project_id"));
-                taskDTO.nameProperty().set(rs.getString("name"));
-                taskDTO.descriptionProperty().set(rs.getString("description"));
-                taskDTO.assignedToProperty().set(rs.getLong("assigned_to"));
-                taskDTO.priorityProperty().set(TaskPriority.valueOf(rs.getString("priority")));
-                taskDTO.statusProperty().set(TaskStatus.valueOf(rs.getString("status")));
-                taskDTO.dueDateProperty().set(rs.getDate("due_date"));
-                taskDTO.createdAtProperty().set(rs.getTimestamp("created_at"));
-                taskDTO.updatedAtProperty().set(rs.getTimestamp("updated_at"));
-                taskList.add(taskDTO);
+                TasksDTO tasksDTO = new TasksDTO();
+                tasksDTO.idProperty().set(rs.getLong("id"));
+                tasksDTO.projectIdProperty().set(rs.getString("project_id"));
+                tasksDTO.nameProperty().set(rs.getString("name"));
+                tasksDTO.descriptionProperty().set(rs.getString("description"));
+                tasksDTO.assignedToProperty().set(rs.getLong("assigned_to"));
+                tasksDTO.priorityProperty().set(TaskPriority.valueOf(rs.getString("priority")));
+                tasksDTO.statusProperty().set(TaskStatus.valueOf(rs.getString("status")));
+                tasksDTO.dueDateProperty().set(rs.getDate("due_date"));
+                tasksDTO.createdAtProperty().set(rs.getTimestamp("created_at"));
+                tasksDTO.updatedAtProperty().set(rs.getTimestamp("updated_at"));
+                taskList.add(tasksDTO);
             }
         } catch (SQLException e) {
             System.out.println("Error retrieving tasks: " + e.getMessage());
@@ -101,13 +101,13 @@ public class TaskModel {
         return taskList;
     }
 
-    public static List<TaskDTO> getTaskByProjectId(String id) {
+    public static List<TasksDTO> getTaskByProjectId(String id) {
 
         String sql = "SELECT * FROM tasks WHERE project_id = ? ORDER BY created_at DESC";
         Connection connection;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        List<TaskDTO> taskList = new ArrayList<>();
+        List<TasksDTO> taskList = new ArrayList<>();
 
         try {
             connection = DBConnection.getInstance().getConnection();
@@ -116,18 +116,18 @@ public class TaskModel {
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                TaskDTO taskDTO = new TaskDTO();
-                taskDTO.idProperty().set(rs.getLong("id"));
-                taskDTO.projectIdProperty().set(rs.getString("project_id"));
-                taskDTO.nameProperty().set(rs.getString("name"));
-                taskDTO.descriptionProperty().set(rs.getString("description"));
-                taskDTO.assignedToProperty().set(rs.getLong("assigned_to"));
-                taskDTO.priorityProperty().set(TaskPriority.valueOf(rs.getString("priority")));
-                taskDTO.statusProperty().set(TaskStatus.valueOf(rs.getString("status")));
-                taskDTO.dueDateProperty().set(rs.getDate("due_date"));
-                taskDTO.createdAtProperty().set(rs.getTimestamp("created_at"));
-                taskDTO.updatedAtProperty().set(rs.getTimestamp("updated_at"));
-                taskList.add(taskDTO);
+                TasksDTO tasksDTO = new TasksDTO();
+                tasksDTO.idProperty().set(rs.getLong("id"));
+                tasksDTO.projectIdProperty().set(rs.getString("project_id"));
+                tasksDTO.nameProperty().set(rs.getString("name"));
+                tasksDTO.descriptionProperty().set(rs.getString("description"));
+                tasksDTO.assignedToProperty().set(rs.getLong("assigned_to"));
+                tasksDTO.priorityProperty().set(TaskPriority.valueOf(rs.getString("priority")));
+                tasksDTO.statusProperty().set(TaskStatus.valueOf(rs.getString("status")));
+                tasksDTO.dueDateProperty().set(rs.getDate("due_date"));
+                tasksDTO.createdAtProperty().set(rs.getTimestamp("created_at"));
+                tasksDTO.updatedAtProperty().set(rs.getTimestamp("updated_at"));
+                taskList.add(tasksDTO);
             }
         } catch (SQLException e) {
             System.out.println("Error retrieving tasks: " + e.getMessage());
@@ -147,7 +147,7 @@ public class TaskModel {
         return taskList;
     }
 
-    public static List<TaskDTO> getTasksByAssignee(String username) {
+    public static List<TasksDTO> getTasksByAssignee(String username) {
 
         String sql = """
                     SELECT t.*
@@ -159,7 +159,7 @@ public class TaskModel {
 
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        List<TaskDTO> taskList = new ArrayList<>();
+        List<TasksDTO> taskList = new ArrayList<>();
 
         try {
             Connection connection = DBConnection.getInstance().getConnection();
@@ -168,18 +168,18 @@ public class TaskModel {
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                TaskDTO taskDTO = new TaskDTO();
-                taskDTO.idProperty().set(rs.getLong("id"));
-                taskDTO.projectIdProperty().set(rs.getString("project_id"));
-                taskDTO.nameProperty().set(rs.getString("name"));
-                taskDTO.descriptionProperty().set(rs.getString("description"));
-                taskDTO.assignedToProperty().set(rs.getLong("assigned_to"));
-                taskDTO.priorityProperty().set(TaskPriority.valueOf(rs.getString("priority")));
-                taskDTO.statusProperty().set(TaskStatus.valueOf(rs.getString("status")));
-                taskDTO.dueDateProperty().set(rs.getDate("due_date"));
-                taskDTO.createdAtProperty().set(rs.getTimestamp("created_at"));
-                taskDTO.updatedAtProperty().set(rs.getTimestamp("updated_at"));
-                taskList.add(taskDTO);
+                TasksDTO tasksDTO = new TasksDTO();
+                tasksDTO.idProperty().set(rs.getLong("id"));
+                tasksDTO.projectIdProperty().set(rs.getString("project_id"));
+                tasksDTO.nameProperty().set(rs.getString("name"));
+                tasksDTO.descriptionProperty().set(rs.getString("description"));
+                tasksDTO.assignedToProperty().set(rs.getLong("assigned_to"));
+                tasksDTO.priorityProperty().set(TaskPriority.valueOf(rs.getString("priority")));
+                tasksDTO.statusProperty().set(TaskStatus.valueOf(rs.getString("status")));
+                tasksDTO.dueDateProperty().set(rs.getDate("due_date"));
+                tasksDTO.createdAtProperty().set(rs.getTimestamp("created_at"));
+                tasksDTO.updatedAtProperty().set(rs.getTimestamp("updated_at"));
+                taskList.add(tasksDTO);
             }
         } catch (SQLException e) {
             System.out.println("Error retrieving tasks by assignee: " + e.getMessage());
@@ -209,7 +209,7 @@ public class TaskModel {
         return null;
     }
 
-    public void updateTask(TaskDTO currentTask) {
+    public void updateTask(TasksDTO currentTask) {
         StringBuilder sql = new StringBuilder("UPDATE tasks SET ");
         boolean firstField = true;
 
@@ -316,51 +316,51 @@ public class TaskModel {
         }
     }
 
-    public List<TaskDTO> getTasksByStatus(TaskStatus taskStatus) throws SQLException {
+    public List<TasksDTO> getTasksByStatus(TaskStatus taskStatus) throws SQLException {
         String sql = "SELECT * FROM tasks WHERE status = ?";
         try (ResultSet resultSet = CrudUtil.execute(sql, taskStatus.name())) {
-            List<TaskDTO> taskList = new ArrayList<>();
+            List<TasksDTO> taskList = new ArrayList<>();
             while (resultSet.next()) {
-                TaskDTO taskDTO = new TaskDTO();
-                taskDTO.idProperty().set(resultSet.getLong("id"));
-                taskDTO.projectIdProperty().set(resultSet.getString("project_id"));
-                taskDTO.nameProperty().set(resultSet.getString("name"));
-                taskDTO.descriptionProperty().set(resultSet.getString("description"));
-                taskDTO.assignedToProperty().set(resultSet.getLong("assigned_to"));
-                taskDTO.priorityProperty().set(TaskPriority.valueOf(resultSet.getString("priority")));
-                taskDTO.statusProperty().set(TaskStatus.valueOf(resultSet.getString("status")));
-                taskDTO.dueDateProperty().set(resultSet.getDate("due_date"));
-                taskDTO.createdAtProperty().set(resultSet.getTimestamp("created_at"));
-                taskDTO.updatedAtProperty().set(resultSet.getTimestamp("updated_at"));
-                taskList.add(taskDTO);
+                TasksDTO tasksDTO = new TasksDTO();
+                tasksDTO.idProperty().set(resultSet.getLong("id"));
+                tasksDTO.projectIdProperty().set(resultSet.getString("project_id"));
+                tasksDTO.nameProperty().set(resultSet.getString("name"));
+                tasksDTO.descriptionProperty().set(resultSet.getString("description"));
+                tasksDTO.assignedToProperty().set(resultSet.getLong("assigned_to"));
+                tasksDTO.priorityProperty().set(TaskPriority.valueOf(resultSet.getString("priority")));
+                tasksDTO.statusProperty().set(TaskStatus.valueOf(resultSet.getString("status")));
+                tasksDTO.dueDateProperty().set(resultSet.getDate("due_date"));
+                tasksDTO.createdAtProperty().set(resultSet.getTimestamp("created_at"));
+                tasksDTO.updatedAtProperty().set(resultSet.getTimestamp("updated_at"));
+                taskList.add(tasksDTO);
             }
             return taskList;
         }
     }
 
-    public static List<TaskDTO> getTasksCurrentProjectByStatus(String projectId, TaskStatus taskStatus) throws SQLException {
+    public static List<TasksDTO> getTasksCurrentProjectByStatus(String projectId, TaskStatus taskStatus) throws SQLException {
         String sql = "SELECT * FROM tasks WHERE project_id = ? AND status = ?";
         try (ResultSet resultSet = CrudUtil.execute(sql, projectId, taskStatus.name())) {
-            List<TaskDTO> taskList = new ArrayList<>();
+            List<TasksDTO> taskList = new ArrayList<>();
             while (resultSet.next()) {
-                TaskDTO taskDTO = new TaskDTO();
-                taskDTO.idProperty().set(resultSet.getLong("id"));
-                taskDTO.projectIdProperty().set(resultSet.getString("project_id"));
-                taskDTO.nameProperty().set(resultSet.getString("name"));
-                taskDTO.descriptionProperty().set(resultSet.getString("description"));
-                taskDTO.assignedToProperty().set(resultSet.getLong("assigned_to"));
-                taskDTO.priorityProperty().set(TaskPriority.valueOf(resultSet.getString("priority")));
-                taskDTO.statusProperty().set(TaskStatus.valueOf(resultSet.getString("status")));
-                taskDTO.dueDateProperty().set(resultSet.getDate("due_date"));
-                taskDTO.createdAtProperty().set(resultSet.getTimestamp("created_at"));
-                taskDTO.updatedAtProperty().set(resultSet.getTimestamp("updated_at"));
-                taskList.add(taskDTO);
+                TasksDTO tasksDTO = new TasksDTO();
+                tasksDTO.idProperty().set(resultSet.getLong("id"));
+                tasksDTO.projectIdProperty().set(resultSet.getString("project_id"));
+                tasksDTO.nameProperty().set(resultSet.getString("name"));
+                tasksDTO.descriptionProperty().set(resultSet.getString("description"));
+                tasksDTO.assignedToProperty().set(resultSet.getLong("assigned_to"));
+                tasksDTO.priorityProperty().set(TaskPriority.valueOf(resultSet.getString("priority")));
+                tasksDTO.statusProperty().set(TaskStatus.valueOf(resultSet.getString("status")));
+                tasksDTO.dueDateProperty().set(resultSet.getDate("due_date"));
+                tasksDTO.createdAtProperty().set(resultSet.getTimestamp("created_at"));
+                tasksDTO.updatedAtProperty().set(resultSet.getTimestamp("updated_at"));
+                taskList.add(tasksDTO);
             }
             return taskList;
         }
     }
 
-    public boolean insertTask(TaskDTO taskDTO) throws SQLException {
+    public boolean insertTask(TasksDTO tasksDTO) throws SQLException {
         String taskSql = "INSERT INTO tasks (project_id, name, description, assigned_to, " +
                 "priority, status, due_date, created_at, updated_at) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
@@ -372,10 +372,10 @@ public class TaskModel {
         connection.setAutoCommit(false);
 
         try {
-            boolean taskInserted = CrudUtil.execute(taskSql, taskDTO.projectIdProperty().get(),
-                    taskDTO.nameProperty().get(), taskDTO.descriptionProperty().get(),
-                    taskDTO.assignedToProperty().get(), taskDTO.priorityProperty().get().name(),
-                    taskDTO.statusProperty().get().name(), new java.sql.Date(taskDTO.dueDateProperty().get().getTime()));
+            boolean taskInserted = CrudUtil.execute(taskSql, tasksDTO.projectIdProperty().get(),
+                    tasksDTO.nameProperty().get(), tasksDTO.descriptionProperty().get(),
+                    tasksDTO.assignedToProperty().get(), tasksDTO.priorityProperty().get().name(),
+                    tasksDTO.statusProperty().get().name(), new java.sql.Date(tasksDTO.dueDateProperty().get().getTime()));
 
             if (taskInserted) {
                 // Retrieve the generated task ID
@@ -385,7 +385,7 @@ public class TaskModel {
                     if (resultSet.next()) {
                         long taskId = resultSet.getLong(1);
 
-                        boolean assignmentInserted = CrudUtil.execute(assignmentSql, taskId, taskDTO.assignedToProperty().get());
+                        boolean assignmentInserted = CrudUtil.execute(assignmentSql, taskId, tasksDTO.assignedToProperty().get());
 
                         if (assignmentInserted) {
                             connection.commit();

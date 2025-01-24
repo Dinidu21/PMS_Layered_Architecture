@@ -4,7 +4,7 @@ import com.dinidu.lk.pmt.controller.BaseController;
 import com.dinidu.lk.pmt.controller.dashboard.task.CreateTaskSuccessViewController;
 import com.dinidu.lk.pmt.controller.dashboard.task.TaskEditViewController;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
-import com.dinidu.lk.pmt.dto.TaskDTO;
+import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.model.TaskModel;
 import com.dinidu.lk.pmt.model.UserModel;
@@ -93,7 +93,7 @@ public class TaskViewController extends BaseController implements Initializable 
             if (selectedTaskName != null) {
                 searchBox.setText(selectedTaskName);
                 suggestionList.setVisible(false);
-                List<TaskDTO> filteredTasks = searchTasksByName(selectedTaskName);
+                List<TasksDTO> filteredTasks = searchTasksByName(selectedTaskName);
                 if (filteredTasks.isEmpty()) {
                     noTasksFoundLabel.setVisible(true);
                 } else {
@@ -122,10 +122,10 @@ public class TaskViewController extends BaseController implements Initializable 
     }
 
     private void updateTaskView() {
-        List<TaskDTO> tasks = TaskModel.getAllTasks();
+        List<TasksDTO> tasks = TaskModel.getAllTasks();
         System.out.println("dto size:" + tasks.size());
 
-        for (TaskDTO task : tasks) {
+        for (TasksDTO task : tasks) {
             System.out.println(task);
         }
 
@@ -147,7 +147,7 @@ public class TaskViewController extends BaseController implements Initializable 
         taskCardContainer.setVisible(true);
 
 
-        List<TaskDTO> filteredTasks = tasks.stream().filter(task -> (selectedStatus == null || task.getStatus() == selectedStatus) && (selectedPriority == null || task.getPriority() == selectedPriority)).collect(Collectors.toList());
+        List<TasksDTO> filteredTasks = tasks.stream().filter(task -> (selectedStatus == null || task.getStatus() == selectedStatus) && (selectedPriority == null || task.getPriority() == selectedPriority)).collect(Collectors.toList());
 
         if (filteredTasks.isEmpty()) {
             noTasksFoundLabel.setVisible(true);
@@ -160,10 +160,10 @@ public class TaskViewController extends BaseController implements Initializable 
     }
 
     private void showSearchSuggestions(String query) {
-        List<TaskDTO> filteredTasks = searchTasksByName(query);
+        List<TasksDTO> filteredTasks = searchTasksByName(query);
         if (!filteredTasks.isEmpty()) {
             suggestionList.getItems().clear();
-            for (TaskDTO task : filteredTasks) {
+            for (TasksDTO task : filteredTasks) {
                 suggestionList.getItems().add(task.getName().get());
             }
             suggestionList.setVisible(true);
@@ -172,11 +172,11 @@ public class TaskViewController extends BaseController implements Initializable 
         }
     }
 
-    private void displayTasks(List<TaskDTO> tasks) {
+    private void displayTasks(List<TasksDTO> tasks) {
         taskCardContainer.getChildren().clear();
         taskCardContainer.getStyleClass().add("task-card-container");
 
-        for (TaskDTO task : tasks) {
+        for (TasksDTO task : tasks) {
             AnchorPane taskCard = new AnchorPane();
             taskCard.getStyleClass().add("task-card");
             taskCard.setPrefHeight(120.0);
@@ -246,7 +246,7 @@ public class TaskViewController extends BaseController implements Initializable 
         }
     }
 
-    private void openTask(TaskDTO task) {
+    private void openTask(TasksDTO task) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/nav-buttons/task/task-create-success-view.fxml"));
             Parent root = loader.load();

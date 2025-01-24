@@ -1,6 +1,6 @@
 package com.dinidu.lk.pmt.controller.dashboard.task;
 
-import com.dinidu.lk.pmt.dto.TaskDTO;
+import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TeamAssignmentDTO;
 import com.dinidu.lk.pmt.dto.UserDTO;
 import com.dinidu.lk.pmt.model.ProjectModel;
@@ -60,9 +60,9 @@ public class TaskEditViewController implements Initializable {
     @FXML
     private DatePicker endDatePicker;
     private final TaskModel taskModel = new TaskModel();
-    private static TaskDTO currentTask;
+    private static TasksDTO currentTask;
 
-    public static void setTask(TaskDTO task) {
+    public static void setTask(TasksDTO task) {
         currentTask = task;
     }
 
@@ -243,7 +243,7 @@ public class TaskEditViewController implements Initializable {
         TaskPriorityCombo.getItems().setAll(TaskPriority.values());
 
         if (currentTask == null) {
-            List<TaskDTO> tasks = TaskModel.getAllTasks();
+            List<TasksDTO> tasks = TaskModel.getAllTasks();
             if (!tasks.isEmpty()) {
                 currentTask = tasks.get(0);
             } else {

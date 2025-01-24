@@ -5,7 +5,7 @@ import com.dinidu.lk.pmt.controller.dashboard.task.checklist.ChecklistCreateView
 import com.dinidu.lk.pmt.controller.dashboard.task.checklist.ChecklistEditViewController;
 import com.dinidu.lk.pmt.dto.ChecklistDTO;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
-import com.dinidu.lk.pmt.dto.TaskDTO;
+import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TeamAssignmentDTO;
 import com.dinidu.lk.pmt.model.*;
 import com.dinidu.lk.pmt.utils.*;
@@ -82,17 +82,17 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
     private Label taskName;
     @FXML
     private Label taskId;
-    private TaskDTO taskDTO;
-    static TaskDTO current_Task;
+    private TasksDTO tasksDTO;
+    static TasksDTO current_Task;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         noChecklistLabel.setVisible(false);
-        TaskDTO activeTask = CreateTaskSuccessViewController.current_Task;
+        TasksDTO activeTask = CreateTaskSuccessViewController.current_Task;
         if (activeTask != null) {
-            this.taskDTO = activeTask;
-            setTaskData(taskDTO);
-            System.out.println("Active task is set, taskDTO is: " + taskDTO);
+            this.tasksDTO = activeTask;
+            setTaskData(tasksDTO);
+            System.out.println("Active task is set, taskDTO is: " + tasksDTO);
         } else {
             System.out.println("No active task is set, taskDTO remains null");
         }
@@ -121,7 +121,7 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
             loadChecklists();
         });
 
-        if (taskDTO == null) {
+        if (tasksDTO == null) {
             System.out.println("Error: taskDTO is null");
             return;
         }
@@ -132,7 +132,7 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
     private void applyInitialStyles() {
         List<ChecklistDTO> checklists = null;
         try {
-            checklists = ChecklistModel.getChecklistsByTaskId(taskDTO.getId());
+            checklists = ChecklistModel.getChecklistsByTaskId(tasksDTO.getId());
         } catch (SQLException e) {
             System.out.println("Error fetching checklists: " + e.getMessage());
         }
@@ -267,7 +267,7 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
 
         List<ChecklistDTO> checklists;
         try {
-            checklists = ChecklistModel.getChecklistsByTaskId(taskDTO.getId());
+            checklists = ChecklistModel.getChecklistsByTaskId(tasksDTO.getId());
             System.out.println("Fetched checklists: " + checklists);
         } catch (SQLException e) {
             System.out.println("Error fetching checklists: " + e.getMessage());
@@ -324,8 +324,8 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
         loadChecklists();
     }
 
-    public void updateTaskView(TaskDTO taskDTO) {
-        setTaskData(taskDTO);
+    public void updateTaskView(TasksDTO tasksDTO) {
+        setTaskData(tasksDTO);
         loadChecklists();
     }
 
@@ -340,70 +340,70 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
 
     @Override
     public void onChecklistUpdated(ChecklistDTO updatedChecklist) {
-        setTaskData(taskDTO);
+        setTaskData(tasksDTO);
         loadChecklists();
     }
 
     public void createCheckList() {
-        ChecklistCreateViewController.setTaskId(taskDTO.getId());
+        ChecklistCreateViewController.setTaskId(tasksDTO.getId());
         ProjectViewController.bindNavigation(taskCreatedSuccessPage, "/view/nav-buttons/task/checklist/checklist-create-view.fxml");
 
-        TaskDTO updatedTaskDTO = CreateTaskSuccessViewController.current_Task;
-        updateTaskView(updatedTaskDTO);
-        if(updatedTaskDTO == null){
+        TasksDTO updatedTasksDTO = CreateTaskSuccessViewController.current_Task;
+        updateTaskView(updatedTasksDTO);
+        if(updatedTasksDTO == null){
             System.out.println("Error: updatedTaskDTO is null");
         }else {
-            System.out.println("Task: " + updatedTaskDTO);
+            System.out.println("Task: " + updatedTasksDTO);
         }
     }
 
-    public void setTaskData(TaskDTO taskDTO) {
-        if (taskDTO == null) {
+    public void setTaskData(TasksDTO tasksDTO) {
+        if (tasksDTO == null) {
             System.out.println("Error: taskDTO is null");
             return;
         }
 
-        System.out.println("Now in set Task data method : " + taskDTO);
-        System.out.println("Here is the start date: " + taskDTO.getCreatedAt().get());
+        System.out.println("Now in set Task data method : " + tasksDTO);
+        System.out.println("Here is the start date: " + tasksDTO.getCreatedAt().get());
 
-        if (taskDTO.getId() == null) {
+        if (tasksDTO.getId() == null) {
             return;
         }
 
-        this.taskDTO = taskDTO;
-        current_Task = taskDTO;
+        this.tasksDTO = tasksDTO;
+        current_Task = tasksDTO;
         System.out.println("Static current task: " + current_Task);
 
-        taskName.textProperty().bind(taskDTO.nameProperty());
-        taskDescription.textProperty().bind(taskDTO.descriptionProperty());
+        taskName.textProperty().bind(tasksDTO.nameProperty());
+        taskDescription.textProperty().bind(tasksDTO.descriptionProperty());
 
         taskStartDate.textProperty().bind(Bindings.createStringBinding(
                 () -> {
-                    if (taskDTO.getCreatedAt() != null && taskDTO.getCreatedAt().get() != null) {
+                    if (tasksDTO.getCreatedAt() != null && tasksDTO.getCreatedAt().get() != null) {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                        return dateFormat.format(taskDTO.getCreatedAt().get());
+                        return dateFormat.format(tasksDTO.getCreatedAt().get());
                     } else {
                         return "Start date not set";
                     }
                 },
-                taskDTO.createdAtProperty()
+                tasksDTO.createdAtProperty()
         ));
 
         taskDeadline.textProperty().bind(Bindings.createStringBinding(
                 () -> {
-                    if (taskDTO.getDueDate() != null && taskDTO.getDueDate().get() != null) {
+                    if (tasksDTO.getDueDate() != null && tasksDTO.getDueDate().get() != null) {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                        return dateFormat.format(taskDTO.getDueDate().get());
+                        return dateFormat.format(tasksDTO.getDueDate().get());
                     } else {
                         return "End date is not set";
                     }
                 },
-                taskDTO.dueDateProperty()
+                tasksDTO.dueDateProperty()
         ));
 
-        taskStatus.textProperty().bind(Bindings.convert(taskDTO.statusProperty()));
-        taskPriority.textProperty().bind(Bindings.convert(taskDTO.priorityProperty()));
-        String projectId = taskDTO.getProjectId().get();
+        taskStatus.textProperty().bind(Bindings.convert(tasksDTO.statusProperty()));
+        taskPriority.textProperty().bind(Bindings.convert(tasksDTO.priorityProperty()));
+        String projectId = tasksDTO.getProjectId().get();
         List<ProjectDTO> project = ProjectModel.getProjectById(projectId);
         String userFullNameById = "";
 
@@ -424,12 +424,12 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
         }
 
         projectOwnerName.setText(" " + userFullNameById);
-        List<TaskDTO> tasks = TaskModel.getTaskByProjectId(taskDTO.projectIdProperty().get());
+        List<TasksDTO> tasks = TaskModel.getTaskByProjectId(tasksDTO.projectIdProperty().get());
         Label[] teamMemberLabels = {teamMember1, teamMember2, teamMember3, teamMember4};
         ImageView[] teamMemberImages = {teamMember1Img, teamMember2Img, teamMember3Img, teamMember4Img};
         int teamMemberCount = 0;
 
-        for (TaskDTO task : tasks) {
+        for (TasksDTO task : tasks) {
             if (teamMemberCount >= 4) break;
             List<TeamAssignmentDTO> assignments = TeamAssignmentModel.getAssignmentsByTaskId(task.getId().get());
 
@@ -450,12 +450,12 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
 
         teamCount.setText("" + teamMemberCount);
         setupStyleListeners();
-        updateStyles(taskDTO);
+        updateStyles(tasksDTO);
     }
 
     private void setupStyleListeners() {
-        taskDTO.statusProperty().addListener((observable, oldValue, newValue) -> updateStatusStyle(newValue));
-        taskDTO.priorityProperty().addListener((observable, oldValue, newValue) -> updatePriorityStyle(newValue));
+        tasksDTO.statusProperty().addListener((observable, oldValue, newValue) -> updateStatusStyle(newValue));
+        tasksDTO.priorityProperty().addListener((observable, oldValue, newValue) -> updatePriorityStyle(newValue));
     }
 
     private void updateStatusStyle(TaskStatus status) {
@@ -476,13 +476,13 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
         }
     }
 
-    private void updateStyles(TaskDTO taskDTO) {
-        updateStatusStyle(taskDTO.getStatus());
-        updatePriorityStyle(taskDTO.getPriority());
+    private void updateStyles(TasksDTO tasksDTO) {
+        updateStatusStyle(tasksDTO.getStatus());
+        updatePriorityStyle(tasksDTO.getPriority());
     }
 
     @Override
-    public void onTaskUpdated(TaskDTO updatedTask) {
+    public void onTaskUpdated(TasksDTO updatedTask) {
         setTaskData(updatedTask);
     }
 

@@ -235,7 +235,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
     }
 
     private void loadExistingAttachments() {
-        Task<List<IssueAttachmentDTO>> loadTask = new Task<>() {
+        javafx.concurrent.Task<List<IssueAttachmentDTO>> loadTask = new javafx.concurrent.Task<>() {
             @Override
             protected List<IssueAttachmentDTO> call() throws Exception {
                 return attachmentModel.getAttachments(currentIssueId);
@@ -263,7 +263,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
         File file = fileChooser.showSaveDialog(attachmentContainer.getScene().getWindow());
 
         if (file != null) {
-            Task<Void> downloadTask = new Task<>() {
+            javafx.concurrent.Task<Void> downloadTask = new javafx.concurrent.Task<>() {
                 @Override
                 protected Void call() throws Exception {
                     try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -292,7 +292,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
             return;
         }
 
-        Task<Boolean> deleteTask = new Task<>() {
+        javafx.concurrent.Task<Boolean> deleteTask = new javafx.concurrent.Task<>() {
             @Override
             protected Boolean call() throws Exception {
                 return attachmentModel.deleteAttachment(attachment.getId());
@@ -421,9 +421,9 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
 
     public List<TeamAssignmentDTO> getTeamAssignmentsForProject(String projectId) {
         List<TeamAssignmentDTO> assignments = new ArrayList<>();
-        List<TaskDTO> tasks = TaskModel.getTaskByProjectId(projectId);
+        List<TasksDTO> tasks = TaskModel.getTaskByProjectId(projectId);
 
-        for (TaskDTO task : tasks) {
+        for (TasksDTO task : tasks) {
             List<TeamAssignmentDTO> taskAssignments = TeamAssignmentModel.getAssignmentsByTaskId(task.getId().get());
             assignments.addAll(taskAssignments);
         }

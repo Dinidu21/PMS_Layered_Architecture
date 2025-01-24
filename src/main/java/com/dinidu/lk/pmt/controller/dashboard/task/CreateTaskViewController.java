@@ -2,7 +2,7 @@ package com.dinidu.lk.pmt.controller.dashboard.task;
 
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
-import com.dinidu.lk.pmt.dto.TaskDTO;
+import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.UserDTO;
 import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.model.TaskModel;
@@ -97,48 +97,48 @@ public class CreateTaskViewController {
         }
 
         if (validateInputFields()) {
-            TaskDTO taskDTO = new TaskDTO();
-            taskDTO.nameProperty().set(taskNameField.getText());
-            taskDTO.descriptionProperty().set(descriptionIdField.getText());
+            TasksDTO tasksDTO = new TasksDTO();
+            tasksDTO.nameProperty().set(taskNameField.getText());
+            tasksDTO.descriptionProperty().set(descriptionIdField.getText());
 
             String selectedProjectName = selectProjectNameComboBox.getValue();
             String projectId = ProjectModel.getProjectIdByName(selectedProjectName);
-            taskDTO.projectIdProperty().set(projectId);
+            tasksDTO.projectIdProperty().set(projectId);
 
             String selectedMemberName = selectMemberNameComboBox.getValue();
             Long assignedTo = UserModel.getUserIdByFullName(selectedMemberName);
-            taskDTO.assignedToProperty().set(assignedTo);
+            tasksDTO.assignedToProperty().set(assignedTo);
 
-            taskDTO.priorityProperty().set(TaskPriority.MEDIUM);
-            taskDTO.statusProperty().set(TaskStatus.NOT_STARTED);
+            tasksDTO.priorityProperty().set(TaskPriority.MEDIUM);
+            tasksDTO.statusProperty().set(TaskStatus.NOT_STARTED);
 
-            taskDTO.createdAtProperty().set(Date.from(Instant.now()));
+            tasksDTO.createdAtProperty().set(Date.from(Instant.now()));
 
             if (taskDeadline.getValue() != null) {
-                taskDTO.dueDateProperty().set(Date.from(taskDeadline.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                tasksDTO.dueDateProperty().set(Date.from(taskDeadline.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()));
             }
 
             TaskModel taskModel = new TaskModel();
             boolean isSaved;
             try {
-                isSaved = taskModel.insertTask(taskDTO);
+                isSaved = taskModel.insertTask(tasksDTO);
                 if (isSaved) {
-                    Date deadline = taskDTO.dueDateProperty().get();
+                    Date deadline = tasksDTO.dueDateProperty().get();
                     NotificationManager notificationManager = NotificationManager.getInstance();
 
-                    String Email = UserModel.getUserEmailById(taskDTO.assignedToProperty().get());
-                    String Name = UserModel.getUserFullNameById(taskDTO.assignedToProperty().get());
+                    String Email = UserModel.getUserEmailById(tasksDTO.assignedToProperty().get());
+                    String Name = UserModel.getUserFullNameById(tasksDTO.assignedToProperty().get());
 
                     notificationManager.scheduleDeadlineReminder(
-                            String.valueOf(taskDTO.idProperty().get()),
-                            taskDTO.nameProperty().get(),
+                            String.valueOf(tasksDTO.idProperty().get()),
+                            tasksDTO.nameProperty().get(),
                             Email,
                             Name,
                             deadline
                     );
 
                     new Thread(() -> {
-                        String receiverName = UserModel.getUserFullNameById(taskDTO.assignedToProperty().get());
+                        String receiverName = UserModel.getUserFullNameById(tasksDTO.assignedToProperty().get());
                         String uName = SessionUser.getLoggedInUsername();
                         Long idByUsername = UserModel.getUserIdByUsername(uName);
                         String taskCreatorName = UserModel.getUserFullNameById(idByUsername);
@@ -147,7 +147,7 @@ public class CreateTaskViewController {
                         String receiverEmail = null;
 
                         try {
-                            receiverEmail = UserModel.getUserEmailById(taskDTO.assignedToProperty().get());
+                            receiverEmail = UserModel.getUserEmailById(tasksDTO.assignedToProperty().get());
                         } catch (SQLException e) {
                             System.out.println("Error getting receiver email: " + e.getMessage());
                         }
@@ -158,7 +158,7 @@ public class CreateTaskViewController {
                             return;
                         }
                         try {
-                            MailUtil.taskAssignment(receiverEmail, taskDTO.nameProperty().get(), receiverName, taskDTO.dueDateProperty().get(), taskCreatorName);
+                            MailUtil.taskAssignment(receiverEmail, tasksDTO.nameProperty().get(), receiverName, tasksDTO.dueDateProperty().get(), taskCreatorName);
                             Thread.sleep(1000);
                             Platform.runLater(() -> {
                                 System.out.println("Task created successfully!");

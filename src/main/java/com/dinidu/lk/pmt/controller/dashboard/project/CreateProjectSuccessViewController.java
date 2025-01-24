@@ -2,7 +2,7 @@ package com.dinidu.lk.pmt.controller.dashboard.project;
 
 import com.dinidu.lk.pmt.controller.DashboardViewController;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
-import com.dinidu.lk.pmt.dto.TaskDTO;
+import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TeamAssignmentDTO;
 import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.model.TaskModel;
@@ -159,9 +159,9 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
 
     public List<TeamAssignmentDTO> getTeamAssignmentsForProject(String projectId) {
         List<TeamAssignmentDTO> assignments = new ArrayList<>();
-        List<TaskDTO> tasks = TaskModel.getTaskByProjectId(projectId);
+        List<TasksDTO> tasks = TaskModel.getTaskByProjectId(projectId);
 
-        for (TaskDTO task : tasks) {
+        for (TasksDTO task : tasks) {
             List<TeamAssignmentDTO> taskAssignments = TeamAssignmentModel.getAssignmentsByTaskId(task.getId().get());
             assignments.addAll(taskAssignments);
         }
@@ -261,7 +261,7 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
     private void loadUnresolvedTasks() {
         tasksContainer.getChildren().clear();
         System.out.println("Loading unresolved tasks for project: " + projectIdForTasks);
-        List<TaskDTO> unresolvedTasks = null;
+        List<TasksDTO> unresolvedTasks = null;
         try {
             unresolvedTasks = TaskModel.getTasksCurrentProjectByStatus(projectIdForTasks, TaskStatus.NOT_STARTED);
             System.out.println("Unresolved tasks: " + unresolvedTasks);
@@ -275,13 +275,13 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
         }
 
         assert unresolvedTasks != null;
-        for (TaskDTO task : unresolvedTasks) {
+        for (TasksDTO task : unresolvedTasks) {
             HBox taskItem = createTaskItem(task);
             tasksContainer.getChildren().add(taskItem);
         }
     }
 
-    private HBox createTaskItem(TaskDTO task) {
+    private HBox createTaskItem(TasksDTO task) {
         HBox taskItem = new HBox();
         taskItem.getStyleClass().add("task-item");
         taskItem.setAlignment(Pos.CENTER_LEFT);
@@ -319,7 +319,7 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
         return taskItem;
     }
 
-    private void handleTaskClick(TaskDTO task) {
+    private void handleTaskClick(TasksDTO task) {
         System.out.println("Task clicked: " + task.getName());
     }
 
