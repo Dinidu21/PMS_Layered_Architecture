@@ -21,8 +21,8 @@ import java.util.*;
 public class MailUtil {
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
-    private static final String LOGO_PATH = "D:/Java/PMT/src/main/resources/asserts/icons/PN.png";
-    private static final String TEMPLATE_BASE_PATH = "D:/Java/PMT/src/main/resources/templates/";
+    private static final String LOGO_PATH = "D:/PL/Java/GDSE/PMS_Layered_Architecture/src/main/resources/asserts/icons/PN.png";
+    private static final String TEMPLATE_BASE_PATH = "D:/PL/Java/GDSE/PMS_Layered_Architecture/src/main/resources/templates/";
 
     private static String myAccountEmail;
     private static String appPassword;
