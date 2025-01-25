@@ -1,7 +1,8 @@
 package com.dinidu.lk.pmt.controller;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.dto.UserDTO;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.mail.MailUtil;
 import com.dinidu.lk.pmt.utils.regex.Regex;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
@@ -13,6 +14,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+
+import java.sql.SQLException;
 
 public class SignUpViewController extends BaseController {
     private final Regex regex = new Regex();
@@ -26,6 +29,10 @@ public class SignUpViewController extends BaseController {
     public TextField fullNameField;
     public Label feedbackPw;
     public ProgressIndicator loadingIndicator;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
 
     @FXML
     private void initialize() {
@@ -65,6 +72,14 @@ public class SignUpViewController extends BaseController {
 
     private ValidationResult validateForm() {
         String fullName = fullNameField.getText().trim();
+        String email = emailField.getText().trim();
+        try {
+            if(userBO.isEmailRegistered(email)){
+                return new ValidationResult(false, "Email already registered.");
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (fullName.isEmpty()) {
             return new ValidationResult(false, "Full Name cannot be empty.");
         }
@@ -77,7 +92,6 @@ public class SignUpViewController extends BaseController {
             return new ValidationResult(false, "Username cannot be empty.");
         }
 
-        String email = emailField.getText().trim();
         if (email.isEmpty()) {
             return new ValidationResult(false, "Email cannot be empty.");
         }
@@ -127,7 +141,7 @@ public class SignUpViewController extends BaseController {
 
         try {
             System.out.println("UserDTO: " + userDTO);
-            boolean isSaved = UserModel.saveUser(userDTO);
+            boolean isSaved = userBO.saveUser(userDTO); //Working
             loadingIndicator.setVisible(isSaved);
 
             if (isSaved) {
