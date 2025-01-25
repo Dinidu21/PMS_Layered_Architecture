@@ -1,5 +1,7 @@
 package com.dinidu.lk.pmt.controller.forgetpassword;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
 import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
@@ -23,6 +25,7 @@ import javafx.util.Duration;
 import lombok.Getter;
 
 import java.security.SecureRandom;
+import java.sql.SQLException;
 
 @Getter
 
@@ -37,6 +40,10 @@ public class ForgetPasswordController extends BaseController {
     @FXML
     private ProgressIndicator loadingIndicator;
     public static String userEmail;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
 
     @FXML
     public void initialize() {
@@ -80,9 +87,13 @@ public class ForgetPasswordController extends BaseController {
             return;
         }
 
-        if (!UserModel.isEmailRegistered(userEmail)) {
-            FeedbackUtil.showFeedback(feedbackLabel, "Email is not registered.", Color.RED);
-            return;
+        try {
+            if (!userBO.isEmailRegistered(userEmail)) {
+                FeedbackUtil.showFeedback(feedbackLabel, "Email is not registered.", Color.RED);
+                return;
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         loadingIndicator.setVisible(true);
