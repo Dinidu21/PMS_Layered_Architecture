@@ -1,5 +1,7 @@
 package com.dinidu.lk.pmt.controller.forgetpassword;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.mail.MailUtil;
@@ -39,6 +41,10 @@ public class ResetPwViewController extends BaseController {
     private final Regex regex = new Regex();
     public static String userEmail;
 
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
     public void setUserEmail(String userEmail) {
         ResetPwViewController.userEmail = userEmail;
         System.out.println("Email: " + userEmail);
@@ -66,7 +72,7 @@ public class ResetPwViewController extends BaseController {
             return;
         }
 
-        if (!regex.isMinLength(newPassword)) {
+        if (!Regex.isMinLength(newPassword)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Password must meet the required criteria.", Color.RED);
             return;
         }
@@ -76,7 +82,13 @@ public class ResetPwViewController extends BaseController {
             return;
         }
 
-        boolean updateSuccessful = UserModel.updatePasswordUsingEmail(userEmail, newPassword);
+        boolean updateSuccessful;
+        try {
+            updateSuccessful = userBO.updatePasswordUsingEmail(userEmail, newPassword);
+            System.out.println("Is update successful: " + updateSuccessful);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (updateSuccessful) {
             new Thread(() -> {
                 try {
@@ -129,13 +141,13 @@ public class ResetPwViewController extends BaseController {
             return;
         }
 
-        if (!regex.containsUpperCase(password)) {
+        if (!Regex.containsUpperCase(password)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Must contain at least one uppercase letter.", Color.RED);
-        } else if (!regex.containsLowerCase(password)) {
+        } else if (!Regex.containsLowerCase(password)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Must contain at least one lowercase letter.", Color.RED);
-        } else if (!regex.containsDigit(password)) {
+        } else if (!Regex.containsDigit(password)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Must contain at least one digit.", Color.RED);
-        } else if (!regex.isMinLength(password)) {
+        } else if (!Regex.isMinLength(password)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Must be at least 8 characters long.", Color.RED);
         } else if (!regex.containsSpecialChar(password)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Must contain at least one special character.", Color.RED);
