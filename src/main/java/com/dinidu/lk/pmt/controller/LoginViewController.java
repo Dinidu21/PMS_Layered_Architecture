@@ -102,7 +102,12 @@ public class LoginViewController extends BaseController {
                     CustomAlert.showAlert("Confirmation", "Login successful!");
                     SessionUser.setLoggedInUsername(username);
                     System.out.println("Username: " + username + " set in session");
-                    UserRole userRole = UserModel.getUserRoleByUsername(username);
+                    UserRole userRole;
+                    try {
+                        userRole = userBO.getUserRoleByUsername(username);
+                    } catch (SQLException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                     System.out.println("User role: " + userRole);
                     SessionUser.setLoggedInUserRole(userRole);
                     Set<String> userPermissions = UserModel.getUserPermissionsByRole(userRole);
