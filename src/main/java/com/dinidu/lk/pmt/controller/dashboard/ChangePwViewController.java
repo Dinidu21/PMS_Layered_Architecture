@@ -1,5 +1,7 @@
 package com.dinidu.lk.pmt.controller.dashboard;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
 import com.dinidu.lk.pmt.utils.mail.MailUtil;
 import com.dinidu.lk.pmt.utils.regex.Regex;
@@ -38,6 +40,10 @@ public class ChangePwViewController extends BaseController {
 
     public static String loggedInUsername = SessionUser.getLoggedInUsername();
 
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
 
     @FXML
     public void initialize() {
@@ -62,7 +68,7 @@ public class ChangePwViewController extends BaseController {
             return;
         }
 
-        if (!regex.isMinLength(newPassword)) {
+        if (!Regex.isMinLength(newPassword)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Password must meet the required criteria.", Color.RED);
             return;
         }
@@ -73,11 +79,16 @@ public class ChangePwViewController extends BaseController {
         }
 
         System.out.println("Updating password for username: " + loggedInUsername);
-        boolean updateSuccessful = UserModel.updatePassword(loggedInUsername, newPassword);
+        boolean updateSuccessful;
+        try {
+            updateSuccessful = userBO.updatePassword(loggedInUsername, newPassword);
+        } catch (ClassNotFoundException | SQLException e ) {
+            throw new RuntimeException(e);
+        }
         if (updateSuccessful) {
             new Thread(() -> {
                 try {
-                    String userEmail = UserModel.getUserEmail(loggedInUsername);
+                    String userEmail = userBO.getUserEmail(loggedInUsername);
                     System.out.println("Email for username in change password modal: " + userEmail);
                     MailUtil.notifyPasswordChange(userEmail);
 
@@ -103,13 +114,13 @@ public class ChangePwViewController extends BaseController {
             return;
         }
 
-        if (!regex.containsUpperCase(password)) {
+        if (!Regex.containsUpperCase(password)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Must contain at least one uppercase letter.", Color.RED);
-        } else if (!regex.containsLowerCase(password)) {
+        } else if (!Regex.containsLowerCase(password)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Must contain at least one lowercase letter.", Color.RED);
-        } else if (!regex.containsDigit(password)) {
+        } else if (!Regex.containsDigit(password)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Must contain at least one digit.", Color.RED);
-        } else if (!regex.isMinLength(password)) {
+        } else if (!Regex.isMinLength(password)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Must be at least 8 characters long.", Color.RED);
         } else if (!regex.containsSpecialChar(password)) {
             FeedbackUtil.showFeedback(passwordFeedback, "Must contain at least one special character.", Color.RED);
