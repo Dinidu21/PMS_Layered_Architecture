@@ -1,5 +1,7 @@
 package com.dinidu.lk.pmt.controller;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.notification.NotificationManager;
 import com.dinidu.lk.pmt.utils.userTypes.UserRole;
@@ -26,6 +28,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Set;
 
 public class LoginViewController extends BaseController {
@@ -55,10 +58,13 @@ public class LoginViewController extends BaseController {
     private ImageView gitlabIcon;
     @FXML
     private ImageView spaceIcon;
-    public static Regex regex = new Regex();
     @Getter
     @Setter
     private NotificationManager notificationManager;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
 
     @FXML
     private void handleLogin() {
@@ -72,18 +78,25 @@ public class LoginViewController extends BaseController {
         }
         Regex regex = new Regex();
 
-        if (!regex.isMinLength(password)) {
+        if (!Regex.isMinLength(password)) {
             FeedbackUtil.showFeedback(feedbackLabelForPW, "Password must be at least 8 characters long.", Color.RED);
-        } else if (!regex.containsUpperCase(password)) {
+        } else if (!Regex.containsUpperCase(password)) {
             FeedbackUtil.showFeedback(feedbackLabelForPW, "Password must contain at least one uppercase letter.", Color.RED);
-        } else if (!regex.containsLowerCase(password)) {
+        } else if (!Regex.containsLowerCase(password)) {
             FeedbackUtil.showFeedback(feedbackLabelForPW, "Password must contain at least one lowercase letter.", Color.RED);
-        } else if (!regex.containsDigit(password)) {
+        } else if (!Regex.containsDigit(password)) {
             FeedbackUtil.showFeedback(feedbackLabelForPW, "Password must contain at least one digit.", Color.RED);
         } else if (!regex.containsSpecialChar(password)) {
             FeedbackUtil.showFeedback(feedbackLabelForPW, "Password must contain at least one special character.", Color.RED);
         } else {
-            String result = UserModel.verifyUser(username, password);
+            String result;
+
+            try {
+                result = userBO.verifyUser(username, password);
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
             switch (result) {
                 case "SUCCESS":
                     CustomAlert.showAlert("Confirmation", "Login successful!");
@@ -166,7 +179,7 @@ public class LoginViewController extends BaseController {
             return;
         }
 
-        if (!regex.isAlphabetic(fullName)) {
+        if (!Regex.isAlphabetic(fullName)) {
             FeedbackUtil.showFeedback(labelOnSignUp, "Enter a valid name (alphabetic only).", Color.RED);
             isValid = false;
         }
