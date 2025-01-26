@@ -1,8 +1,7 @@
 package com.dinidu.lk.pmt.utils;
 
-import com.dinidu.lk.pmt.dao.custom.UserDAO;
-import com.dinidu.lk.pmt.dao.custom.impl.UserDAOImpl;
-import com.dinidu.lk.pmt.model.UserModel;
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.utils.userTypes.UserRole;
 import javafx.scene.image.Image;
 import lombok.Getter;
@@ -33,14 +32,16 @@ public class SessionUser {
     @Getter
     private static String profileImagePath;
 
-    static UserDAO userDAO = new UserDAOImpl();
+    static UserBO userBO = (UserBO) BOFactory.
+            getInstance().
+            getBO(BOFactory.BOTypes.USER);
 
     public static void initializeSession(String username) {
         clearSession();
         loggedInUsername = username;
 
         try {
-            profileImagePath = userDAO.getProfileImagePath(username); //Working
+            profileImagePath = userBO.getProfileImagePath(username); //Working
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

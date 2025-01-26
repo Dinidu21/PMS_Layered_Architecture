@@ -1,7 +1,8 @@
 package com.dinidu.lk.pmt.utils.notification;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.model.TeamAssignmentModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.DateUtil;
 import com.dinidu.lk.pmt.utils.MessageType;
 import com.dinidu.lk.pmt.utils.mail.MailUtil;
@@ -20,6 +21,10 @@ public class NotificationManager {
     private final Map<String, ScheduledFuture<?>> taskDeadlineReminders;
     private final Map<String, TaskInfo> taskRegistry;
     private static final ExecutorService executor = Executors.newCachedThreadPool();
+
+    static UserBO userBO = (UserBO) BOFactory.getInstance().
+                getBO(BOFactory.
+                        BOTypes.USER);
 
     private NotificationManager() {
         this.scheduler = Executors.newScheduledThreadPool(4);
@@ -151,9 +156,11 @@ public class NotificationManager {
 
     public static String getNameFromEmail(String email) {
         try {
-            return UserModel.getUserNameByEmail(email);
+            return userBO.getUserNameByEmail(email);
         } catch (SQLException e) {
             System.out.println("Error fetching name from email: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
         return "Unknown";
     }
