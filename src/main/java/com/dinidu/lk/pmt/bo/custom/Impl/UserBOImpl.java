@@ -3,8 +3,12 @@ package com.dinidu.lk.pmt.bo.custom.Impl;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.dao.DAOFactory;
 import com.dinidu.lk.pmt.dao.custom.UserDAO;
+import com.dinidu.lk.pmt.db.DBConnection;
 import com.dinidu.lk.pmt.dto.UserDTO;
 import com.dinidu.lk.pmt.entity.User;
+import java.sql.Connection;
+
+import com.dinidu.lk.pmt.utils.permissionTypes.Permission;
 import javafx.scene.image.Image;
 
 import java.io.FileNotFoundException;
@@ -116,11 +120,48 @@ public class UserBOImpl implements UserBO {
         return userDAO.getProfileImagePath(username);
     }
 
+    // ============= TRANSACTION ==============
     @Override
     public boolean updateUserRoleAndPermissions(String username, UserDTO user) throws SQLException, ClassNotFoundException {
-        return false;
-    }
+        /*Transaction*/
+        Connection connection;
+        connection = DBConnection.getInstance().getConnection();
 
+        connection.setAutoCommit(false);
+        boolean isRoleUpdated =  userDAO.updateUserRole(user.getRole().getId(), username);
+        System.out.println("IsRoleUpdated : "+isRoleUpdated);
+
+        if (!isRoleUpdated){
+           connection.rollback();
+           System.out.println("Role is Not Updated ... Connection Has Been RollBack.");
+           connection.setAutoCommit(true);
+           return false;
+        }
+
+        System.out.println("Role updated successfully for user: " + username + ", New Role ID: " + user.getRole().getId());
+
+        boolean permissionsDeleted = userDAO.deletePermissionsInCurrentRole(username);
+
+        if (!permissionsDeleted) {
+            System.out.println("No existing permissions to delete for user: " + username);
+        } else {
+            System.out.println("Old permissions deleted successfully for user: " + username);
+        }
+
+        for (Permission permission : user.getPermissions()) {
+            boolean permissionInserted = userDAO.insertPermissionsInCurrentRole(user.getRole().getId(), permission.getId());
+            if (!permissionInserted) {
+                System.out.println("Failed to insert permission ID: " + permission.getId() + " for Role ID: " + user.getRole().getId());
+                connection.rollback();
+                return false;
+            }
+            System.out.println("Permission inserted successfully: " + permission.getId() + " for Role ID: " + user.getRole().getId());
+        }
+
+        connection.commit();
+        System.out.println("Role and permissions updated successfully for user: " + username);
+        return true;
+    }
 
     /////////////////// no need to override
     @Override

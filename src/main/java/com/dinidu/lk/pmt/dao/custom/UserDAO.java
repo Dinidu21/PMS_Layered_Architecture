@@ -26,7 +26,7 @@ public interface UserDAO extends CrudDAO<User> {
     String getUserEmailByFullName(String selectedUser) throws SQLException,ClassNotFoundException;
     String getUserNameByEmail(String email)throws SQLException,ClassNotFoundException;
     String getUserEmail(String loggedInUsername) throws SQLException,ClassNotFoundException;
-
-    // TRANSACTION
-    boolean updateUserRoleAndPermissions(String username, UserDTO user) throws SQLException,ClassNotFoundException;
+    boolean updateUserRole(int id, String username)throws SQLException,ClassNotFoundException;
+    boolean deletePermissionsInCurrentRole(String username)throws SQLException,ClassNotFoundException;
+    boolean insertPermissionsInCurrentRole(int id, long id1)throws SQLException,ClassNotFoundException;
 }

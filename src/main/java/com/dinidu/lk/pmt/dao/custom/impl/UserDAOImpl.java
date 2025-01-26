@@ -244,17 +244,24 @@ public class UserDAOImpl implements UserDAO {
         }
         return null;
     }
-
-    // ========================= TRANSACTION =========================
+    // Working
     @Override
-    public boolean updateUserRoleAndPermissions(String username, UserDTO user) throws SQLException, ClassNotFoundException {
-        return false;
+    public boolean updateUserRole(int id, String username) throws SQLException, ClassNotFoundException {
+       return SQLUtil.execute("UPDATE users SET role_id = ? WHERE username = ?",id,username);
+    }
+    // Working
+    @Override
+    public boolean deletePermissionsInCurrentRole(String username) throws SQLException, ClassNotFoundException {
+        return SQLUtil.execute("DELETE FROM role_permissions WHERE role_id = (SELECT role_id FROM users WHERE username = ?)",username);
+    }
+    // Working
+    @Override
+    public boolean insertPermissionsInCurrentRole(int id, long id1) throws SQLException, ClassNotFoundException {
+        return SQLUtil.execute("INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE permission_id = permission_id",id,id1);
     }
 
 
-
-
-
+    /////////////////// no need to Impl
     @Override
     public boolean insert(User user) throws SQLException, ClassNotFoundException {
         return false;
