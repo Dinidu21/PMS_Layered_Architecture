@@ -11,7 +11,7 @@ public class BOFactory {
 
 
     public enum BOTypes{
-        USER,TASKS,PROJECTS,ISSUES
+        USER,TASKS,PROJECTS,ISSUES,QUERY
     }
 
     public SuperBO getBO(BOFactory.BOTypes daoTypes){
