@@ -5,8 +5,6 @@ import com.dinidu.lk.pmt.dto.UserDTO;
 import com.dinidu.lk.pmt.utils.CrudUtil;
 import com.dinidu.lk.pmt.utils.permissionTypes.Permission;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserModel {
@@ -749,65 +747,73 @@ public class UserModel {
         }
     */ // Working
 
+    /*
+        public static Long getUserIdByFullName(String selectedMemberName) {
+            String sql = "SELECT id FROM users WHERE full_name = ?";
+            PreparedStatement pst = null;
+            ResultSet rs = null;
+            Long userId = null;
 
+            try {
+                Connection connection = DBConnection.getInstance().getConnection();
+                pst = connection.prepareStatement(sql);
+                pst.setString(1, selectedMemberName);
+                rs = pst.executeQuery();
 
-    public static Long getUserIdByFullName(String selectedMemberName) {
-        String sql = "SELECT id FROM users WHERE full_name = ?";
-        PreparedStatement pst = null;
-        ResultSet rs = null;
-        Long userId = null;
+                if (rs.next()) {
+                    userId = rs.getLong("id");
+                }
+            } catch (SQLException e) {
+                System.out.println("Error fetching user ID: " + e.getMessage());
+            } finally {
+                if (rs != null) try {
+                    rs.close();
+                } catch (SQLException ignored) {
+                }
+                if (pst != null) try {
+                    pst.close();
+                } catch (SQLException ignored) {
+                }
+            }
+            return userId;
+        }
+    */ // Working
 
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            pst = connection.prepareStatement(sql);
-            pst.setString(1, selectedMemberName);
-            rs = pst.executeQuery();
+    /*    public static String getUserEmailById(Long id) throws SQLException {
+            String sql = "SELECT email FROM users WHERE id = ?";
+            try (ResultSet resultSet = CrudUtil.execute(sql, id)) {
+                if (resultSet.next()) {
+                    return resultSet.getString("email");
+                }
+            }
+            return null;
+        }*/ // Working
 
-            if (rs.next()) {
-                userId = rs.getLong("id");
+    /*
+        public static String getUserEmailByFullName(String selectedUser) throws SQLException {
+            String sql = "SELECT email FROM users WHERE full_name = ?";
+            try(ResultSet resultSet = CrudUtil.execute(sql, selectedUser)){
+                if(resultSet.next()){
+                    return resultSet.getString("email");
+                }
             }
-        } catch (SQLException e) {
-            System.out.println("Error fetching user ID: " + e.getMessage());
-        } finally {
-            if (rs != null) try {
-                rs.close();
-            } catch (SQLException ignored) {
-            }
-            if (pst != null) try {
-                pst.close();
-            } catch (SQLException ignored) {
-            }
+            return null;
         }
-        return userId;
-    }
-    public static String getUserEmailById(Long id) throws SQLException {
-        String sql = "SELECT email FROM users WHERE id = ?";
-        try (ResultSet resultSet = CrudUtil.execute(sql, id)) {
-            if (resultSet.next()) {
-                return resultSet.getString("email");
+    */ // Working
+
+    /*
+        public static String getUserNameByEmail(String email) throws SQLException {
+            String sql = "SELECT full_name FROM users WHERE email = ?";
+            try(ResultSet resultSet = CrudUtil.execute(sql, email)){
+                if(resultSet.next()){
+                    return resultSet.getString("full_name");
+                }
             }
+            return null;
         }
-        return null;
-    }
-    public static String getUserEmailByFullName(String selectedUser) throws SQLException {
-        String sql = "SELECT email FROM users WHERE full_name = ?";
-        try(ResultSet resultSet = CrudUtil.execute(sql, selectedUser)){
-            if(resultSet.next()){
-                return resultSet.getString("email");
-            }
-        }
-        return null;
-    }
-    public static String getUserNameByEmail(String email) throws SQLException {
-        String sql = "SELECT full_name FROM users WHERE email = ?";
-        try(ResultSet resultSet = CrudUtil.execute(sql, email)){
-            if(resultSet.next()){
-                return resultSet.getString("full_name");
-            }
-        }
-        return null;
-    }
-    
+    */ // Working
+
+    // TRANSACTION
     public static boolean updateUserRoleAndPermissions(String username, UserDTO user) throws SQLException {
         Connection connection = null;
 
