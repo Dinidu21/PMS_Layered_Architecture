@@ -28,6 +28,20 @@ public class ProjectDTO {
     private Date createdAt;
     private Date updatedAt;
 
+    public ProjectDTO(String id, String name, String description, Date startDate, Date endDate, ProjectStatus status, ProjectPriority priority, ProjectVisibility visibility, Long createdBy, Date createdAt, Date updatedAt) {
+        this.id = id;
+        this.name = new SimpleStringProperty(name);
+        this.description = new SimpleStringProperty(description);
+        this.startDate = new SimpleObjectProperty<>(startDate);
+        this.endDate = new SimpleObjectProperty<>(endDate);
+        this.status = new SimpleObjectProperty<>(status);
+        this.priority = new SimpleObjectProperty<>(priority);
+        this.visibility = new SimpleObjectProperty<>(visibility);
+        this.createdBy = createdBy;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     public String getName() { return name.get(); }
     public void setName(String name) { this.name.set(name); }
     public StringProperty nameProperty() { return name; }
