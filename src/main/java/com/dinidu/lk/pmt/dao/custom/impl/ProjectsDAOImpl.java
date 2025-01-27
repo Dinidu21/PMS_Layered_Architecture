@@ -111,11 +111,11 @@ public class ProjectsDAOImpl implements ProjectDAO {
         }
 
         // Convert List<ProjectDTO> to List<Project>
-        List<Project> projectList = projectDTOS.stream()
+
+        assert projectDTOS != null;
+        return projectDTOS.stream()
                 .map(this::convertToEntity)
                 .collect(Collectors.toList());
-
-        return projectList;
     }
 
     // Working
@@ -141,7 +141,7 @@ public class ProjectsDAOImpl implements ProjectDAO {
 
     // Working
     @Override
-    public void updateProject(Project project) throws SQLException, ClassNotFoundException {
+    public void updateProject(Project project) throws SQLException {
         StringBuilder sql = new StringBuilder("UPDATE projects SET ");
         boolean firstField = true;
 
@@ -177,7 +177,7 @@ public class ProjectsDAOImpl implements ProjectDAO {
         sql.append(", updated_at = ? WHERE id = ?");
 
         Connection conn;
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt;
 
         conn = DBConnection.getInstance().getConnection();
 
@@ -210,7 +210,7 @@ public class ProjectsDAOImpl implements ProjectDAO {
 
     // Working
     @Override
-    public List<ProjectDTO> getAllProjects() throws SQLException, ClassNotFoundException{
+    public List<ProjectDTO> getAllProjects() throws SQLException {
         String sql = "SELECT * FROM projects ORDER BY created_at DESC";
         Connection connection;
         PreparedStatement pstmt = null;
@@ -246,21 +246,49 @@ public class ProjectsDAOImpl implements ProjectDAO {
         return projectList;
     }
 
+    // Working
+    @Override
+    public List<ProjectDTO> getProjectById(String projectId) throws SQLException, ClassNotFoundException {
+        ResultSet rs = SQLUtil.execute("SELECT * FROM projects WHERE id = ?", projectId);
+        List<ProjectDTO> projectList = new ArrayList<>();
+        while (rs.next()) {
+            ProjectDTO projectDTO = new ProjectDTO();
+            projectDTO.setId(rs.getString("id"));
+            projectDTO.setName(rs.getString("name"));
+            projectDTO.setDescription(rs.getString("description"));
+            projectDTO.setStartDate(rs.getDate("start_date"));
+            projectDTO.setEndDate(rs.getDate("end_date"));
+            projectDTO.setStatus(ProjectStatus.valueOf(rs.getString("status")));
+            projectDTO.setPriority(ProjectPriority.valueOf(rs.getString("priority")));
+            projectDTO.setCreatedBy(rs.getLong("created_by"));
+            projectDTO.setCreatedAt(rs.getTimestamp("created_at"));
+            projectDTO.setUpdatedAt(rs.getTimestamp("updated_at"));
+            projectList.add(projectDTO);
+        }
+        return projectList;
+    }
 
+    // Working
+    @Override
+    public Optional<ProjectDTO> isProjectIdTaken(String projectId) throws SQLException, ClassNotFoundException {
+        ResultSet rs = SQLUtil.execute("SELECT * FROM projects WHERE id = ?", projectId);
+        if (rs.next()) {
+            ProjectDTO projectDTO = new ProjectDTO();
+            projectDTO.setId(rs.getString("id"));
+            return Optional.of(projectDTO);
+        }
+        return Optional.empty();
+    }
+
+    // Working
+    @Override
+    public boolean delete(String projectId) throws SQLException, ClassNotFoundException {
+        return SQLUtil.execute("DELETE FROM projects WHERE id = ?",projectId);
+    }
 
     @Override
     public List<ProjectDTO> getProjectsByStatus(ProjectStatus projectStatus) throws SQLException, ClassNotFoundException {
         return List.of();
-    }
-
-    @Override
-    public List<ProjectDTO> getProjectById(String projectId) throws SQLException, ClassNotFoundException {
-        return List.of();
-    }
-
-    @Override
-    public Optional<ProjectDTO> isProjectIdTaken(String projectId) throws SQLException, ClassNotFoundException {
-        return Optional.empty();
     }
 
     @Override
@@ -280,11 +308,6 @@ public class ProjectsDAOImpl implements ProjectDAO {
 
     @Override
     public boolean update(Project project) throws SQLException, ClassNotFoundException {
-        return false;
-    }
-
-    @Override
-    public boolean delete(String idOrName) throws SQLException, ClassNotFoundException {
         return false;
     }
 

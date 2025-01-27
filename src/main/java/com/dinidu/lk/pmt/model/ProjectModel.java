@@ -155,264 +155,273 @@ public class ProjectModel {
         }
     */
 
-/*
-    public static List<ProjectDTO> getAllProjects() {
-        String sql = "SELECT * FROM projects ORDER BY created_at DESC";
-        Connection connection;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+    /*
+        public static List<ProjectDTO> getAllProjects() {
+            String sql = "SELECT * FROM projects ORDER BY created_at DESC";
+            Connection connection;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
 
-        try {
-            connection = DBConnection.getInstance().getConnection();
-            if (connection == null || connection.isClosed()) {
-                System.out.println("Database connection is closed!");
-                return null;
-            }
-            pstmt = connection.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            List<ProjectDTO> projectList = null;
-            while (rs.next()) {
-                ProjectDTO projectDTO = new ProjectDTO();
-                projectDTO.setId(rs.getString("id"));
-                projectDTO.setName(rs.getString("name"));
-                projectDTO.setDescription(rs.getString("description"));
-                projectDTO.setStartDate(rs.getDate("start_date"));
-                projectDTO.setEndDate(rs.getDate("end_date"));
-                projectDTO.setStatus(ProjectStatus.valueOf(rs.getString("status")));
-                projectDTO.setCreatedBy(rs.getLong("created_by"));
-                projectDTO.setCreatedAt(rs.getTimestamp("created_at"));
-                projectDTO.setUpdatedAt(rs.getTimestamp("updated_at"));
-                projectDTO.setPriority(ProjectPriority.valueOf(rs.getString("priority")));
-                projectDTO.setVisibility(ProjectVisibility.valueOf(rs.getString("visibility")));
-
-                if (projectList == null) {
-                    projectList = new ArrayList<>();
+            try {
+                connection = DBConnection.getInstance().getConnection();
+                if (connection == null || connection.isClosed()) {
+                    System.out.println("Database connection is closed!");
+                    return null;
                 }
-                projectList.add(projectDTO);
-            }
+                pstmt = connection.prepareStatement(sql);
+                rs = pstmt.executeQuery();
+                List<ProjectDTO> projectList = null;
+                while (rs.next()) {
+                    ProjectDTO projectDTO = new ProjectDTO();
+                    projectDTO.setId(rs.getString("id"));
+                    projectDTO.setName(rs.getString("name"));
+                    projectDTO.setDescription(rs.getString("description"));
+                    projectDTO.setStartDate(rs.getDate("start_date"));
+                    projectDTO.setEndDate(rs.getDate("end_date"));
+                    projectDTO.setStatus(ProjectStatus.valueOf(rs.getString("status")));
+                    projectDTO.setCreatedBy(rs.getLong("created_by"));
+                    projectDTO.setCreatedAt(rs.getTimestamp("created_at"));
+                    projectDTO.setUpdatedAt(rs.getTimestamp("updated_at"));
+                    projectDTO.setPriority(ProjectPriority.valueOf(rs.getString("priority")));
+                    projectDTO.setVisibility(ProjectVisibility.valueOf(rs.getString("visibility")));
 
-            return projectList;
-        } catch (SQLException e) {
-            System.out.println("Error getting all projects: " + e.getMessage());
-            throw new RuntimeException("Error getting all projects", e);
-        } finally {
-            if (rs != null) try {
-                rs.close();
+                    if (projectList == null) {
+                        projectList = new ArrayList<>();
+                    }
+                    projectList.add(projectDTO);
+                }
+
+                return projectList;
             } catch (SQLException e) {
-                e.printStackTrace();
+                System.out.println("Error getting all projects: " + e.getMessage());
+                throw new RuntimeException("Error getting all projects", e);
+            } finally {
+                if (rs != null) try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                if (pstmt != null) try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
-            if (pstmt != null) try {
-                pstmt.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
-    }
-*/
+    */
 
-    public static void updateProject(ProjectDTO projectDTO) {
-        StringBuilder sql = new StringBuilder("UPDATE projects SET ");
-        boolean firstField = true;
+    /*
+        public static void updateProject(ProjectDTO projectDTO) {
+            StringBuilder sql = new StringBuilder("UPDATE projects SET ");
+            boolean firstField = true;
 
-        if (projectDTO.getName() != null) {
-            sql.append("name = ?");
-            firstField = false;
-        }
-        if (projectDTO.getDescription() != null) {
-            if (!firstField) sql.append(", ");
-            sql.append("description = ?");
-            firstField = false;
-        }
-        if (projectDTO.getStatus() != null) {
-            if (!firstField) sql.append(", ");
-            sql.append("status = ?");
-            firstField = false;
-        }
-        if (projectDTO.getPriority() != null) {
-            if (!firstField) sql.append(", ");
-            sql.append("priority = ?");
-            firstField = false;
-        }
-        if (projectDTO.getVisibility() != null) {
-            if (!firstField) sql.append(", ");
-            sql.append("visibility = ?");
-            firstField = false;
-        }
-        if (projectDTO.getEndDate() != null) {
-            if (!firstField) sql.append(", ");
-            sql.append("end_date = ?");
-        }
-
-        sql.append(", updated_at = ? WHERE id = ?");
-
-        Connection conn;
-        PreparedStatement pstmt = null;
-
-        try {
-            conn = DBConnection.getInstance().getConnection();
-
-            pstmt = conn.prepareStatement(sql.toString());
-
-            int index = 1;
             if (projectDTO.getName() != null) {
-                pstmt.setString(index++, projectDTO.getName());
+                sql.append("name = ?");
+                firstField = false;
             }
             if (projectDTO.getDescription() != null) {
-                pstmt.setString(index++, projectDTO.getDescription());
+                if (!firstField) sql.append(", ");
+                sql.append("description = ?");
+                firstField = false;
             }
             if (projectDTO.getStatus() != null) {
-                pstmt.setString(index++, projectDTO.getStatus().name());
+                if (!firstField) sql.append(", ");
+                sql.append("status = ?");
+                firstField = false;
             }
             if (projectDTO.getPriority() != null) {
-                pstmt.setString(index++, projectDTO.getPriority().name());
+                if (!firstField) sql.append(", ");
+                sql.append("priority = ?");
+                firstField = false;
             }
             if (projectDTO.getVisibility() != null) {
-                pstmt.setString(index++, projectDTO.getVisibility().name());
+                if (!firstField) sql.append(", ");
+                sql.append("visibility = ?");
+                firstField = false;
             }
             if (projectDTO.getEndDate() != null) {
-                pstmt.setDate(index++, new java.sql.Date(projectDTO.getEndDate().getTime()));
+                if (!firstField) sql.append(", ");
+                sql.append("end_date = ?");
             }
-            pstmt.setTimestamp(index++, new java.sql.Timestamp(System.currentTimeMillis()));
-            pstmt.setString(index, projectDTO.getId());
 
-            pstmt.executeUpdate();
+            sql.append(", updated_at = ? WHERE id = ?");
 
-        } catch (SQLException e) {
-            System.out.println("Error updating project: " + e.getMessage());
-        } finally {
-            if (pstmt != null) {
-                try {
-                    pstmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+            Connection conn;
+            PreparedStatement pstmt = null;
+
+            try {
+                conn = DBConnection.getInstance().getConnection();
+
+                pstmt = conn.prepareStatement(sql.toString());
+
+                int index = 1;
+                if (projectDTO.getName() != null) {
+                    pstmt.setString(index++, projectDTO.getName());
+                }
+                if (projectDTO.getDescription() != null) {
+                    pstmt.setString(index++, projectDTO.getDescription());
+                }
+                if (projectDTO.getStatus() != null) {
+                    pstmt.setString(index++, projectDTO.getStatus().name());
+                }
+                if (projectDTO.getPriority() != null) {
+                    pstmt.setString(index++, projectDTO.getPriority().name());
+                }
+                if (projectDTO.getVisibility() != null) {
+                    pstmt.setString(index++, projectDTO.getVisibility().name());
+                }
+                if (projectDTO.getEndDate() != null) {
+                    pstmt.setDate(index++, new java.sql.Date(projectDTO.getEndDate().getTime()));
+                }
+                pstmt.setTimestamp(index++, new java.sql.Timestamp(System.currentTimeMillis()));
+                pstmt.setString(index, projectDTO.getId());
+
+                pstmt.executeUpdate();
+
+            } catch (SQLException e) {
+                System.out.println("Error updating project: " + e.getMessage());
+            } finally {
+                if (pstmt != null) {
+                    try {
+                        pstmt.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
-    }
+    */
 
-    public void deleteProject(String projectId) {
-        String sql = "DELETE FROM projects WHERE id = ?";
+    /*
+        public void deleteProject(String projectId) {
+            String sql = "DELETE FROM projects WHERE id = ?";
 
-        Connection conn;
-        PreparedStatement pstmt = null;
+            Connection conn;
+            PreparedStatement pstmt = null;
 
-        try {
-            conn = DBConnection.getInstance().getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, projectId);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Error deleting project: " + e.getMessage());
-            throw new RuntimeException("Error deleting project", e);
-        } finally {
-            if (pstmt != null) {
-                try {
-                    pstmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+            try {
+                conn = DBConnection.getInstance().getConnection();
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, projectId);
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                System.out.println("Error deleting project: " + e.getMessage());
+                throw new RuntimeException("Error deleting project", e);
+            } finally {
+                if (pstmt != null) {
+                    try {
+                        pstmt.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
-    }
-    public static List<ProjectDTO> getProjectById(String projectId) {
-        String sql = "SELECT * FROM projects WHERE id = ?";
-        Connection conn;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+    */
 
-        try {
-            conn = DBConnection.getInstance().getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, projectId);
-            rs = pstmt.executeQuery();
+    /*
+        public static List<ProjectDTO> getProjectById(String projectId) {
+            String sql = "SELECT * FROM projects WHERE id = ?";
+            Connection conn;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
 
-            if (rs.next()) {
-                String id = rs.getString("id");
-                String name = rs.getString("name");
-                String description = rs.getString("description");
-                String status = rs.getString("status");
-                String priority = rs.getString("priority");
-                String visibility = rs.getString("visibility");
-                Date startDate = rs.getDate("start_date");
-                Date endDate = rs.getDate("end_date");
-                Timestamp createdAt = rs.getTimestamp("created_at");
-                Timestamp updatedAt = rs.getTimestamp("updated_at");
-                String createdBy = rs.getString("created_by");
+            try {
+                conn = DBConnection.getInstance().getConnection();
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, projectId);
+                rs = pstmt.executeQuery();
 
-                ProjectDTO projectDTO = new ProjectDTO();
-                projectDTO.setId(id);
-                projectDTO.setName(name);
-                projectDTO.setDescription(description);
-                projectDTO.setStatus(ProjectStatus.valueOf(status));
-                projectDTO.setPriority(ProjectPriority.valueOf(priority));
-                projectDTO.setVisibility(ProjectVisibility.valueOf(visibility));
-                projectDTO.setStartDate(startDate);
-                projectDTO.setEndDate(endDate);
-                projectDTO.setCreatedAt(createdAt);
-                projectDTO.setUpdatedAt(updatedAt);
-                projectDTO.setCreatedBy(Long.valueOf(createdBy));
-                return List.of(projectDTO);
-            }
-        } catch (SQLException e) {
-            System.out.println("Error getting project: " + e.getMessage());
-            throw new RuntimeException("Error getting project", e);
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                if (rs.next()) {
+                    String id = rs.getString("id");
+                    String name = rs.getString("name");
+                    String description = rs.getString("description");
+                    String status = rs.getString("status");
+                    String priority = rs.getString("priority");
+                    String visibility = rs.getString("visibility");
+                    Date startDate = rs.getDate("start_date");
+                    Date endDate = rs.getDate("end_date");
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    Timestamp updatedAt = rs.getTimestamp("updated_at");
+                    String createdBy = rs.getString("created_by");
+
+                    ProjectDTO projectDTO = new ProjectDTO();
+                    projectDTO.setId(id);
+                    projectDTO.setName(name);
+                    projectDTO.setDescription(description);
+                    projectDTO.setStatus(ProjectStatus.valueOf(status));
+                    projectDTO.setPriority(ProjectPriority.valueOf(priority));
+                    projectDTO.setVisibility(ProjectVisibility.valueOf(visibility));
+                    projectDTO.setStartDate(startDate);
+                    projectDTO.setEndDate(endDate);
+                    projectDTO.setCreatedAt(createdAt);
+                    projectDTO.setUpdatedAt(updatedAt);
+                    projectDTO.setCreatedBy(Long.valueOf(createdBy));
+                    return List.of(projectDTO);
+                }
+            } catch (SQLException e) {
+                System.out.println("Error getting project: " + e.getMessage());
+                throw new RuntimeException("Error getting project", e);
+            } finally {
+                if (rs != null) {
+                    try {
+                        rs.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (pstmt != null) {
+                    try {
+                        pstmt.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-            if (pstmt != null) {
-                try {
-                    pstmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            return new ArrayList<>();
         }
-        return new ArrayList<>();
-    }
+    */
 
-    public static Optional<ProjectDTO> isProjectIdTaken(String projectId) {
-        String sql = "SELECT * FROM projects WHERE id = ?";
-        Connection conn;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+    /*
+        public static Optional<ProjectDTO> isProjectIdTaken(String projectId) {
+            String sql = "SELECT * FROM projects WHERE id = ?";
+            Connection conn;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
 
-        try {
-            conn = DBConnection.getInstance().getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, projectId);
-            rs = pstmt.executeQuery();
+            try {
+                conn = DBConnection.getInstance().getConnection();
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, projectId);
+                rs = pstmt.executeQuery();
 
-            if (rs.next()) {
-                ProjectDTO projectDTO = new ProjectDTO();
-                projectDTO.setId(rs.getString("id"));
-                return Optional.of(projectDTO);
-            }
-        } catch (SQLException e) {
-            System.out.println("Error checking project ID: " + e.getMessage());
-            throw new RuntimeException("Error checking project ID", e);
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                if (rs.next()) {
+                    ProjectDTO projectDTO = new ProjectDTO();
+                    projectDTO.setId(rs.getString("id"));
+                    return Optional.of(projectDTO);
+                }
+            } catch (SQLException e) {
+                System.out.println("Error checking project ID: " + e.getMessage());
+                throw new RuntimeException("Error checking project ID", e);
+            } finally {
+                if (rs != null) {
+                    try {
+                        rs.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (pstmt != null) {
+                    try {
+                        pstmt.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-            if (pstmt != null) {
-                try {
-                    pstmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            return Optional.empty();
         }
-        return Optional.empty();
-    }
+    */
 
     public List<ProjectDTO> getProjectsByStatus(ProjectStatus projectStatus) throws SQLException {
         String sql = "SELECT * FROM projects WHERE status = ?";

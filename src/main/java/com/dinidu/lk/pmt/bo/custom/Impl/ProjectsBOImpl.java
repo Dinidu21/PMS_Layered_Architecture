@@ -2,6 +2,7 @@ package com.dinidu.lk.pmt.bo.custom.Impl;
 
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
 import com.dinidu.lk.pmt.dao.DAOFactory;
+import com.dinidu.lk.pmt.dao.SQLUtil;
 import com.dinidu.lk.pmt.dao.custom.ProjectDAO;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.entity.Project;
@@ -10,12 +11,23 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ProjectsBOImpl implements ProjectsBO {
 
     ProjectDAO projectDAO =
             (ProjectDAO) DAOFactory.getDaoFactory().
                     getDAO(DAOFactory.DAOTypes.PROJECTS);
+
+    @Override
+    public List<ProjectDTO> getProjectById(String projectId) throws SQLException, ClassNotFoundException {
+        return projectDAO.getProjectById(projectId);
+    }
+
+    @Override
+    public Optional<ProjectDTO> isProjectIdTaken(String projectId) throws SQLException, ClassNotFoundException {
+        return projectDAO.isProjectIdTaken(projectId);
+    }
 
     @Override
     public String getProjectIdByName(String selectedProjectName) throws SQLException, ClassNotFoundException {
@@ -90,6 +102,11 @@ public class ProjectsBOImpl implements ProjectsBO {
     @Override
     public List<ProjectDTO> getAllProjects() throws SQLException, ClassNotFoundException{
         return projectDAO.getAllProjects();
+    }
+
+    @Override
+    public boolean deleteProject(String projectId) throws SQLException, ClassNotFoundException {
+        return projectDAO.delete(projectId);
     }
 
     @Override

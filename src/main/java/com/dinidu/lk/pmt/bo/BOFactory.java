@@ -1,5 +1,6 @@
 package com.dinidu.lk.pmt.bo;
 
+import com.dinidu.lk.pmt.bo.custom.Impl.ProjectsBOImpl;
 import com.dinidu.lk.pmt.bo.custom.Impl.UserBOImpl;
 
 public class BOFactory {
@@ -17,7 +18,7 @@ public class BOFactory {
     public SuperBO getBO(BOFactory.BOTypes daoTypes){
         return switch (daoTypes) {
             case USER -> new UserBOImpl();
-            case PROJECTS -> null;
+            case PROJECTS -> new ProjectsBOImpl();
             default -> null;
         };
     }

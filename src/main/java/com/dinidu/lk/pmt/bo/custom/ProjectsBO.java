@@ -6,8 +6,11 @@ import com.dinidu.lk.pmt.dto.ProjectDTO;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface ProjectsBO extends SuperBO {
+    List<ProjectDTO> getProjectById(String projectId) throws SQLException, ClassNotFoundException;
+    Optional<ProjectDTO> isProjectIdTaken(String projectId) throws SQLException, ClassNotFoundException;
     String getProjectIdByName(String selectedProjectName) throws SQLException,ClassNotFoundException;
     Map<String, String> getAllProjectNames() throws SQLException,ClassNotFoundException;
     String getProjectNameById(String projectId) throws SQLException, ClassNotFoundException;
@@ -17,4 +20,5 @@ public interface ProjectsBO extends SuperBO {
     List<ProjectDTO> searchProjectsByName(String searchQuery) throws SQLException, ClassNotFoundException;
     void updateProject(ProjectDTO projectDTO) throws SQLException, ClassNotFoundException;
     List<ProjectDTO> getAllProjects()throws SQLException, ClassNotFoundException;
+    boolean deleteProject(String projectId) throws SQLException,ClassNotFoundException;
 }
