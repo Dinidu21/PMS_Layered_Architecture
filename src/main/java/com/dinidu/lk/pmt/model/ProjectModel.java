@@ -13,93 +13,149 @@ import java.util.*;
 
 public class ProjectModel {
 
-    public static String getProjectIdByName(String selectedProjectName) {
-        String sql = "SELECT id FROM projects WHERE name = ?";
-        PreparedStatement pst = null;
-        ResultSet rs = null;
-        String projectId = null;
+    /*
+        public static String getProjectIdByName(String selectedProjectName) {
+            String sql = "SELECT id FROM projects WHERE name = ?";
+            PreparedStatement pst = null;
+            ResultSet rs = null;
+            String projectId = null;
 
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            pst = connection.prepareStatement(sql);
-            pst.setString(1, selectedProjectName);
-            rs = pst.executeQuery();
+            try {
+                Connection connection = DBConnection.getInstance().getConnection();
+                pst = connection.prepareStatement(sql);
+                pst.setString(1, selectedProjectName);
+                rs = pst.executeQuery();
 
-            if (rs.next()) {
-                projectId = rs.getString("id");
+                if (rs.next()) {
+                    projectId = rs.getString("id");
+                }
+            } catch (SQLException e) {
+                System.out.println("Error fetching project ID: " + e.getMessage());
+            } finally {
+                if (rs != null) try {
+                    rs.close();
+                } catch (SQLException ignored) {
+                }
+                if (pst != null) try {
+                    pst.close();
+                } catch (SQLException ignored) {
+                }
             }
-        } catch (SQLException e) {
-            System.out.println("Error fetching project ID: " + e.getMessage());
-        } finally {
-            if (rs != null) try {
-                rs.close();
-            } catch (SQLException ignored) {
-            }
-            if (pst != null) try {
-                pst.close();
-            } catch (SQLException ignored) {
-            }
+            return projectId;
         }
-        return projectId;
-    }
+    */
 
-    public static Map<String, String> getAllProjectNames() throws SQLException {
-        String sql = "SELECT id, name FROM projects";
-        Map<String, String> projectNames;
-        try (ResultSet resultSet = CrudUtil.execute(sql)) {
+    /*
+        public static Map<String, String> getAllProjectNames() throws SQLException {
+            String sql = "SELECT id, name FROM projects";
+            Map<String, String> projectNames;
+            try (ResultSet resultSet = CrudUtil.execute(sql)) {
 
-            projectNames = new HashMap<>();
-            while (resultSet.next()) {
-                String projectId = resultSet.getString("id");
-                String projectName = resultSet.getString("name");
-                projectNames.put(projectId, projectName);
+                projectNames = new HashMap<>();
+                while (resultSet.next()) {
+                    String projectId = resultSet.getString("id");
+                    String projectName = resultSet.getString("name");
+                    projectNames.put(projectId, projectName);
+                }
             }
+            return projectNames;
         }
-        return projectNames;
-    }
+    */
 
-    public static String getProjectNameById(String projectId) throws SQLException {
-        String sql = "SELECT name FROM projects WHERE id = ?";
-        try (ResultSet rs = CrudUtil.execute(sql, projectId)) {
-            if (rs.next()) {
-                return rs.getString("name");
+    /*
+        public static String getProjectNameById(String projectId) throws SQLException {
+            String sql = "SELECT name FROM projects WHERE id = ?";
+            try (ResultSet rs = CrudUtil.execute(sql, projectId)) {
+                if (rs.next()) {
+                    return rs.getString("name");
+                }
             }
+            return null;
         }
-        return null;
-    }
+    */
 
-    public static String getProjectIdByTaskId(long l) throws SQLException {
-        String sql = "SELECT project_id FROM tasks WHERE id = ?";
-        try (ResultSet rs = CrudUtil.execute(sql, l)) {
-            if (rs.next()) {
-                return rs.getString("project_id");
+    /*
+        public static String getProjectIdByTaskId(long l) throws SQLException {
+            String sql = "SELECT project_id FROM tasks WHERE id = ?";
+            try (ResultSet rs = CrudUtil.execute(sql, l)) {
+                if (rs.next()) {
+                    return rs.getString("project_id");
+                }
             }
+            return null;
         }
-        return null;
-    }
+    */
 
+    /*
+        public boolean insertProject(ProjectDTO projectDTO) throws SQLException {
+            String sql = "INSERT INTO projects (id, name, description, start_date, end_date, status, priority, visibility, created_by, created_at, updated_at) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    public boolean insertProject(ProjectDTO projectDTO) throws SQLException {
-        String sql = "INSERT INTO projects (id, name, description, start_date, end_date, status, priority, visibility, created_by, created_at, updated_at) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            Connection conn = DBConnection.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
 
-        Connection conn = DBConnection.getInstance().getConnection();
-        PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, projectDTO.getId());
+            pstmt.setString(2, projectDTO.getName());
+            pstmt.setString(3, projectDTO.getDescription());
+            pstmt.setDate(4, new java.sql.Date(projectDTO.getStartDate().getTime()));
+            pstmt.setDate(5, projectDTO.getEndDate() != null ? new java.sql.Date(projectDTO.getEndDate().getTime()) : null);
+            pstmt.setString(6, projectDTO.getStatus().name());
+            pstmt.setString(7, projectDTO.getPriority().name());
+            pstmt.setString(8, projectDTO.getVisibility().name());
+            pstmt.setLong(9, projectDTO.getCreatedBy());
+            pstmt.setTimestamp(10, new java.sql.Timestamp(projectDTO.getCreatedAt().getTime()));
+            pstmt.setTimestamp(11, new java.sql.Timestamp(projectDTO.getUpdatedAt().getTime()));
+            return pstmt.executeUpdate() > 0;
+        }
+    */
 
-        pstmt.setString(1, projectDTO.getId());
-        pstmt.setString(2, projectDTO.getName());
-        pstmt.setString(3, projectDTO.getDescription());
-        pstmt.setDate(4, new java.sql.Date(projectDTO.getStartDate().getTime()));
-        pstmt.setDate(5, projectDTO.getEndDate() != null ? new java.sql.Date(projectDTO.getEndDate().getTime()) : null);
-        pstmt.setString(6, projectDTO.getStatus().name());
-        pstmt.setString(7, projectDTO.getPriority().name());
-        pstmt.setString(8, projectDTO.getVisibility().name());
-        pstmt.setLong(9, projectDTO.getCreatedBy());
-        pstmt.setTimestamp(10, new java.sql.Timestamp(projectDTO.getCreatedAt().getTime()));
-        pstmt.setTimestamp(11, new java.sql.Timestamp(projectDTO.getUpdatedAt().getTime()));
-        return pstmt.executeUpdate() > 0;
-    }
+    /*
+        public static List<ProjectDTO> searchProjectsByName(String searchQuery) {
+            String sql = "SELECT * FROM projects WHERE name LIKE ? ORDER BY created_at DESC";
+            Connection connection;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            List<ProjectDTO> projectList = new ArrayList<>();
 
+            try {
+                connection = DBConnection.getInstance().getConnection();
+                pstmt = connection.prepareStatement(sql);
+                pstmt.setString(1, searchQuery + "%");
+                rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    ProjectDTO projectDTO = new ProjectDTO();
+                    projectDTO.setId(rs.getString("id"));
+                    projectDTO.setName(rs.getString("name"));
+                    projectDTO.setDescription(rs.getString("description"));
+                    projectDTO.setStartDate(rs.getDate("start_date"));
+                    projectDTO.setEndDate(rs.getDate("end_date"));
+                    projectDTO.setStatus(ProjectStatus.valueOf(rs.getString("status")));
+                    projectDTO.setCreatedBy(rs.getLong("created_by"));
+                    projectDTO.setCreatedAt(rs.getTimestamp("created_at"));
+                    projectDTO.setUpdatedAt(rs.getTimestamp("updated_at"));
+                    projectList.add(projectDTO);
+                }
+            } catch (SQLException e) {
+                System.out.println("Error searching projects: " + e.getMessage());
+                throw new RuntimeException("Error searching projects", e);
+            } finally {
+                if (rs != null) try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                if (pstmt != null) try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            return projectList;
+        }
+    */
+
+/*
     public static List<ProjectDTO> getAllProjects() {
         String sql = "SELECT * FROM projects ORDER BY created_at DESC";
         Connection connection;
@@ -152,52 +208,9 @@ public class ProjectModel {
             }
         }
     }
+*/
 
-    public static List<ProjectDTO> searchProjectsByName(String searchQuery) {
-        String sql = "SELECT * FROM projects WHERE name LIKE ? ORDER BY created_at DESC";
-        Connection connection;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        List<ProjectDTO> projectList = new ArrayList<>();
-
-        try {
-            connection = DBConnection.getInstance().getConnection();
-            pstmt = connection.prepareStatement(sql);
-            pstmt.setString(1, searchQuery + "%");
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                ProjectDTO projectDTO = new ProjectDTO();
-                projectDTO.setId(rs.getString("id"));
-                projectDTO.setName(rs.getString("name"));
-                projectDTO.setDescription(rs.getString("description"));
-                projectDTO.setStartDate(rs.getDate("start_date"));
-                projectDTO.setEndDate(rs.getDate("end_date"));
-                projectDTO.setStatus(ProjectStatus.valueOf(rs.getString("status")));
-                projectDTO.setCreatedBy(rs.getLong("created_by"));
-                projectDTO.setCreatedAt(rs.getTimestamp("created_at"));
-                projectDTO.setUpdatedAt(rs.getTimestamp("updated_at"));
-                projectList.add(projectDTO);
-            }
-        } catch (SQLException e) {
-            System.out.println("Error searching projects: " + e.getMessage());
-            throw new RuntimeException("Error searching projects", e);
-        } finally {
-            if (rs != null) try {
-                rs.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            if (pstmt != null) try {
-                pstmt.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return projectList;
-    }
-
-    public void updateProject(ProjectDTO projectDTO) {
+    public static void updateProject(ProjectDTO projectDTO) {
         StringBuilder sql = new StringBuilder("UPDATE projects SET ");
         boolean firstField = true;
 
@@ -228,7 +241,6 @@ public class ProjectModel {
         if (projectDTO.getEndDate() != null) {
             if (!firstField) sql.append(", ");
             sql.append("end_date = ?");
-            firstField = false;
         }
 
         sql.append(", updated_at = ? WHERE id = ?");
@@ -302,7 +314,6 @@ public class ProjectModel {
             }
         }
     }
-
     public static List<ProjectDTO> getProjectById(String projectId) {
         String sql = "SELECT * FROM projects WHERE id = ?";
         Connection conn;
