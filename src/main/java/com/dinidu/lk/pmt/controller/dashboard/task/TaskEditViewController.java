@@ -1,12 +1,15 @@
 package com.dinidu.lk.pmt.controller.dashboard.task;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TeamAssignmentDTO;
 import com.dinidu.lk.pmt.dto.UserDTO;
-import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.model.TaskModel;
 import com.dinidu.lk.pmt.model.TeamAssignmentModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomDeleteAlert;
@@ -61,6 +64,14 @@ public class TaskEditViewController implements Initializable {
     private DatePicker endDatePicker;
     private final TaskModel taskModel = new TaskModel();
     private static TasksDTO currentTask;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+    ProjectsBO projectBO =
+            (ProjectsBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
+    QueryDAO queryDAO= new QueryDAOImpl();
 
     public static void setTask(TasksDTO task) {
         currentTask = task;
@@ -175,7 +186,12 @@ public class TaskEditViewController implements Initializable {
 
     private void handleTeamAssignment(String selectedUser) {
         try {
-            Long userIdByFullName = UserModel.getUserIdByFullName(selectedUser);
+            Long userIdByFullName;
+            try {
+                userIdByFullName = userBO.getUserIdByFullName(selectedUser);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             List<Long> existingUserIds = TeamAssignmentModel.getTeamMemberIdsByTask(currentTask.idProperty().get());
 
             if (!existingUserIds.contains(userIdByFullName)) {
@@ -208,10 +224,10 @@ public class TaskEditViewController implements Initializable {
             System.out.println("New user assigned: " + selectedUser);
 
             List<String> existingTeamEmails = TeamAssignmentModel.getTeamMemberEmailsByTask(currentTask.idProperty().get());
-            String newAssigneeEmail = UserModel.getUserEmailByFullName(selectedUser);
-            String projectName = ProjectModel.getProjectNameById(currentTask.projectIdProperty().get());
+            String newAssigneeEmail = userBO.getUserEmailByFullName(selectedUser);
+            String projectName = projectBO.getProjectNameById(currentTask.projectIdProperty().get());
             String username = SessionUser.getLoggedInUsername();
-            String userFullName = UserModel.getUserFullNameById(UserModel.getUserIdByUsername(username));
+            String userFullName = userBO.getUserFullNameById(userBO.getUserIdByUsername(username));
 
             NotificationManager.sendTeamCollaborationNotification(
                     projectName,
@@ -224,15 +240,23 @@ public class TaskEditViewController implements Initializable {
                             currentTask.priorityProperty().get().toString() : "MEDIUM",
                     ""
             );
+            System.out.println("Notification sent successfully. For Project : " + projectName);
         } catch (SQLException e) {
             System.out.println("Error while sending notification: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        List<UserDTO> allActiveMembers = UserModel.getAllActiveMembersNames();
+        List<UserDTO> allActiveMembers;
+        try {
+            allActiveMembers = queryDAO.getAllActiveMembersNames();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         ObservableList<String> memberNames = FXCollections.observableArrayList();
         for (UserDTO member : allActiveMembers) {
             memberNames.add(member.getFull_name());
@@ -280,7 +304,12 @@ public class TaskEditViewController implements Initializable {
         TaskDescriptionField.setText(currentTask.descriptionProperty().get() != null ? currentTask.descriptionProperty().get() : "");
         TaskStatusCombo.setValue(currentTask.statusProperty().get());
         TaskPriorityCombo.setValue(currentTask.priorityProperty().get());
-        String userFullNameById = UserModel.getUserFullNameById(currentTask.getAssignedTo().get());
+        String userFullNameById = null;
+        try {
+            userFullNameById = userBO.getUserFullNameById(currentTask.getAssignedTo().get());
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         newMembersComboBox.setValue(userFullNameById);
 
         if (currentTask.getDueDate() != null && currentTask.getDueDate().get() != null) {
@@ -323,7 +352,12 @@ public class TaskEditViewController implements Initializable {
             System.out.println("User not logged in. username: " + username);
         }
 
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+        UserRole userRoleByUsername;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
             return;

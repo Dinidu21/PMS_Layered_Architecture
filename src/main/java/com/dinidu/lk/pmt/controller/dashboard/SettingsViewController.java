@@ -1,11 +1,14 @@
 package com.dinidu.lk.pmt.controller.dashboard;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.UserDTO;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomDeleteAlert;
 import com.dinidu.lk.pmt.utils.permissionTypes.Permission;
 import com.dinidu.lk.pmt.utils.permissionTypes.PermissionLevel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.userTypes.UserRole;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
@@ -30,6 +33,13 @@ public class SettingsViewController extends BaseController {
     @FXML
     private VBox usersContainer;
 
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
+    QueryDAO queryDAO= new QueryDAOImpl();
+
+
     @FXML
     public void initialize() {
         loadActiveUsers();
@@ -37,7 +47,13 @@ public class SettingsViewController extends BaseController {
 
     private void loadActiveUsers() {
         usersContainer.getChildren().clear();
-        List<UserDTO> users = UserModel.getAllUsersWithRolesAndPermissions();
+        List<UserDTO> users;
+
+        try {
+            users = queryDAO.getAllUsersWithRolesAndPermissions();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         for (UserDTO user : users) {
             addUserToView(user);
@@ -85,7 +101,12 @@ public class SettingsViewController extends BaseController {
         deactivateButton.getStyleClass().add("red-button");
         deactivateButton.setOnAction(e -> confirmDeactivation(user));
 
-        UserRole currentUserRole = UserModel.getUserRoleByUsername(SessionUser.getLoggedInUsername());
+        UserRole currentUserRole;
+        try {
+            currentUserRole = queryDAO.getUserRoleByUsername(SessionUser.getLoggedInUsername());
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         boolean hasPermission = currentUserRole == UserRole.ADMIN || currentUserRole == UserRole.PROJECT_MANAGER || currentUserRole == UserRole.PRODUCT_OWNER;
         roleComboBox.setDisable(!hasPermission);
@@ -99,7 +120,12 @@ public class SettingsViewController extends BaseController {
     }
 
     private void deactivateUser(UserDTO user) {
-        boolean updated = UserModel.updateUserStatus(user.getUsername(), "INACTIVE");
+        boolean updated;
+        try {
+            updated = userBO.updateUserStatus(user.getUsername(), "INACTIVE");
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (updated) {
             System.out.println("User successfully deactivated.");
@@ -118,7 +144,12 @@ public class SettingsViewController extends BaseController {
         if (username == null) {
             System.out.println("User not logged in. username: " + null);
         }
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+        UserRole userRoleByUsername = null;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + null);
@@ -147,7 +178,12 @@ public class SettingsViewController extends BaseController {
         String loggedInUsername = SessionUser.getLoggedInUsername();
         System.out.println("Before get db Current user role: " + currentUserRole);
         System.out.println("Current user: " + loggedInUsername);
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(loggedInUsername);
+        UserRole userRoleByUsername = null;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(loggedInUsername);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
 
         System.out.println("Current user role after fetching db : " + userRoleByUsername);
@@ -177,10 +213,12 @@ public class SettingsViewController extends BaseController {
 
         boolean updated = false;
         try {
-            updated = UserModel.updateUserRoleAndPermissions(user.getUsername(), user);
+            updated = userBO.updateUserRoleAndPermissions(user.getUsername(), user);
         } catch (SQLException e) {
             System.out.println("Error updating user role and permissions: " + e.getMessage());
             CustomErrorAlert.showAlert("ERROR", "Error updating user role and permissions.");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
         if (updated) {
             System.out.println("User role and permissions updated successfully.");

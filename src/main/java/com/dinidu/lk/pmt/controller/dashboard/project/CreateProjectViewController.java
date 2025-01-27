@@ -1,11 +1,14 @@
 package com.dinidu.lk.pmt.controller.dashboard.project;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
-import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.utils.projectTypes.ProjectPriority;
 import com.dinidu.lk.pmt.utils.projectTypes.ProjectStatus;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.projectTypes.ProjectVisibility;
 import com.dinidu.lk.pmt.utils.userTypes.UserRole;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
@@ -17,6 +20,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 
+import java.sql.SQLException;
 import java.util.Date;
 
 public class CreateProjectViewController {
@@ -34,6 +38,17 @@ public class CreateProjectViewController {
 
     @FXML
     private TextArea descriptionIdField;
+
+    UserBO userBO =
+            (UserBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
+    ProjectsBO projectsBO =
+            (ProjectsBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
+
+    QueryDAO queryDAO = new QueryDAOImpl();
+
 
     public void initialize() {
         startingIdField.setText("1");
@@ -70,10 +85,14 @@ public class CreateProjectViewController {
         String startingId = startingIdField.getText();
         String fullProjectId = projectId + "-00" + startingId;
 
-        if (ProjectModel.isProjectIdTaken(fullProjectId).isPresent()) {
-            System.out.println("Project ID already exists: " + fullProjectId);
-            int newStartingId = Integer.parseInt(startingId) + 1;
-            startingIdField.setText(String.valueOf(newStartingId));
+        try {
+            if (projectsBO.isProjectIdTaken(fullProjectId).isPresent()) {
+                System.out.println("Project ID already exists: " + fullProjectId);
+                int newStartingId = Integer.parseInt(startingId) + 1;
+                startingIdField.setText(String.valueOf(newStartingId));
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
         System.out.println("Full Project ID: " + fullProjectId);
     }
@@ -82,7 +101,12 @@ public class CreateProjectViewController {
     public void createProjectClick(ActionEvent actionEvent) {
         String username = SessionUser.getLoggedInUsername();
         System.out.println("Logged in username Inside Create Project: " + username);
-        UserRole userRole = UserModel.getUserRoleByUsername(username);
+        UserRole userRole;
+        try {
+            userRole = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if ((userRole != UserRole.ADMIN &&
                 userRole != UserRole.PROJECT_MANAGER &&
@@ -92,7 +116,12 @@ public class CreateProjectViewController {
         }
 
         String loggedInUsername = SessionUser.getLoggedInUsername();
-        Long userIdByUsername = UserModel.getUserIdByUsername(loggedInUsername);
+        Long userIdByUsername = null;
+        try {
+            userIdByUsername = userBO.getUserIdByUsername(loggedInUsername);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userIdByUsername == null) {
             System.out.println("User ID is null for username: " + loggedInUsername);
@@ -114,10 +143,9 @@ public class CreateProjectViewController {
             projectDTO.setCreatedAt(new Date());
             projectDTO.setUpdatedAt(new Date());
 
-            ProjectModel projectModel = new ProjectModel();
             boolean isSaved;
             try {
-                isSaved = projectModel.insertProject(projectDTO);
+                isSaved = projectsBO.insert(projectDTO);
                 if (isSaved) {
                     System.out.println("Project created successfully!");
                     CustomAlert.showAlert("Project created", "Project created successfully!");

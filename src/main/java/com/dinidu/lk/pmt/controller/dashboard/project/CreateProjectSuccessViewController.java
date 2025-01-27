@@ -1,13 +1,16 @@
 package com.dinidu.lk.pmt.controller.dashboard.project;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.DashboardViewController;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TeamAssignmentDTO;
-import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.model.TaskModel;
 import com.dinidu.lk.pmt.model.TeamAssignmentModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.listeners.ProjectDeletionHandler;
 import com.dinidu.lk.pmt.utils.listeners.ProjectUpdateListener;
@@ -40,6 +43,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -82,6 +86,16 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
     @FXML
     private Label projectName;
     String projectIdForTasks;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+    ProjectsBO projectsBO =
+            (ProjectsBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
+
+    QueryDAO queryDAO = new QueryDAOImpl();
+
 
     @FXML
     private Label projectId;
@@ -126,9 +140,19 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
 
         projectIdWith2Digits.setText(project.getId().contains("-") ? project.getId().split("-")[0] : project.getId());
 
-        String ownerName = project.getCreatedBy() != null ? UserModel.getUserFullNameById(project.getCreatedBy()) : "Owner not specified";
+        String ownerName;
+        try {
+            ownerName = project.getCreatedBy() != null ? userBO.getUserFullNameById(project.getCreatedBy()) : "Owner not specified";
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         projectOwnerName.setText(" " + ownerName);
-        Image profilePic = UserModel.getUserProfilePicByUserId(project.getCreatedBy());
+        Image profilePic;
+        try {
+            profilePic = userBO.getUserProfilePicByUserId(project.getCreatedBy());
+        } catch (SQLException | FileNotFoundException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         projectOwnerImg.setImage(profilePic);
 
         List<TeamAssignmentDTO> teamAssignments = getTeamAssignmentsForProject(project.getId());
@@ -142,8 +166,19 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
 
             Long assignedUserId = assignment.getUserId();
             if (assignedUserId != null) {
-                String memberName = UserModel.getUserFullNameById(assignedUserId);
-                Image memberProfilePic = UserModel.getUserProfilePicByUserId(assignedUserId);
+                String memberName = null;
+                try {
+                    memberName = userBO.getUserFullNameById(assignedUserId);
+                } catch (SQLException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                Image memberProfilePic;
+                try {
+                    memberProfilePic = userBO.getUserProfilePicByUserId(assignedUserId);
+                    System.out.println("===================CreateProjectSuccessViewController: " + memberProfilePic);
+                } catch (SQLException | ClassNotFoundException | FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
 
                 teamMemberLabels[teamMemberCount].setText(memberName);
                 teamMemberImages[teamMemberCount].setImage(memberProfilePic);
@@ -235,7 +270,12 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
         if (username == null) {
             System.out.println("User not logged in. username: " + username);
         }
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+        UserRole userRoleByUsername;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
@@ -301,9 +341,11 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
 
         String PROJECT_ID = null;
         try {
-            PROJECT_ID = ProjectModel.getProjectIdByTaskId(task.idProperty().get());
+            PROJECT_ID = projectsBO.getProjectIdByTaskId(task.idProperty().get());
         } catch (SQLException e) {
             System.out.println("Error fetching project ID: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         System.out.println("Project ID: " + PROJECT_ID);

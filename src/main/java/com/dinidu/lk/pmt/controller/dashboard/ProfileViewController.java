@@ -1,8 +1,11 @@
 package com.dinidu.lk.pmt.controller.dashboard;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.UserDTO;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
@@ -23,6 +26,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +49,11 @@ public class ProfileViewController extends BaseController {
     private TextField phoneNumberTextField;
     @FXML
     private Label errorLabel;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+    QueryDAO queryDAO = new QueryDAOImpl();
 
     private final ObservableList<String> countryCodes = FXCollections.observableArrayList(
             "LK - +94",
@@ -97,7 +106,12 @@ public class ProfileViewController extends BaseController {
         loadCurrentUserData();
 
         String username = SessionUser.getLoggedInUsername();
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+        UserRole userRoleByUsername;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userRoleByUsername != UserRole.ADMIN &&
                 userRoleByUsername != UserRole.PRODUCT_OWNER &&
@@ -117,7 +131,13 @@ public class ProfileViewController extends BaseController {
             return;
         }
 
-        UserDTO currentUser = UserModel.getUserDetailsByUsername(loggedInUsername);
+        UserDTO currentUser;
+
+        try {
+            currentUser = userBO.getUserDetailsByUsername(loggedInUsername);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (currentUser != null) {
             String[] fullNameParts = currentUser.getFull_name().split(" ");
@@ -287,7 +307,13 @@ public class ProfileViewController extends BaseController {
         }
 
         if (hasUpdates) {
-            boolean isUpdated = UserModel.updateUser(userDTO);
+            boolean isUpdated;
+            try {
+                isUpdated = userBO.updateUser(userDTO);
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
             if (isUpdated) {
                 CustomAlert.showAlert("Success", "Profile updated successfully!");
                 loadCurrentUserData();

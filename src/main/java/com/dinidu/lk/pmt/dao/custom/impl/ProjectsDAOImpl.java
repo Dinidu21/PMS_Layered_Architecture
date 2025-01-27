@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ProjectsDAOImpl implements ProjectDAO {
+
     // Working
     @Override
     public String getProjectIdByName(String selectedProjectName) throws SQLException, ClassNotFoundException {
@@ -286,6 +287,7 @@ public class ProjectsDAOImpl implements ProjectDAO {
         return SQLUtil.execute("DELETE FROM projects WHERE id = ?",projectId);
     }
 
+    // Working
     @Override
     public List<ProjectDTO> getProjectsByStatus(ProjectStatus projectStatus) throws SQLException, ClassNotFoundException {
         ResultSet rs = SQLUtil.execute("SELECT * FROM projects WHERE status = ?", projectStatus.toString());
@@ -306,9 +308,6 @@ public class ProjectsDAOImpl implements ProjectDAO {
         }
         return projectList;
     }
-
-
-
 
 
     @Override

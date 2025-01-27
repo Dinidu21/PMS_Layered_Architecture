@@ -1,13 +1,16 @@
 package com.dinidu.lk.pmt.controller;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.NotifyViewController;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TaskReportData;
-import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.model.ReportModel;
 import com.dinidu.lk.pmt.model.TaskModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.ProfileImageManager;
 import com.dinidu.lk.pmt.utils.SessionUser;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
@@ -65,7 +68,17 @@ public class DashboardViewController extends BaseController {
     private AnchorPane currentNotification;
     private boolean isNotificationVisible = false;
     TaskModel taskModel;
-    ProjectModel projectModel;
+
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+    ProjectsBO projectsBO= (ProjectsBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
+
+
+    QueryDAO queryDAO = new QueryDAOImpl();
 
     public void mainIconOnClick() {
         contentPane.getChildren().clear();
@@ -100,7 +113,6 @@ public class DashboardViewController extends BaseController {
     }
 
     public void initialize() {
-        projectModel = new ProjectModel();
         setupScrollPane();
         loadOngoingProjects();
         taskModel = new TaskModel();
@@ -125,9 +137,11 @@ public class DashboardViewController extends BaseController {
     private void loadOngoingProjects() {
         List<ProjectDTO> ongoingProjects = null;
         try {
-            ongoingProjects = projectModel.getProjectsByStatus(ProjectStatus.IN_PROGRESS);
+            ongoingProjects = projectsBO.getProjectsByStatus(ProjectStatus.IN_PROGRESS);
         } catch (SQLException e) {
             System.out.println("Error loading ongoing projects: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         ongoingProjectsContainer.getChildren().clear();
@@ -227,9 +241,11 @@ public class DashboardViewController extends BaseController {
 
         String PROJECT_ID = null;
         try {
-            PROJECT_ID = ProjectModel.getProjectIdByTaskId(task.idProperty().get());
+            PROJECT_ID = projectsBO.getProjectIdByTaskId(task.idProperty().get());
         } catch (SQLException e) {
             System.out.println("Error fetching project ID: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         System.out.println("Project ID: " + PROJECT_ID);
@@ -377,7 +393,12 @@ public class DashboardViewController extends BaseController {
             System.out.println("User not logged in. username: " + u);
         }
 
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(u);
+        UserRole userRoleByUsername;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(u);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + null);
@@ -497,6 +518,7 @@ public class DashboardViewController extends BaseController {
             contentPane.getChildren().add(load);
 
         } catch (IOException e) {
+            e.printStackTrace();
             System.out.println("Failed to load page: " + e.getMessage());
             new Alert(Alert.AlertType.ERROR, "Failed to load page!").show();
         }

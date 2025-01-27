@@ -1,11 +1,14 @@
 package com.dinidu.lk.pmt.controller.dashboard;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
 import com.dinidu.lk.pmt.controller.dashboard.project.CreateProjectSuccessViewController;
 import com.dinidu.lk.pmt.controller.dashboard.project.ProjectEditViewController;
-import com.dinidu.lk.pmt.model.ProjectModel;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.SessionUser;
 import com.dinidu.lk.pmt.utils.projectTypes.ProjectPriority;
 import com.dinidu.lk.pmt.utils.projectTypes.ProjectStatus;
@@ -30,17 +33,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox; // Assuming you're using VBox for project cards
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-
-import static com.dinidu.lk.pmt.model.ProjectModel.searchProjectsByName;
 
 public class ProjectViewController extends BaseController implements Initializable {
     @FXML
@@ -67,6 +69,16 @@ public class ProjectViewController extends BaseController implements Initializab
     private ListView<String> suggestionList;
 
     public static String backgroundColor = null;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+   static ProjectsBO projectBO =
+            (ProjectsBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
+
+    QueryDAO queryDAO = new QueryDAOImpl();
+
 
     private void openProject(ProjectDTO project) {
         try {
@@ -126,7 +138,11 @@ public class ProjectViewController extends BaseController implements Initializab
             if (event.getCode() == KeyCode.ENTER) {
                 String projectName = searchBox.getText().trim();
                 if (!projectName.isEmpty()) {
-                    searchProjectsByName(projectName);
+                    try {
+                        projectBO.searchProjectsByName(projectName);
+                    } catch (SQLException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                     event.consume();
                 }
             }
@@ -137,7 +153,12 @@ public class ProjectViewController extends BaseController implements Initializab
             if (selectedProjectName != null) {
                 searchBox.setText(selectedProjectName);
                 suggestionList.setVisible(false);
-                List<ProjectDTO> filteredProjects = searchProjectsByName(selectedProjectName);
+                List<ProjectDTO> filteredProjects = null;
+                try {
+                    filteredProjects = projectBO.searchProjectsByName(selectedProjectName);
+                } catch (SQLException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
                 if (filteredProjects.isEmpty()) {
                     noProjectsFoundLabel.setVisible(true);
                 } else {
@@ -152,7 +173,14 @@ public class ProjectViewController extends BaseController implements Initializab
         if (username == null) {
             System.out.println("User not logged in. username: " + username);
         }
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+
+        UserRole userRoleByUsername;
+
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
@@ -177,7 +205,12 @@ public class ProjectViewController extends BaseController implements Initializab
     }
 
     private void updateProjectView() {
-        List<ProjectDTO> projects = ProjectModel.getAllProjects();
+        List<ProjectDTO> projects;
+        try {
+            projects = projectBO.getAllProjects();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         ProjectStatus selectedStatus = sortByStatus.getValue();
         ProjectPriority selectedPriority = priorityDropdown.getValue();
@@ -279,7 +312,12 @@ public class ProjectViewController extends BaseController implements Initializab
     }
 
     private void showSearchSuggestions(String query) {
-        List<ProjectDTO> filteredProjects = searchProjectsByName(query);
+        List<ProjectDTO> filteredProjects = null;
+        try {
+            filteredProjects = projectBO.searchProjectsByName(query);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (!filteredProjects.isEmpty()) {
             suggestionList.getItems().clear();
             for (ProjectDTO project : filteredProjects) {

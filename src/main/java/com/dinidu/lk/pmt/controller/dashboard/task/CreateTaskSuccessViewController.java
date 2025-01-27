@@ -1,8 +1,13 @@
 package com.dinidu.lk.pmt.controller.dashboard.task;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.controller.dashboard.task.checklist.ChecklistCreateViewController;
 import com.dinidu.lk.pmt.controller.dashboard.task.checklist.ChecklistEditViewController;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ChecklistDTO;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.dto.TasksDTO;
@@ -36,6 +41,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -84,6 +90,16 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
     private Label taskId;
     private TasksDTO tasksDTO;
     static TasksDTO current_Task;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
+    QueryDAO queryDAO = new QueryDAOImpl();
+
+    ProjectsBO projectsBO= (ProjectsBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -404,7 +420,12 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
         taskStatus.textProperty().bind(Bindings.convert(tasksDTO.statusProperty()));
         taskPriority.textProperty().bind(Bindings.convert(tasksDTO.priorityProperty()));
         String projectId = tasksDTO.getProjectId().get();
-        List<ProjectDTO> project = ProjectModel.getProjectById(projectId);
+        List<ProjectDTO> project;
+        try {
+            project = projectsBO.getProjectById(projectId);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         String userFullNameById = "";
 
         if (!project.isEmpty()) {
@@ -415,9 +436,18 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
             String projectIdWith2DigitsString = project.get(0).getId().split("-")[0];
             projectIdWith2Digits.setText(projectIdWith2DigitsString);
             System.out.println("Project ID: " + projectIdWith2DigitsString);
-            Image profilePic = UserModel.getUserProfilePicByUserId(projectDTO.getCreatedBy());
+            Image profilePic = null;
+            try {
+                profilePic = userBO.getUserProfilePicByUserId(projectDTO.getCreatedBy());
+            } catch (SQLException | FileNotFoundException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             projectOwnerImg.setImage(profilePic);
-            userFullNameById = UserModel.getUserFullNameById(projectDTO.getCreatedBy());
+            try {
+                userFullNameById = userBO.getUserFullNameById(projectDTO.getCreatedBy());
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             System.out.println(userFullNameById);
         } else {
             System.out.println("No project found with the given ID.");
@@ -438,8 +468,18 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
                 Long assignedTo = assignment.getUserId();
 
                 if (assignedTo != null) {
-                    String memberName = UserModel.getUserFullNameById(assignedTo);
-                    Image memberProfilePic = UserModel.getUserProfilePicByUserId(assignedTo);
+                    String memberName = null;
+                    try {
+                        memberName = userBO.getUserFullNameById(assignedTo);
+                    } catch (SQLException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    Image memberProfilePic;
+                    try {
+                        memberProfilePic = userBO.getUserProfilePicByUserId(assignedTo);
+                    } catch (SQLException | FileNotFoundException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
 
                     teamMemberLabels[teamMemberCount].setText(memberName);
                     teamMemberImages[teamMemberCount].setImage(memberProfilePic);
@@ -571,7 +611,12 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
         if (username == null) {
             System.out.println("User not logged in. username: " + null);
         }
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+        UserRole userRoleByUsername;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + null);

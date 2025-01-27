@@ -1,6 +1,7 @@
 package com.dinidu.lk.pmt.utils;
 
-import com.dinidu.lk.pmt.model.UserModel;
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import javafx.scene.image.Image;
 import lombok.Getter;
 
@@ -16,8 +17,12 @@ import java.util.List;
 public class ProfileImageManager {
     @Getter
     private static Image currentProfileImage;
-    private static List<ImageUpdateListener> listeners = new ArrayList<>();
-    private static final String PROFILE_IMAGES_DIR = "src/main/resources/asserts/images/profile/";
+    private static final List<ImageUpdateListener> listeners = new ArrayList<>();
+    private static final String PROFILE_IMAGES_DIR = "D:/PL/Java/GDSE/PMS_Layered_Architecture/src/main/resources/asserts/images/profile/";
+
+    static UserBO userBO = (UserBO) BOFactory.
+            getInstance().
+                getBO(BOFactory.BOTypes.USER);
 
     static {
         try {
@@ -48,7 +53,7 @@ public class ProfileImageManager {
 
     private static void saveImagePathToUser(String username, String imagePath) {
         try {
-            UserModel.updateProfileImagePath(username, imagePath);
+            userBO.updateProfileImagePath(username, imagePath);
             SessionUser.setProfileImagePath(imagePath);
         } catch (Exception e) {
             e.printStackTrace();

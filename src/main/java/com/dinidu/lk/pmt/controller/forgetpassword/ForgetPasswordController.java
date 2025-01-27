@@ -3,7 +3,6 @@ package com.dinidu.lk.pmt.controller.forgetpassword;
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.mail.MailUtil;
 import com.dinidu.lk.pmt.utils.ModalLoaderUtil;

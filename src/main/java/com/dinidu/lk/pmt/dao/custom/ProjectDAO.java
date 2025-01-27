@@ -16,9 +16,11 @@ public interface ProjectDAO extends CrudDAO<Project> {
     String getProjectNameById(String projectId) throws SQLException,ClassNotFoundException;
     List<ProjectDTO> getProjectById(String projectId) throws SQLException,ClassNotFoundException;
     Optional<ProjectDTO> isProjectIdTaken(String projectId) throws SQLException,ClassNotFoundException;
-    ResultSet getActiveProjectNames() throws SQLException,ClassNotFoundException;
-    ResultSet getTasksByProject(String projectName)throws SQLException,ClassNotFoundException;
     void updateProject(Project project) throws SQLException,ClassNotFoundException;
     String getProjectIdByName(String selectedProjectName) throws SQLException,ClassNotFoundException;
     String getProjectIdByTaskId(long l) throws SQLException,ClassNotFoundException;
+
+    ResultSet getActiveProjectNames() throws SQLException,ClassNotFoundException;
+    ResultSet getTasksByProject(String projectName)throws SQLException,ClassNotFoundException;
+
 }

@@ -1,6 +1,11 @@
 package com.dinidu.lk.pmt.controller.dashboard.issue;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.*;
 import com.dinidu.lk.pmt.model.*;
 import com.dinidu.lk.pmt.utils.*;
@@ -37,10 +42,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -85,6 +87,16 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
     private static Long currentIssueId;
     private static Long currentUserId;
     private static final long MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
+    QueryDAO queryDAO = new QueryDAOImpl();
+
+    ProjectsBO projectsBO= (ProjectsBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
 
     private boolean isFileSizeValid(File file) {
         if (file == null || !file.exists()) {
@@ -364,8 +376,29 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
 
             Long assignedUserId = assignment.getUserId();
             if (assignedUserId != null) {
-                String memberName = UserModel.getUserFullNameById(assignedUserId);
-                Image memberProfilePic = UserModel.getUserProfilePicByUserId(assignedUserId);
+                String memberName;
+                try {
+                    memberName = userBO.getUserFullNameById(assignedUserId);
+                    System.out.println("===================CreateIssueSuccessViewController: " + memberName);
+
+                } catch (SQLException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+
+                Image memberProfilePic = null;
+                try {
+                    memberProfilePic = userBO.getUserProfilePicByUserId(assignedUserId);
+                } catch (SQLException | FileNotFoundException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+
+                if(memberProfilePic == null){
+                    try {
+                        memberProfilePic = new Image(new FileInputStream("src/main/resources/asserts/icons/noPic.png"));
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
 
                 teamMemberLabels[teamMemberCount].setText(memberName);
                 teamMemberImages[teamMemberCount].setImage(memberProfilePic);
@@ -379,16 +412,31 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
     }
 
     private void setProjectDetails(String projectId) {
-        List<ProjectDTO> projectDtoList = ProjectModel.getProjectById(projectId);
+        List<ProjectDTO> projectDtoList = null;
+        try {
+            projectDtoList = projectsBO.getProjectById(projectId);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (!projectDtoList.isEmpty()) {
             ProjectDTO projectDto = projectDtoList.get(0);
             projectName.setText(projectDto.getName());
 
             Long createdBy = projectDto.getCreatedBy();
-            String ownerName = UserModel.getUserFullNameById(createdBy);
+            String ownerName;
+            try {
+                ownerName = userBO.getUserFullNameById(createdBy);
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             projectOwnerName.setText(" " + ownerName);
-            Image profilePic = UserModel.getUserProfilePicByUserId(createdBy);
+            Image profilePic = null;
+            try {
+                profilePic = userBO.getUserProfilePicByUserId(createdBy);
+            } catch (SQLException | ClassNotFoundException | FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             projectOwnerImg.setImage(profilePic);
         } else {
             System.out.println("No project found with the given ID.");
@@ -398,7 +446,12 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
 
     private void setAssigneeName(Long assignedTo) {
         if (assignedTo != null) {
-            String assigneeFullName = UserModel.getUserFullNameById(assignedTo);
+            String assigneeFullName = null;
+            try {
+                assigneeFullName = userBO.getUserFullNameById(assignedTo);
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             assigneeName.setText(assigneeFullName);
         } else {
             assigneeName.setText("No assignee");
@@ -477,12 +530,21 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
         }
 
         String username = SessionUser.getLoggedInUsername();
-        currentUserId = UserModel.getUserIdByUsername(username);
+        try {
+            currentUserId = userBO.getUserIdByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (username == null) {
             System.out.println("User not logged in. username: " + username);
         }
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+        UserRole userRoleByUsername;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);

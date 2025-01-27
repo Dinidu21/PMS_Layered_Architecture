@@ -1,12 +1,15 @@
 package com.dinidu.lk.pmt.controller.dashboard.task;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.UserDTO;
-import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.model.TaskModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
@@ -44,9 +47,29 @@ public class CreateTaskViewController {
     @FXML
     private TextArea descriptionIdField;
 
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+    ProjectsBO projectBO =
+            (ProjectsBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
+
+    QueryDAO queryDAO= new QueryDAOImpl();
+
+
     public void initialize() {
-        List<UserDTO> allActiveMembers = UserModel.getAllActiveMembersNames();
-        List<ProjectDTO> allProjects = ProjectModel.getAllProjects();
+        List<UserDTO> allActiveMembers;
+        try {
+            allActiveMembers = queryDAO.getAllActiveMembersNames();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        List<ProjectDTO> allProjects = null;
+        try {
+            allProjects = projectBO.fetchAll();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         ObservableList<String> memberNames = FXCollections.observableArrayList();
         ObservableList<String> projectNames = FXCollections.observableArrayList();
@@ -78,7 +101,12 @@ public class CreateTaskViewController {
     public void createTaskClick() {
         String username = SessionUser.getLoggedInUsername();
         System.out.println("Logged in username Inside Create Project: " + username);
-        UserRole userRole = UserModel.getUserRoleByUsername(username);
+        UserRole userRole;
+        try {
+            userRole = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if ((userRole != UserRole.ADMIN &&
                 userRole != UserRole.PROJECT_MANAGER &&
@@ -88,7 +116,12 @@ public class CreateTaskViewController {
         }
 
         String loggedInUsername = SessionUser.getLoggedInUsername();
-        Long userIdByUsername = UserModel.getUserIdByUsername(loggedInUsername);
+        Long userIdByUsername = null;
+        try {
+            userIdByUsername = userBO.getUserIdByUsername(loggedInUsername);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userIdByUsername == null) {
             System.out.println("User ID is null for username: " + loggedInUsername);
@@ -102,11 +135,22 @@ public class CreateTaskViewController {
             tasksDTO.descriptionProperty().set(descriptionIdField.getText());
 
             String selectedProjectName = selectProjectNameComboBox.getValue();
-            String projectId = ProjectModel.getProjectIdByName(selectedProjectName);
+            String projectId;
+            try {
+                projectId = projectBO.getProjectIdByName(selectedProjectName);
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             tasksDTO.projectIdProperty().set(projectId);
 
             String selectedMemberName = selectMemberNameComboBox.getValue();
-            Long assignedTo = UserModel.getUserIdByFullName(selectedMemberName);
+            Long assignedTo;
+            try {
+                assignedTo = userBO.getUserIdByFullName(selectedMemberName);
+                System.out.println("Assigned  Task View: " + assignedTo);
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             tasksDTO.assignedToProperty().set(assignedTo);
 
             tasksDTO.priorityProperty().set(TaskPriority.MEDIUM);
@@ -126,8 +170,10 @@ public class CreateTaskViewController {
                     Date deadline = tasksDTO.dueDateProperty().get();
                     NotificationManager notificationManager = NotificationManager.getInstance();
 
-                    String Email = UserModel.getUserEmailById(tasksDTO.assignedToProperty().get());
-                    String Name = UserModel.getUserFullNameById(tasksDTO.assignedToProperty().get());
+                    String Email = userBO.getUserEmailById(tasksDTO.assignedToProperty().get());
+                    String Name = userBO.getUserFullNameById(tasksDTO.assignedToProperty().get());
+                    System.out.println("===========Create Task Notification===========");
+                    System.out.println("Name: " + Name);
 
                     notificationManager.scheduleDeadlineReminder(
                             String.valueOf(tasksDTO.idProperty().get()),
@@ -138,18 +184,35 @@ public class CreateTaskViewController {
                     );
 
                     new Thread(() -> {
-                        String receiverName = UserModel.getUserFullNameById(tasksDTO.assignedToProperty().get());
+                        String receiverName = null;
+                        try {
+                            receiverName = userBO.getUserFullNameById(tasksDTO.assignedToProperty().get());
+                        } catch (SQLException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
                         String uName = SessionUser.getLoggedInUsername();
-                        Long idByUsername = UserModel.getUserIdByUsername(uName);
-                        String taskCreatorName = UserModel.getUserFullNameById(idByUsername);
+                        Long idByUsername;
+                        try {
+                            idByUsername = userBO.getUserIdByUsername(uName);
+                        } catch (SQLException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                        String taskCreatorName = null;
+                        try {
+                            taskCreatorName = userBO.getUserFullNameById(idByUsername);
+                        } catch (SQLException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
                         System.out.println("Task Created By : " + taskCreatorName);
                         System.out.println("Task Assigned To : " + receiverName);
                         String receiverEmail = null;
 
                         try {
-                            receiverEmail = UserModel.getUserEmailById(tasksDTO.assignedToProperty().get());
+                            receiverEmail = userBO.getUserEmailById(tasksDTO.assignedToProperty().get());
                         } catch (SQLException e) {
                             System.out.println("Error getting receiver email: " + e.getMessage());
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
                         }
 
                         System.out.println("Receiver Email : " + receiverEmail);

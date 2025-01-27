@@ -1,9 +1,10 @@
 package com.dinidu.lk.pmt.controller.dashboard.issue;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dto.IssueDTO;
 import com.dinidu.lk.pmt.model.IssueModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.SessionUser;
@@ -43,6 +44,10 @@ public class CreateIssueViewController implements Initializable {
     @FXML
     public TextArea descriptionIdField;
     public DatePicker dueDatePicker;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -151,7 +156,12 @@ public class CreateIssueViewController implements Initializable {
                 System.out.println("User not logged in. username: " + username);
             }
 
-            Long idByUsername = UserModel.getUserIdByUsername(username);
+            Long idByUsername = null;
+            try {
+                idByUsername = userBO.getUserIdByUsername(username);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             IssueStatus status = IssueStatus.OPEN;
 
             IssueDTO issueDTO = new IssueDTO();
@@ -167,18 +177,36 @@ public class CreateIssueViewController implements Initializable {
             boolean isCreated = IssueModel.createIssue(issueDTO);
             if (isCreated) {
                 new Thread(() -> {
-                    String recipientName = UserModel.getUserFullNameById(issueDTO.assignedToProperty().get());
+                    String recipientName = null;
+                    try {
+                        recipientName = userBO.getUserFullNameById(issueDTO.assignedToProperty().get());
+                    } catch (SQLException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                     String uName = SessionUser.getLoggedInUsername();
-                    Long issueCreatorId = UserModel.getUserIdByUsername(uName);
-                    String issueCreatorName = UserModel.getUserFullNameById(issueCreatorId);
+                    Long issueCreatorId = null;
+                    try {
+                        issueCreatorId = userBO.getUserIdByUsername(uName);
+                    } catch (SQLException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    String issueCreatorName = null;
+                    try {
+                        issueCreatorName = userBO.getUserFullNameById(issueCreatorId);
+                    } catch (SQLException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                     System.out.println("ISSUE Created By : "+ issueCreatorName);
                     System.out.println("ISSUE Assigned To : "+ recipientName);
                     String receiverEmail = null;
 
                     try {
-                        receiverEmail = UserModel.getUserEmailById(issueDTO.assignedToProperty().get());
+                        receiverEmail = userBO.getUserEmailById(issueDTO.assignedToProperty().get());
+                        System.out.println("=======Create Issue Email====="+receiverEmail);
                     } catch (SQLException e) {
                         System.out.println("Error getting receiver email: " + e.getMessage());
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException(e);
                     }
 
                     System.out.println("Receiver Email : "+ receiverEmail);

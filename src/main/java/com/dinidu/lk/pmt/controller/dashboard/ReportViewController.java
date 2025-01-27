@@ -1,11 +1,12 @@
 package com.dinidu.lk.pmt.controller.dashboard;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.db.DBConnection;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.dto.ReportDTO;
-import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.model.ReportModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.SessionUser;
@@ -34,6 +35,7 @@ import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import java.io.File;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -55,6 +57,13 @@ public class ReportViewController implements Initializable {
     private AnchorPane mainContentPane;
 
     private boolean isCardContainerVisible = false;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+    ProjectsBO projectBO =
+            (ProjectsBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
 
     @FXML
     public void toggleCardContainer() {
@@ -127,7 +136,12 @@ public class ReportViewController implements Initializable {
             return;
         }
 
-        String id = ProjectModel.getProjectIdByName(selectedProjectName);
+        String id;
+        try {
+            id = projectBO.getProjectIdByName(selectedProjectName);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         System.out.println("Project id: " + id);
         System.out.println("Project name: " + selectedProjectName);
         if (id == null) {
@@ -144,7 +158,12 @@ public class ReportViewController implements Initializable {
             System.out.println("User not logged in. username: " + null);
         }
 
-        Long userIdByUsername = UserModel.getUserIdByUsername(username);
+        Long userIdByUsername;
+        try {
+            userIdByUsername = userBO.getUserIdByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         reportDTO.setUserId(userIdByUsername);
         reportDTO.setReportType(selectedReportType);
         reportDTO.setContent(description);
@@ -192,7 +211,12 @@ public class ReportViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        List<ProjectDTO> allProjects = ProjectModel.getAllProjects();
+        List<ProjectDTO> allProjects;
+        try {
+            allProjects = projectBO.fetchAll();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         ObservableList<String> projectNames = FXCollections.observableArrayList();
         assert allProjects != null;
         for (ProjectDTO project : allProjects) {

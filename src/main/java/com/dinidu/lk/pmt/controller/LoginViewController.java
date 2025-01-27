@@ -2,7 +2,8 @@ package com.dinidu.lk.pmt.controller;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
-import com.dinidu.lk.pmt.model.UserModel;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.utils.notification.NotificationManager;
 import com.dinidu.lk.pmt.utils.userTypes.UserRole;
 import com.dinidu.lk.pmt.utils.regex.Regex;
@@ -66,6 +67,8 @@ public class LoginViewController extends BaseController {
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.USER);
 
+    QueryDAO queryDAO= new QueryDAOImpl();
+
     @FXML
     private void handleLogin() {
         String loggedInUsername = SessionUser.getLoggedInUsername();
@@ -104,13 +107,18 @@ public class LoginViewController extends BaseController {
                     System.out.println("Username: " + username + " set in session");
                     UserRole userRole;
                     try {
-                        userRole = userBO.getUserRoleByUsername(username);
+                        userRole = queryDAO.getUserRoleByUsername(username);
                     } catch (SQLException | ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
                     System.out.println("User role: " + userRole);
                     SessionUser.setLoggedInUserRole(userRole);
-                    Set<String> userPermissions = UserModel.getUserPermissionsByRole(userRole);
+                    Set<String> userPermissions;
+                    try {
+                        userPermissions = queryDAO.getUserPermissionsByRole(userRole);
+                    } catch (SQLException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                     SessionUser.setPermissions(userPermissions);
 
                     transitionToScene(loginPg, "/view/dashboard-view.fxml");

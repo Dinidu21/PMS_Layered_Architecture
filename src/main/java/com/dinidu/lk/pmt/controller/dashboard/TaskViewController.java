@@ -1,14 +1,18 @@
 package com.dinidu.lk.pmt.controller.dashboard;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
 import com.dinidu.lk.pmt.controller.dashboard.task.CreateTaskSuccessViewController;
 import com.dinidu.lk.pmt.controller.dashboard.task.TaskEditViewController;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.dto.TasksDTO;
-import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.model.TaskModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.SessionUser;
+import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.taskTypes.TaskPriority;
 import com.dinidu.lk.pmt.utils.taskTypes.TaskStatus;
 import com.dinidu.lk.pmt.utils.userTypes.UserRole;
@@ -28,6 +32,7 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -48,6 +53,16 @@ public class TaskViewController extends BaseController implements Initializable 
     public AnchorPane tasksPage;
     public Label noTasksFoundLabel;
     public Button resetBTN;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
+    QueryDAO queryDAO = new QueryDAOImpl();
+
+    ProjectsBO projectsBO= (ProjectsBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -108,7 +123,12 @@ public class TaskViewController extends BaseController implements Initializable 
         if (username == null) {
             System.out.println("User not logged in. username: " + username);
         }
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+        UserRole userRoleByUsername;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
@@ -218,7 +238,16 @@ public class TaskViewController extends BaseController implements Initializable 
             Label nameLabel = new Label(task.getName().get());
             nameLabel.getStyleClass().add("task-name");
 
-            List<ProjectDTO> projectById = ProjectModel.getProjectById(task.getProjectId().get());
+            List<ProjectDTO> projectById;
+            try {
+                projectById = projectsBO.getProjectById(task.getProjectId().get());
+                if(projectById.isEmpty()){
+                    System.out.println("Project not found");
+                    CustomErrorAlert.showAlert("Not Found", "Project not found");
+                }
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             Label idLabel = new Label(projectById.get(0).getName());
             idLabel.getStyleClass().add("project-name");
 

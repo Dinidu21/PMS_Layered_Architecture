@@ -1,8 +1,11 @@
 package com.dinidu.lk.pmt.controller.dashboard.project;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
-import com.dinidu.lk.pmt.model.ProjectModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomDeleteAlert;
@@ -22,6 +25,7 @@ import javafx.stage.Stage;
 import lombok.Setter;
 
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -48,8 +52,18 @@ public class ProjectEditViewController implements Initializable {
     private TextField projectDescriptionField;
     @FXML
     private DatePicker endDatePicker;
-    private final ProjectModel projectModel = new ProjectModel();
     private static ProjectDTO currentProject;
+
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
+    ProjectsBO projectsBO= (ProjectsBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
+
+    QueryDAO queryDAO = new QueryDAOImpl();
+
 
     public static void setProject(ProjectDTO project) {
         currentProject = project;
@@ -62,7 +76,12 @@ public class ProjectEditViewController implements Initializable {
         projectVisibilityCombo.getItems().setAll(ProjectVisibility.values());
 
         if (currentProject == null) {
-            List<ProjectDTO> projects = ProjectModel.getAllProjects();
+            List<ProjectDTO> projects = null;
+            try {
+                projects = projectsBO.fetchAll();
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             if (projects != null && !projects.isEmpty()) {
                 currentProject = projects.get(0);
             } else {
@@ -133,7 +152,11 @@ public class ProjectEditViewController implements Initializable {
             currentProject.setEndDate(null);
         }
 
-        projectModel.updateProject(currentProject);
+        try {
+            projectsBO.updateProject(currentProject);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         System.out.println("Project saved successfully.");
 
         if (updateListener != null) {
@@ -176,7 +199,12 @@ public class ProjectEditViewController implements Initializable {
             System.out.println("User not logged in. username: " + username);
         }
 
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+        UserRole userRoleByUsername;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
             return;
@@ -200,8 +228,15 @@ public class ProjectEditViewController implements Initializable {
 
         if (confirmed) {
             System.out.println("Deleting project...");
-            projectModel.deleteProject(currentProject.getId());
-            projectModel.deleteProject(currentProject.getId());
+            try {
+                boolean b = projectsBO.deleteProject(currentProject.getId());
+                if(!b){
+                    System.out.println("Deletion failed.");
+                    CustomErrorAlert.showAlert("Failed","Project deletion failed.");
+                }
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             System.out.println("Project deleted successfully.");
             CustomAlert.showAlert("Success", "Project deleted successfully.");
 

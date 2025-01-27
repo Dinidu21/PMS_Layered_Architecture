@@ -2,7 +2,6 @@ package com.dinidu.lk.pmt.bo.custom.Impl;
 
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
 import com.dinidu.lk.pmt.dao.DAOFactory;
-import com.dinidu.lk.pmt.dao.SQLUtil;
 import com.dinidu.lk.pmt.dao.custom.ProjectDAO;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.entity.Project;

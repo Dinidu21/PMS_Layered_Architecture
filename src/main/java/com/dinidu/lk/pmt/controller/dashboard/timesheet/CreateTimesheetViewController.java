@@ -1,11 +1,12 @@
 package com.dinidu.lk.pmt.controller.dashboard.timesheet;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dto.TimesheetDTO;
 import com.dinidu.lk.pmt.model.IssueModel;
-import com.dinidu.lk.pmt.model.ProjectModel;
 import com.dinidu.lk.pmt.model.TimeSheetModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.SessionUser;
@@ -35,6 +36,13 @@ public class CreateTimesheetViewController implements Initializable {
     public TextArea descriptionIdField;
     public DatePicker datePicker;
 
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
+    ProjectsBO projectBO =
+            (ProjectsBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -120,13 +128,13 @@ public class CreateTimesheetViewController implements Initializable {
             }
 
             String project_name = selectProjectNameComboBox.getValue();
-            String id_project = ProjectModel.getProjectIdByName(project_name);
+            String id_project = projectBO.getProjectIdByName(project_name);
 
             String task_name = selectTaskNameComboBox.getValue();
             Long id_task = IssueModel.getTaskIdByName(task_name);
 
             String user_name = SessionUser.getLoggedInUsername();
-            Long idByUsername = UserModel.getUserIdByUsername(user_name);
+            Long idByUsername = userBO.getUserIdByUsername(user_name);
 
             String date = datePicker.getValue().toString();
             //String hours = hoursSpent.getValue();
@@ -153,6 +161,8 @@ public class CreateTimesheetViewController implements Initializable {
 
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 }
