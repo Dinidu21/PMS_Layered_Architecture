@@ -288,8 +288,28 @@ public class ProjectsDAOImpl implements ProjectDAO {
 
     @Override
     public List<ProjectDTO> getProjectsByStatus(ProjectStatus projectStatus) throws SQLException, ClassNotFoundException {
-        return List.of();
+        ResultSet rs = SQLUtil.execute("SELECT * FROM projects WHERE status = ?", projectStatus.toString());
+        List<ProjectDTO> projectList = new ArrayList<>();
+        while (rs.next()) {
+            ProjectDTO projectDTO = new ProjectDTO();
+            projectDTO.setId(rs.getString("id"));
+            projectDTO.setName(rs.getString("name"));
+            projectDTO.setDescription(rs.getString("description"));
+            projectDTO.setStartDate(rs.getDate("start_date"));
+            projectDTO.setEndDate(rs.getDate("end_date"));
+            projectDTO.setStatus(ProjectStatus.valueOf(rs.getString("status")));
+            projectDTO.setPriority(ProjectPriority.valueOf(rs.getString("priority")));
+            projectDTO.setCreatedBy(rs.getLong("created_by"));
+            projectDTO.setCreatedAt(rs.getTimestamp("created_at"));
+            projectDTO.setUpdatedAt(rs.getTimestamp("updated_at"));
+            projectList.add(projectDTO);
+        }
+        return projectList;
     }
+
+
+
+
 
     @Override
     public ResultSet getActiveProjectNames() throws SQLException, ClassNotFoundException {

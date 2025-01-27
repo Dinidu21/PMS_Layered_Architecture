@@ -6,6 +6,7 @@ import com.dinidu.lk.pmt.dao.SQLUtil;
 import com.dinidu.lk.pmt.dao.custom.ProjectDAO;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.entity.Project;
+import com.dinidu.lk.pmt.utils.projectTypes.ProjectStatus;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -18,6 +19,11 @@ public class ProjectsBOImpl implements ProjectsBO {
     ProjectDAO projectDAO =
             (ProjectDAO) DAOFactory.getDaoFactory().
                     getDAO(DAOFactory.DAOTypes.PROJECTS);
+
+    @Override
+    public List<ProjectDTO> getProjectsByStatus(ProjectStatus projectStatus) throws SQLException, ClassNotFoundException {
+        return projectDAO.getProjectsByStatus(projectStatus);
+    }
 
     @Override
     public List<ProjectDTO> getProjectById(String projectId) throws SQLException, ClassNotFoundException {

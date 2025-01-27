@@ -2,6 +2,7 @@ package com.dinidu.lk.pmt.bo.custom;
 
 import com.dinidu.lk.pmt.bo.SuperBO;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
+import com.dinidu.lk.pmt.utils.projectTypes.ProjectStatus;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface ProjectsBO extends SuperBO {
+    List<ProjectDTO> getProjectsByStatus(ProjectStatus projectStatus) throws SQLException, ClassNotFoundException;
     List<ProjectDTO> getProjectById(String projectId) throws SQLException, ClassNotFoundException;
     Optional<ProjectDTO> isProjectIdTaken(String projectId) throws SQLException, ClassNotFoundException;
     String getProjectIdByName(String selectedProjectName) throws SQLException,ClassNotFoundException;
