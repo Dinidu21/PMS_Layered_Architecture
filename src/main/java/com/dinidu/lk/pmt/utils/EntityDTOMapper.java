@@ -1,0 +1,57 @@
+package com.dinidu.lk.pmt.utils;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class EntityDTOMapper {
+
+    // Maps a single entity to a DTO
+    public static <E, D> D mapEntityToDTO(E entity, Class<D> dtoClass) {
+        try {
+            D dto = dtoClass.getDeclaredConstructor().newInstance();
+            for (Field entityField : entity.getClass().getDeclaredFields()) {
+                entityField.setAccessible(true);
+
+                try {
+                    Field dtoField = dtoClass.getDeclaredField(entityField.getName());
+                    dtoField.setAccessible(true);
+                    dtoField.set(dto, entityField.get(entity));
+                } catch (NoSuchFieldException ignored) {
+                    // Skip if the field doesn't exist in the DTO
+                }
+            }
+            return dto;
+        } catch (Exception e) {
+            throw new RuntimeException("Error mapping entity to DTO", e);
+        }
+    }
+
+    // Maps a list of entities to a list of DTOs
+    public static <E, D> List<D> mapEntityListToDTOList(List<E> entities, Class<D> dtoClass) {
+        return entities.stream()
+                .map(entity -> mapEntityToDTO(entity, dtoClass))
+                .collect(Collectors.toList());
+    }
+
+    // Maps a single DTO to an entity
+    public static <D, E> E mapDTOToEntity(D dto, Class<E> entityClass) {
+        try {
+            E entity = entityClass.getDeclaredConstructor().newInstance();
+            for (Field dtoField : dto.getClass().getDeclaredFields()) {
+                dtoField.setAccessible(true);
+
+                try {
+                    Field entityField = entityClass.getDeclaredField(dtoField.getName());
+                    entityField.setAccessible(true);
+                    entityField.set(entity, dtoField.get(dto));
+                } catch (NoSuchFieldException ignored) {
+                    // Skip if the field doesn't exist in the entity
+                }
+            }
+            return entity;
+        } catch (Exception e) {
+            throw new RuntimeException("Error mapping DTO to entity", e);
+        }
+    }
+}
