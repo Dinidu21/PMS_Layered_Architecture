@@ -128,39 +128,42 @@ public class UserBOImpl implements UserBO {
         connection = DBConnection.getInstance().getConnection();
 
         connection.setAutoCommit(false);
-        boolean isRoleUpdated =  userDAO.updateUserRole(user.getRole().getId(), username);
-        System.out.println("IsRoleUpdated : "+isRoleUpdated);
+        try{        boolean isRoleUpdated =  userDAO.updateUserRole(user.getRole().getId(), username);
+            System.out.println("IsRoleUpdated : "+isRoleUpdated);
 
-        if (!isRoleUpdated){
-           connection.rollback();
-           System.out.println("Role is Not Updated ... Connection Has Been RollBack.");
-           connection.setAutoCommit(true);
-           return false;
-        }
-
-        System.out.println("Role updated successfully for user: " + username + ", New Role ID: " + user.getRole().getId());
-
-        boolean permissionsDeleted = userDAO.deletePermissionsInCurrentRole(username);
-
-        if (!permissionsDeleted) {
-            System.out.println("No existing permissions to delete for user: " + username);
-        } else {
-            System.out.println("Old permissions deleted successfully for user: " + username);
-        }
-
-        for (Permission permission : user.getPermissions()) {
-            boolean permissionInserted = userDAO.insertPermissionsInCurrentRole(user.getRole().getId(), permission.getId());
-            if (!permissionInserted) {
-                System.out.println("Failed to insert permission ID: " + permission.getId() + " for Role ID: " + user.getRole().getId());
+            if (!isRoleUpdated){
                 connection.rollback();
+                System.out.println("Role is Not Updated ... Connection Has Been RollBack.");
+                connection.setAutoCommit(true);
                 return false;
             }
-            System.out.println("Permission inserted successfully: " + permission.getId() + " for Role ID: " + user.getRole().getId());
-        }
 
-        connection.commit();
-        System.out.println("Role and permissions updated successfully for user: " + username);
-        return true;
+            System.out.println("Role updated successfully for user: " + username + ", New Role ID: " + user.getRole().getId());
+
+            boolean permissionsDeleted = userDAO.deletePermissionsInCurrentRole(username);
+
+            if (!permissionsDeleted) {
+                System.out.println("No existing permissions to delete for user: " + username);
+            } else {
+                System.out.println("Old permissions deleted successfully for user: " + username);
+            }
+
+            for (Permission permission : user.getPermissions()) {
+                boolean permissionInserted = userDAO.insertPermissionsInCurrentRole(user.getRole().getId(), permission.getId());
+                if (!permissionInserted) {
+                    System.out.println("Failed to insert permission ID: " + permission.getId() + " for Role ID: " + user.getRole().getId());
+                    connection.rollback();
+                    return false;
+                }
+                System.out.println("Permission inserted successfully: " + permission.getId() + " for Role ID: " + user.getRole().getId());
+            }
+
+            connection.commit();
+            System.out.println("Role and permissions updated successfully for user: " + username);
+            return true;
+        }finally {
+            connection.setAutoCommit(true);
+        }
     }
 
     /////////////////// no need to override
