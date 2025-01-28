@@ -2,13 +2,13 @@ package com.dinidu.lk.pmt.controller.dashboard.task;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.TasksBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TeamAssignmentDTO;
 import com.dinidu.lk.pmt.dto.UserDTO;
-import com.dinidu.lk.pmt.model.TaskModel;
 import com.dinidu.lk.pmt.model.TeamAssignmentModel;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
@@ -62,7 +62,6 @@ public class TaskEditViewController implements Initializable {
     private TextField TaskDescriptionField;
     @FXML
     private DatePicker endDatePicker;
-    private final TaskModel taskModel = new TaskModel();
     private static TasksDTO currentTask;
 
     UserBO userBO= (UserBO)
@@ -71,6 +70,9 @@ public class TaskEditViewController implements Initializable {
     ProjectsBO projectBO =
             (ProjectsBO) BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);
+    TasksBO tasksBO = (TasksBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.TASKS);
     QueryDAO queryDAO= new QueryDAOImpl();
 
     public static void setTask(TasksDTO task) {
@@ -167,7 +169,11 @@ public class TaskEditViewController implements Initializable {
         boolean isTaskModified = updateModifiedTaskFields();
 
         if (isTaskModified) {
-            taskModel.updateTask(currentTask);
+            try {
+                tasksBO.updateTask(currentTask);
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             System.out.println("Task updated successfully.");
         }
 
@@ -267,7 +273,12 @@ public class TaskEditViewController implements Initializable {
         TaskPriorityCombo.getItems().setAll(TaskPriority.values());
 
         if (currentTask == null) {
-            List<TasksDTO> tasks = TaskModel.getAllTasks();
+            List<TasksDTO> tasks = null;
+            try {
+                tasks = tasksBO.getAllTasks();
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             if (!tasks.isEmpty()) {
                 currentTask = tasks.get(0);
             } else {
@@ -382,7 +393,15 @@ public class TaskEditViewController implements Initializable {
 
         if (confirmed) {
             System.out.println("Deleting task...");
-            taskModel.deleteTask(currentTask.getName().get());
+            try {
+                boolean b = tasksBO.deleteTask(currentTask.getName().get());
+                if (!b) {
+                    System.out.println("Task deletion failed.");
+                    CustomErrorAlert.showAlert("Error", "Task deletion failed.");
+                }
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             System.out.println("Task deleted successfully.");
             CustomAlert.showAlert("Success", "Task deleted successfully.");
 

@@ -2,6 +2,7 @@ package com.dinidu.lk.pmt.controller.dashboard.task;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.TasksBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.controller.dashboard.task.checklist.ChecklistCreateViewController;
@@ -100,6 +101,10 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
     ProjectsBO projectsBO= (ProjectsBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);
+
+    TasksBO tasksBO = (TasksBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.TASKS);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -454,7 +459,13 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
         }
 
         projectOwnerName.setText(" " + userFullNameById);
-        List<TasksDTO> tasks = TaskModel.getTaskByProjectId(tasksDTO.projectIdProperty().get());
+        List<TasksDTO> tasks;
+        try {
+            tasks = tasksBO.getTaskByProjectId(tasksDTO.projectIdProperty().get());
+
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         Label[] teamMemberLabels = {teamMember1, teamMember2, teamMember3, teamMember4};
         ImageView[] teamMemberImages = {teamMember1Img, teamMember2Img, teamMember3Img, teamMember4Img};
         int teamMemberCount = 0;
@@ -468,7 +479,7 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
                 Long assignedTo = assignment.getUserId();
 
                 if (assignedTo != null) {
-                    String memberName = null;
+                    String memberName;
                     try {
                         memberName = userBO.getUserFullNameById(assignedTo);
                     } catch (SQLException | ClassNotFoundException e) {

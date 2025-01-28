@@ -2,6 +2,7 @@ package com.dinidu.lk.pmt.controller.dashboard.task;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.TasksBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dao.QueryDAO;
@@ -9,7 +10,6 @@ import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.UserDTO;
-import com.dinidu.lk.pmt.model.TaskModel;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
@@ -53,7 +53,9 @@ public class CreateTaskViewController {
     ProjectsBO projectBO =
             (ProjectsBO) BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);
-
+    TasksBO tasksBO =
+            (TasksBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.TASKS);
     QueryDAO queryDAO= new QueryDAOImpl();
 
 
@@ -64,9 +66,10 @@ public class CreateTaskViewController {
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        List<ProjectDTO> allProjects = null;
+        List<ProjectDTO> allProjects;
         try {
-            allProjects = projectBO.fetchAll();
+            allProjects = projectBO.getAllProjects();
+            System.out.println("All projects: " + allProjects);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -80,6 +83,7 @@ public class CreateTaskViewController {
 
         assert allProjects != null;
         for (ProjectDTO project : allProjects) {
+            System.out.println("Project name: " + project.getName());
             projectNames.add(project.getName());
         }
 
@@ -135,12 +139,26 @@ public class CreateTaskViewController {
             tasksDTO.descriptionProperty().set(descriptionIdField.getText());
 
             String selectedProjectName = selectProjectNameComboBox.getValue();
+            System.out.println("===========Create Task View===========");
+            System.out.println("Selected Project Name: " + selectedProjectName);
+
+            if (selectedProjectName == null) {
+                CustomErrorAlert.showAlert("Project not found", "Selected Project Name is null");
+                return;
+            }
+
             String projectId;
             try {
                 projectId = projectBO.getProjectIdByName(selectedProjectName);
+                if(projectId == null){
+                    CustomErrorAlert.showAlert("Project not found", "Project Id is null");
+                    return;
+                }
+
             } catch (SQLException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
+
             tasksDTO.projectIdProperty().set(projectId);
 
             String selectedMemberName = selectMemberNameComboBox.getValue();
@@ -162,10 +180,9 @@ public class CreateTaskViewController {
                 tasksDTO.dueDateProperty().set(Date.from(taskDeadline.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()));
             }
 
-            TaskModel taskModel = new TaskModel();
             boolean isSaved;
             try {
-                isSaved = taskModel.insertTask(tasksDTO);
+                isSaved = tasksBO.insertTask(tasksDTO);
                 if (isSaved) {
                     Date deadline = tasksDTO.dueDateProperty().get();
                     NotificationManager notificationManager = NotificationManager.getInstance();
@@ -184,7 +201,7 @@ public class CreateTaskViewController {
                     );
 
                     new Thread(() -> {
-                        String receiverName = null;
+                        String receiverName;
                         try {
                             receiverName = userBO.getUserFullNameById(tasksDTO.assignedToProperty().get());
                         } catch (SQLException | ClassNotFoundException e) {

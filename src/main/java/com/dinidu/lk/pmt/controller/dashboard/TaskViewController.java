@@ -2,6 +2,7 @@ package com.dinidu.lk.pmt.controller.dashboard;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.TasksBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
 import com.dinidu.lk.pmt.controller.dashboard.task.CreateTaskSuccessViewController;
@@ -10,7 +11,6 @@ import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.dto.TasksDTO;
-import com.dinidu.lk.pmt.model.TaskModel;
 import com.dinidu.lk.pmt.utils.SessionUser;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.taskTypes.TaskPriority;
@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import static com.dinidu.lk.pmt.model.TaskModel.searchTasksByName;
+
 
 public class TaskViewController extends BaseController implements Initializable {
     public TextField searchBox;
@@ -63,6 +63,10 @@ public class TaskViewController extends BaseController implements Initializable 
     ProjectsBO projectsBO= (ProjectsBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);
+
+    TasksBO tasksBO = (TasksBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.TASKS);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -97,7 +101,11 @@ public class TaskViewController extends BaseController implements Initializable 
             if (event.getCode() == KeyCode.ENTER) {
                 String taskName = searchBox.getText().trim();
                 if (!taskName.isEmpty()) {
-                    searchTasksByName(taskName);
+                    try {
+                        tasksBO.searchTasksByName(taskName);
+                    } catch (SQLException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                     event.consume();
                 }
             }
@@ -108,7 +116,12 @@ public class TaskViewController extends BaseController implements Initializable 
             if (selectedTaskName != null) {
                 searchBox.setText(selectedTaskName);
                 suggestionList.setVisible(false);
-                List<TasksDTO> filteredTasks = searchTasksByName(selectedTaskName);
+                List<TasksDTO> filteredTasks;
+                try {
+                    filteredTasks = tasksBO.searchTasksByName(selectedTaskName);
+                } catch (SQLException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
                 if (filteredTasks.isEmpty()) {
                     noTasksFoundLabel.setVisible(true);
                 } else {
@@ -142,7 +155,12 @@ public class TaskViewController extends BaseController implements Initializable 
     }
 
     private void updateTaskView() {
-        List<TasksDTO> tasks = TaskModel.getAllTasks();
+        List<TasksDTO> tasks = null;
+        try {
+            tasks = tasksBO.getAllTasks();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         System.out.println("dto size:" + tasks.size());
 
         for (TasksDTO task : tasks) {
@@ -180,7 +198,12 @@ public class TaskViewController extends BaseController implements Initializable 
     }
 
     private void showSearchSuggestions(String query) {
-        List<TasksDTO> filteredTasks = searchTasksByName(query);
+        List<TasksDTO> filteredTasks;
+        try {
+            filteredTasks = tasksBO.searchTasksByName(query);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (!filteredTasks.isEmpty()) {
             suggestionList.getItems().clear();
             for (TasksDTO task : filteredTasks) {
