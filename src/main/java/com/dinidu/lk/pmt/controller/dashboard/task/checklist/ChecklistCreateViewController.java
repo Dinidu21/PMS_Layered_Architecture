@@ -1,10 +1,13 @@
 package com.dinidu.lk.pmt.controller.dashboard.task.checklist;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ChecklistDTO;
 import com.dinidu.lk.pmt.dto.UserDTO;
 import com.dinidu.lk.pmt.model.ChecklistModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.SessionUser;
@@ -19,6 +22,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,6 +38,13 @@ public class ChecklistCreateViewController {
     @FXML
     private TextArea descriptionIdField;
 
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
+    QueryDAO queryDAO= new QueryDAOImpl();
+
+
     public static void setTaskId(LongProperty id) {
         ChecklistCreateViewController.taskIdForChecklist = id;
     }
@@ -42,7 +53,12 @@ public class ChecklistCreateViewController {
         ObservableList<ChecklistPriority> priorityList = FXCollections.observableArrayList(ChecklistPriority.values());
         checklistPriorityComboBox.setItems(priorityList);
 
-        List<UserDTO> allActiveMembers = UserModel.getAllActiveMembersNames();
+        List<UserDTO> allActiveMembers;
+        try {
+            allActiveMembers = queryDAO.getAllActiveMembersNames();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         ObservableList<String> memberNames = FXCollections.observableArrayList();
 
         for (UserDTO member : allActiveMembers) {
@@ -71,7 +87,12 @@ public class ChecklistCreateViewController {
             checklistDTO.nameProperty().set(checkListNameField.getText());
             checklistDTO.descriptionProperty().set(descriptionIdField.getText());
             String selectedMemberName = selectMemberNameComboBox.getValue();
-            Long assignedTo = UserModel.getUserIdByFullName(selectedMemberName);
+            Long assignedTo;
+            try {
+                assignedTo = userBO.getUserIdByFullName(selectedMemberName);
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             checklistDTO.assignedToProperty().set(assignedTo);
             checklistDTO.taskIdProperty().set(taskIdForChecklist.get());
             checklistDTO.statusProperty().set(ChecklistStatus.PENDING);
@@ -107,7 +128,13 @@ public class ChecklistCreateViewController {
     private void userAuthorityCheck() {
         String username = SessionUser.getLoggedInUsername();
         System.out.println("Logged in username Inside Create Checklist: " + username);
-        UserRole userRole = UserModel.getUserRoleByUsername(username);
+
+        UserRole userRole;
+        try {
+            userRole = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if ((userRole != UserRole.ADMIN &&
                 userRole != UserRole.PROJECT_MANAGER &&
@@ -118,7 +145,12 @@ public class ChecklistCreateViewController {
         }
 
         String loggedInUsername = SessionUser.getLoggedInUsername();
-        Long userIdByUsername = UserModel.getUserIdByUsername(loggedInUsername);
+        Long userIdByUsername = null;
+        try {
+            userIdByUsername = userBO.getUserIdByUsername(loggedInUsername);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userIdByUsername == null) {
             System.out.println("User ID is null for username: " + loggedInUsername);

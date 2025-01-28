@@ -1,5 +1,9 @@
 package com.dinidu.lk.pmt.controller.dashboard.task.checklist;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ChecklistDTO;
 import com.dinidu.lk.pmt.dto.UserDTO;
 import com.dinidu.lk.pmt.model.*;
@@ -53,9 +57,21 @@ public class ChecklistEditViewController implements Initializable {
     private final ChecklistModel checklistModel = new ChecklistModel();
     public ChecklistDTO currentChecklist;
 
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
+    QueryDAO queryDAO= new QueryDAOImpl();
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        List<UserDTO> allActiveMembers = UserModel.getAllActiveMembersNames();
+        List<UserDTO> allActiveMembers = null;
+        try {
+            allActiveMembers = queryDAO.getAllActiveMembersNames();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         ObservableList<String> memberNames = FXCollections.observableArrayList();
         for (UserDTO member : allActiveMembers) {
             memberNames.add(member.getFull_name());
@@ -198,7 +214,12 @@ public class ChecklistEditViewController implements Initializable {
         checklistPriorityComboBox.setValue(currentChecklist.priorityProperty().get());
 
         if (currentChecklist.assignedToProperty().get() != 0) {
-            String userFullNameById = UserModel.getUserFullNameById(currentChecklist.assignedToProperty().get());
+            String userFullNameById = null;
+            try {
+                userFullNameById = userBO.getUserFullNameById(currentChecklist.assignedToProperty().get());
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             newMembersComboBox.setValue(userFullNameById);
         }
 
@@ -210,7 +231,12 @@ public class ChecklistEditViewController implements Initializable {
     }
 
     private void handleMemberAssignment(String selectedUser) {
-        Long selectedUserId = UserModel.getUserIdByFullName(selectedUser);
+        Long selectedUserId;
+        try {
+            selectedUserId = userBO.getUserIdByFullName(selectedUser);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         Long currentlyAssignedUserId = currentChecklist.assignedToProperty().get();
 
         if (currentlyAssignedUserId.equals(selectedUserId)) {
@@ -286,7 +312,14 @@ public class ChecklistEditViewController implements Initializable {
             System.out.println("User not logged in. username: " + null);
         }
 
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+        UserRole userRoleByUsername;
+
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + null);
             return;

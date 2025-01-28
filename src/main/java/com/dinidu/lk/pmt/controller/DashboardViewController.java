@@ -2,6 +2,7 @@ package com.dinidu.lk.pmt.controller;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.TasksBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.NotifyViewController;
 import com.dinidu.lk.pmt.dao.QueryDAO;
@@ -10,7 +11,6 @@ import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TaskReportData;
 import com.dinidu.lk.pmt.model.ReportModel;
-import com.dinidu.lk.pmt.model.TaskModel;
 import com.dinidu.lk.pmt.utils.ProfileImageManager;
 import com.dinidu.lk.pmt.utils.SessionUser;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
@@ -67,7 +67,6 @@ public class DashboardViewController extends BaseController {
     private Button activeButton;
     private AnchorPane currentNotification;
     private boolean isNotificationVisible = false;
-    TaskModel taskModel;
 
 
     UserBO userBO= (UserBO)
@@ -76,7 +75,9 @@ public class DashboardViewController extends BaseController {
     ProjectsBO projectsBO= (ProjectsBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);
-
+    TasksBO tasksBO= (TasksBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.TASKS);
 
     QueryDAO queryDAO = new QueryDAOImpl();
 
@@ -115,7 +116,6 @@ public class DashboardViewController extends BaseController {
     public void initialize() {
         setupScrollPane();
         loadOngoingProjects();
-        taskModel = new TaskModel();
         setupTasksView();
         setupRefreshButtonForTasks();
         loadUnresolvedTasks();
@@ -207,11 +207,13 @@ public class DashboardViewController extends BaseController {
 
         List<TasksDTO> unresolvedTasks = null;
         try {
-            unresolvedTasks = taskModel.getTasksByStatus(TaskStatus.NOT_STARTED);
+            unresolvedTasks = tasksBO.getTasksByStatus(TaskStatus.NOT_STARTED);
             System.out.println("Unresolved tasks: " + unresolvedTasks);
         } catch (SQLException e) {
             System.out.println("Error loading unresolved tasks: " + e.getMessage());
             CustomErrorAlert.showAlert("Error loading unresolved tasks", e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         assert unresolvedTasks != null;

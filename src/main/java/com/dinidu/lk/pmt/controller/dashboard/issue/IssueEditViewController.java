@@ -1,8 +1,11 @@
 package com.dinidu.lk.pmt.controller.dashboard.issue;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.IssueDTO;
 import com.dinidu.lk.pmt.model.IssueModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomDeleteAlert;
@@ -55,6 +58,13 @@ public class IssueEditViewController implements Initializable {
     private TextField issueDescriptionField;
     private static IssueDTO currentIssue;
 
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+
+    QueryDAO queryDAO = new QueryDAOImpl();
+
+
     public static void setIssue(IssueDTO issueDTO) {
         currentIssue = issueDTO;
     }
@@ -93,7 +103,11 @@ public class IssueEditViewController implements Initializable {
             System.out.println("Error retrieving task ID: " + e.getMessage());
         }
 
-        currentIssue.setAssignedTo(UserModel.getUserIdByFullName(selectMemberNameComboBox.getValue()));
+        try {
+            currentIssue.setAssignedTo(userBO.getUserIdByFullName(selectMemberNameComboBox.getValue()));
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (dueDate.getValue() != null) {
             currentIssue.setDueDate(Date.valueOf(dueDate.getValue()));
@@ -243,7 +257,12 @@ public class IssueEditViewController implements Initializable {
 
         long assignedTo = currentIssue.getAssignedTo();
         if (assignedTo != 0) {
-            String assigneeName = UserModel.getUserFullNameById(assignedTo);
+            String assigneeName = null;
+            try {
+                assigneeName = userBO.getUserFullNameById(assignedTo);
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             selectMemberNameComboBox.setValue(assigneeName);
         }
 
@@ -281,7 +300,12 @@ public class IssueEditViewController implements Initializable {
             System.out.println("User not logged in. username: " + username);
         }
 
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+        UserRole userRoleByUsername;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
             return;

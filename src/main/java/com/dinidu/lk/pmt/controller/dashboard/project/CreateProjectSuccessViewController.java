@@ -2,6 +2,7 @@ package com.dinidu.lk.pmt.controller.dashboard.project;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.TasksBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.DashboardViewController;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
@@ -9,7 +10,6 @@ import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TeamAssignmentDTO;
-import com.dinidu.lk.pmt.model.TaskModel;
 import com.dinidu.lk.pmt.model.TeamAssignmentModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.listeners.ProjectDeletionHandler;
@@ -95,6 +95,10 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
                     getBO(BOFactory.BOTypes.PROJECTS);
 
     QueryDAO queryDAO = new QueryDAOImpl();
+
+    TasksBO tasksBO = (TasksBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.TASKS);
 
 
     @FXML
@@ -194,7 +198,12 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
 
     public List<TeamAssignmentDTO> getTeamAssignmentsForProject(String projectId) {
         List<TeamAssignmentDTO> assignments = new ArrayList<>();
-        List<TasksDTO> tasks = TaskModel.getTaskByProjectId(projectId);
+        List<TasksDTO> tasks = null;
+        try {
+            tasks = tasksBO.getTaskByProjectId(projectId);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         for (TasksDTO task : tasks) {
             List<TeamAssignmentDTO> taskAssignments = TeamAssignmentModel.getAssignmentsByTaskId(task.getId().get());
@@ -303,7 +312,7 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
         System.out.println("Loading unresolved tasks for project: " + projectIdForTasks);
         List<TasksDTO> unresolvedTasks = null;
         try {
-            unresolvedTasks = TaskModel.getTasksCurrentProjectByStatus(projectIdForTasks, TaskStatus.NOT_STARTED);
+            unresolvedTasks = tasksBO.getTasksCurrentProjectByStatus(projectIdForTasks, TaskStatus.NOT_STARTED);
             System.out.println("Unresolved tasks: " + unresolvedTasks);
             if (unresolvedTasks.isEmpty()) {
                 System.out.println("No unresolved tasks found for project: " + projectIdForTasks);
@@ -312,6 +321,8 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
         } catch (SQLException e) {
             System.out.println("Error loading unresolved tasks: " + e.getMessage());
             CustomErrorAlert.showAlert("Error loading unresolved tasks", e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         assert unresolvedTasks != null;

@@ -1,12 +1,15 @@
 package com.dinidu.lk.pmt.controller.dashboard;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
 import com.dinidu.lk.pmt.controller.dashboard.issue.IssueEditViewController;
 import com.dinidu.lk.pmt.controller.dashboard.issue.CreateIssueSuccessViewController;
+import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.IssueDTO;
 import com.dinidu.lk.pmt.model.IssueModel;
-import com.dinidu.lk.pmt.model.ProjectModel;
-import com.dinidu.lk.pmt.model.UserModel;
 import com.dinidu.lk.pmt.utils.SessionUser;
 import com.dinidu.lk.pmt.utils.issuesTypes.IssuePriority;
 import com.dinidu.lk.pmt.utils.issuesTypes.IssueStatus;
@@ -64,6 +67,16 @@ public class IssuesViewController extends BaseController implements Initializabl
     @FXML
     private ListView<String> suggestionList;
 
+    UserBO userBO= (UserBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.USER);
+    ProjectsBO projectBO =
+            (ProjectsBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.PROJECTS);
+
+    QueryDAO queryDAO = new QueryDAOImpl();
+
+
     private void openIssue(IssueDTO issueDTO) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/nav-buttons/issue/issue-create-success-view.fxml"));
@@ -94,10 +107,12 @@ public class IssuesViewController extends BaseController implements Initializabl
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            Map<String, String> projectNamesMap = ProjectModel.getAllProjectNames();
+            Map<String, String> projectNamesMap = projectBO.getAllProjectNames();
             sortByProjectName.setItems(FXCollections.observableArrayList(projectNamesMap.values()));
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         sortByStatus.getItems().addAll(IssueStatus.values());
@@ -172,7 +187,12 @@ public class IssuesViewController extends BaseController implements Initializabl
         if (username == null) {
             System.out.println("User not logged in. username: " + null);
         }
-        UserRole userRoleByUsername = UserModel.getUserRoleByUsername(username);
+        UserRole userRoleByUsername;
+        try {
+            userRoleByUsername = queryDAO.getUserRoleByUsername(username);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (userRoleByUsername == null) {
             System.out.println("User not logged in. userRoleByUsername: " + null);
@@ -213,9 +233,11 @@ public class IssuesViewController extends BaseController implements Initializabl
 
         Map<String, String> projectNamesMap = null;
         try {
-            projectNamesMap = ProjectModel.getAllProjectNames();
+            projectNamesMap = projectBO.getAllProjectNames();
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         Map<String, String> finalProjectNamesMap = projectNamesMap;

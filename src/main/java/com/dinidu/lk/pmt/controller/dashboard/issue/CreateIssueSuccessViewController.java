@@ -2,6 +2,7 @@ package com.dinidu.lk.pmt.controller.dashboard.issue;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.TasksBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dao.QueryDAO;
@@ -97,6 +98,10 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
     ProjectsBO projectsBO= (ProjectsBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);
+
+    TasksBO tasksBO = (TasksBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.TASKS);
 
     private boolean isFileSizeValid(File file) {
         if (file == null || !file.exists()) {
@@ -462,9 +467,11 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
         if (taskId != null) {
             String taskNameValue = null;
             try {
-                taskNameValue = TaskModel.getTaskNameById(taskId);
+                taskNameValue = tasksBO.getTaskNameById(taskId);
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
             taskName.setText(taskNameValue);
         } else {
@@ -474,7 +481,12 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
 
     public List<TeamAssignmentDTO> getTeamAssignmentsForProject(String projectId) {
         List<TeamAssignmentDTO> assignments = new ArrayList<>();
-        List<TasksDTO> tasks = TaskModel.getTaskByProjectId(projectId);
+        List<TasksDTO> tasks = null;
+        try {
+            tasks = tasksBO.getTaskByProjectId(projectId);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         for (TasksDTO task : tasks) {
             List<TeamAssignmentDTO> taskAssignments = TeamAssignmentModel.getAssignmentsByTaskId(task.getId().get());
