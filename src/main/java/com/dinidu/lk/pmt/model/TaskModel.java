@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskModel {
+    // Working
+    /*
     public static List<TasksDTO> searchTasksByName(String searchQuery) {
         String sql = "SELECT * FROM tasks WHERE name LIKE ? ORDER BY created_at DESC";
         Connection connection;
@@ -56,6 +58,7 @@ public class TaskModel {
         }
         return taskList;
     }
+*/
 
     public static List<TasksDTO> getAllTasks() {
         String sql = "SELECT * FROM tasks ORDER BY created_at DESC";
