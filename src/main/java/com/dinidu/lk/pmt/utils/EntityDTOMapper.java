@@ -34,6 +34,13 @@ public class EntityDTOMapper {
                 .collect(Collectors.toList());
     }
 
+    // Maps a list of DTOs to a list of entities
+    public static <E, D> List<E> mapDTOListToEntityList(List<D> dtos, Class<E> entityClass) {
+        return dtos.stream()
+                .map(dto -> mapDTOToEntity(dto, entityClass))
+                .collect(Collectors.toList());
+    }
+
     // Maps a single DTO to an entity
     public static <D, E> E mapDTOToEntity(D dto, Class<E> entityClass) {
         try {
