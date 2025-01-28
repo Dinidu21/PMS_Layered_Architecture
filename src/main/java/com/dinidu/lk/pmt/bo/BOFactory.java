@@ -1,6 +1,7 @@
 package com.dinidu.lk.pmt.bo;
 
 import com.dinidu.lk.pmt.bo.custom.Impl.ProjectsBOImpl;
+import com.dinidu.lk.pmt.bo.custom.Impl.TasksBOImpl;
 import com.dinidu.lk.pmt.bo.custom.Impl.UserBOImpl;
 
 public class BOFactory {
@@ -19,6 +20,7 @@ public class BOFactory {
         return switch (daoTypes) {
             case USER -> new UserBOImpl();
             case PROJECTS -> new ProjectsBOImpl();
+            case TASKS -> new TasksBOImpl();
             default -> null;
         };
     }

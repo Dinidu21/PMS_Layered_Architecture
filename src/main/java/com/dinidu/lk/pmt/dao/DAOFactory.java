@@ -2,6 +2,7 @@ package com.dinidu.lk.pmt.dao;
 
 import com.dinidu.lk.pmt.dao.custom.impl.ProjectsDAOImpl;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
+import com.dinidu.lk.pmt.dao.custom.impl.TasksDAOImpl;
 import com.dinidu.lk.pmt.dao.custom.impl.UserDAOImpl;
 
 public class DAOFactory {
@@ -22,6 +23,7 @@ public class DAOFactory {
             case USER -> new UserDAOImpl();
             case PROJECTS -> new ProjectsDAOImpl();
             case QUERY -> new QueryDAOImpl();
+            case TASKS -> new TasksDAOImpl();
             default -> null;
         };
     }
