@@ -61,28 +61,6 @@ public class ProjectsBOImpl implements ProjectsBO {
     }
 
     @Override
-    public List<ProjectDTO> fetchAll() throws SQLException, ClassNotFoundException {
-        ArrayList<ProjectDTO> projectDTOS = new ArrayList<>();
-        List<Project> projects = projectDAO.fetchAll();
-        for (Project project : projects) {
-            projectDTOS.add(new ProjectDTO(
-                    project.getId(),
-                    project.getName(),
-                    project.getDescription(),
-                    project.getStartDate(),
-                    project.getEndDate(),
-                    project.getStatus(),
-                    project.getPriority(),
-                    project.getVisibility(),
-                    project.getCreatedBy(),
-                    project.getCreatedAt(),
-                    project.getUpdatedAt()
-            ));
-        }
-        return projectDTOS;
-    }
-
-    @Override
     public List<ProjectDTO> searchProjectsByName(String searchQuery) throws SQLException, ClassNotFoundException {
         List<Project> projects = projectDAO.searchByName(searchQuery);
         List<ProjectDTO> projectDTOS = new ArrayList<>();

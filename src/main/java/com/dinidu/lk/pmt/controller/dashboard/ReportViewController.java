@@ -213,7 +213,7 @@ public class ReportViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         List<ProjectDTO> allProjects;
         try {
-            allProjects = projectBO.fetchAll();
+            allProjects = projectBO.getAllProjects();
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

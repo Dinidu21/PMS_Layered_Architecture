@@ -18,7 +18,6 @@ public interface ProjectsBO extends SuperBO {
     String getProjectNameById(String projectId) throws SQLException, ClassNotFoundException;
     String getProjectIdByTaskId(long l) throws SQLException,ClassNotFoundException;
     boolean insert(ProjectDTO project) throws SQLException, ClassNotFoundException;
-    List<ProjectDTO> fetchAll() throws SQLException, ClassNotFoundException;
     List<ProjectDTO> searchProjectsByName(String searchQuery) throws SQLException, ClassNotFoundException;
     void updateProject(ProjectDTO projectDTO) throws SQLException, ClassNotFoundException;
     List<ProjectDTO> getAllProjects()throws SQLException, ClassNotFoundException;

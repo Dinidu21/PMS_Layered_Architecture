@@ -76,9 +76,9 @@ public class ProjectEditViewController implements Initializable {
         projectVisibilityCombo.getItems().setAll(ProjectVisibility.values());
 
         if (currentProject == null) {
-            List<ProjectDTO> projects = null;
+            List<ProjectDTO> projects;
             try {
-                projects = projectsBO.fetchAll();
+                projects = projectsBO.getAllProjects();
             } catch (SQLException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
