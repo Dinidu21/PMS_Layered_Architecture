@@ -5,6 +5,6 @@ import com.dinidu.lk.pmt.entity.Issue;
 
 import java.sql.SQLException;
 
-public interface IssuesDAO extends CrudDAO<Issue> {
+public interface IssueDAO extends CrudDAO<Issue> {
     boolean deleteIssue(Long id)throws SQLException,ClassNotFoundException;
 }

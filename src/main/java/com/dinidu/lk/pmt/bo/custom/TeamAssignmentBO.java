@@ -1,4 +1,6 @@
 package com.dinidu.lk.pmt.bo.custom;
 
-public interface TeamAssignmentBO {
+import com.dinidu.lk.pmt.bo.SuperBO;
+
+public interface TeamAssignmentBO extends SuperBO {
 }

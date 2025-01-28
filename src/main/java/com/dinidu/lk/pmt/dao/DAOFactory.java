@@ -1,9 +1,6 @@
 package com.dinidu.lk.pmt.dao;
 
-import com.dinidu.lk.pmt.dao.custom.impl.ProjectsDAOImpl;
-import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
-import com.dinidu.lk.pmt.dao.custom.impl.TasksDAOImpl;
-import com.dinidu.lk.pmt.dao.custom.impl.UserDAOImpl;
+import com.dinidu.lk.pmt.dao.custom.impl.*;
 
 public class DAOFactory {
     private static DAOFactory daoFactory;
@@ -15,7 +12,7 @@ public class DAOFactory {
     }
 
     public enum DAOTypes{
-        USER,TASKS,PROJECTS,ISSUES,QUERY
+        USER,TASKS,PROJECTS,ISSUES,QUERY,TIMESHEET,REPORTS,CHECKLISTS,ATTACHMENTS,TEAM_ASSIGNMENTS
     }
 
     public SuperDAO getDAO(DAOTypes daoTypes){
@@ -24,6 +21,12 @@ public class DAOFactory {
             case PROJECTS -> new ProjectsDAOImpl();
             case QUERY -> new QueryDAOImpl();
             case TASKS -> new TasksDAOImpl();
+            case ISSUES -> new IssueDAOImpl();
+            case REPORTS -> new ReportDAOImpl();
+            case TIMESHEET -> new TimeSheetDAOImpl();
+            case CHECKLISTS -> new CheckListDAOImpl();
+            case ATTACHMENTS -> new AttachmentDAOImpl();
+            case TEAM_ASSIGNMENTS -> new TeamAssignmentDAOImpl();
             default -> null;
         };
     }

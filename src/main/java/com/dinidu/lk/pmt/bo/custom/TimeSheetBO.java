@@ -1,4 +1,6 @@
 package com.dinidu.lk.pmt.bo.custom;
 
-public interface TimeSheetBO {
+import com.dinidu.lk.pmt.bo.SuperBO;
+
+public interface TimeSheetBO extends SuperBO {
 }

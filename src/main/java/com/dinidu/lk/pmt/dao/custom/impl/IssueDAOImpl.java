@@ -1,27 +1,30 @@
 package com.dinidu.lk.pmt.dao.custom.impl;
 
-import com.dinidu.lk.pmt.dao.custom.TimeSheetDAO;
-import com.dinidu.lk.pmt.entity.Timesheet;
+import com.dinidu.lk.pmt.dao.custom.IssueDAO;
+import com.dinidu.lk.pmt.entity.Issue;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-public class TimeSheetDAOImpl implements TimeSheetDAO {
-
-
+public class IssueDAOImpl implements IssueDAO {
     @Override
-    public boolean save(Timesheet dto) throws SQLException, ClassNotFoundException {
+    public boolean deleteIssue(Long id) throws SQLException, ClassNotFoundException {
         return false;
     }
 
     @Override
-    public boolean update(Timesheet dto) throws SQLException, ClassNotFoundException {
+    public boolean save(Issue dto) throws SQLException, ClassNotFoundException {
         return false;
     }
 
     @Override
-    public boolean insert(Timesheet timesheet) throws SQLException, ClassNotFoundException {
+    public boolean update(Issue dto) throws SQLException, ClassNotFoundException {
+        return false;
+    }
+
+    @Override
+    public boolean insert(Issue issue) throws SQLException, ClassNotFoundException {
         return false;
     }
 
@@ -31,7 +34,7 @@ public class TimeSheetDAOImpl implements TimeSheetDAO {
     }
 
     @Override
-    public List<Timesheet> fetchAll() throws SQLException, ClassNotFoundException {
+    public List<Issue> fetchAll() throws SQLException, ClassNotFoundException {
         return List.of();
     }
 
@@ -41,7 +44,7 @@ public class TimeSheetDAOImpl implements TimeSheetDAO {
     }
 
     @Override
-    public List<Timesheet> searchByName(String searchQuery) throws SQLException, ClassNotFoundException {
+    public List<Issue> searchByName(String searchQuery) throws SQLException, ClassNotFoundException {
         return List.of();
     }
 

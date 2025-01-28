@@ -1,8 +1,6 @@
 package com.dinidu.lk.pmt.bo;
 
-import com.dinidu.lk.pmt.bo.custom.Impl.ProjectsBOImpl;
-import com.dinidu.lk.pmt.bo.custom.Impl.TasksBOImpl;
-import com.dinidu.lk.pmt.bo.custom.Impl.UserBOImpl;
+import com.dinidu.lk.pmt.bo.custom.Impl.*;
 
 public class BOFactory {
     private static BOFactory boFactory;
@@ -13,7 +11,7 @@ public class BOFactory {
 
 
     public enum BOTypes{
-        USER,TASKS,PROJECTS,ISSUES,QUERY
+        USER,TASKS,PROJECTS,ISSUES,QUERY,TIMESHEET,REPORTS,CHECKLISTS,ATTACHMENTS,TEAM_ASSIGNMENTS
     }
 
     public SuperBO getBO(BOFactory.BOTypes daoTypes){
@@ -21,6 +19,12 @@ public class BOFactory {
             case USER -> new UserBOImpl();
             case PROJECTS -> new ProjectsBOImpl();
             case TASKS -> new TasksBOImpl();
+            case TIMESHEET -> new TimesheetBOImpl();
+            case REPORTS -> new ReportBOImpl();
+            case CHECKLISTS -> new ChecklistBOImpl();
+            case ISSUES -> new IssueBOImpl();
+            case ATTACHMENTS -> new AttachmentBOImpl();
+            case TEAM_ASSIGNMENTS -> new TeamAssignmentBOImpl();
             default -> null;
         };
     }
