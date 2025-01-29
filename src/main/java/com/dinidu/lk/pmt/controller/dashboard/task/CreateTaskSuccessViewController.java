@@ -1,20 +1,17 @@
 package com.dinidu.lk.pmt.controller.dashboard.task;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
-import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
-import com.dinidu.lk.pmt.bo.custom.TasksBO;
-import com.dinidu.lk.pmt.bo.custom.TeamAssignmentBO;
-import com.dinidu.lk.pmt.bo.custom.UserBO;
+import com.dinidu.lk.pmt.bo.custom.*;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.controller.dashboard.task.checklist.ChecklistCreateViewController;
 import com.dinidu.lk.pmt.controller.dashboard.task.checklist.ChecklistEditViewController;
 import com.dinidu.lk.pmt.dao.QueryDAO;
+import com.dinidu.lk.pmt.dao.custom.ChecklistDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ChecklistDTO;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TeamAssignmentDTO;
-import com.dinidu.lk.pmt.model.*;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.checklistTypes.ChecklistPriority;
 import com.dinidu.lk.pmt.utils.checklistTypes.ChecklistStatus;
@@ -110,6 +107,7 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
     TeamAssignmentBO teamAssignmentBO = (TeamAssignmentBO)
                     BOFactory.getInstance().
                             getBO(BOFactory.BOTypes.TEAM_ASSIGNMENTS);
+    ChecklistBO checklistBO = (ChecklistBO) BOFactory.getInstance().getBO(BOFactory.BOTypes.CHECKLISTS);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -158,9 +156,9 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
     private void applyInitialStyles() {
         List<ChecklistDTO> checklists = null;
         try {
-            checklists = ChecklistModel.getChecklistsByTaskId(tasksDTO.getId());
-        } catch (SQLException e) {
-            System.out.println("Error fetching checklists: " + e.getMessage());
+            checklists = checklistBO.getChecklistsByTaskId(tasksDTO.getId());
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         assert checklists != null;
@@ -293,12 +291,14 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
 
         List<ChecklistDTO> checklists;
         try {
-            checklists = ChecklistModel.getChecklistsByTaskId(tasksDTO.getId());
+            checklists = checklistBO.getChecklistsByTaskId(tasksDTO.getId());
             System.out.println("Fetched checklists: " + checklists);
         } catch (SQLException e) {
             System.out.println("Error fetching checklists: " + e.getMessage());
             CustomErrorAlert.showAlert("Error", "Failed to fetch checklists.");
             return;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         if (checklists.isEmpty()) {

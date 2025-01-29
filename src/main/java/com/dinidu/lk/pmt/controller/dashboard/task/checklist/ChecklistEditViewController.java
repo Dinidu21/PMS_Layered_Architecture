@@ -1,12 +1,12 @@
 package com.dinidu.lk.pmt.controller.dashboard.task.checklist;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ChecklistBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ChecklistDTO;
 import com.dinidu.lk.pmt.dto.UserDTO;
-import com.dinidu.lk.pmt.model.*;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.checklistTypes.ChecklistPriority;
 import com.dinidu.lk.pmt.utils.checklistTypes.ChecklistStatus;
@@ -54,12 +54,13 @@ public class ChecklistEditViewController implements Initializable {
     private TextField TaskDescriptionField;
     @FXML
     private DatePicker endDatePicker;
-    private final ChecklistModel checklistModel = new ChecklistModel();
     public ChecklistDTO currentChecklist;
 
     UserBO userBO= (UserBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.USER);
+    ChecklistBO checklistBO = (ChecklistBO) BOFactory.getInstance().getBO(BOFactory.BOTypes.CHECKLISTS);
+
 
     QueryDAO queryDAO= new QueryDAOImpl();
 
@@ -84,10 +85,12 @@ public class ChecklistEditViewController implements Initializable {
         if (currentChecklist == null) {
             List<ChecklistDTO> checklistDTOList = null;
             try {
-                checklistDTOList = ChecklistModel.getAllChecklists();
+                checklistDTOList = checklistBO.getAllChecklists();
             } catch (SQLException e) {
                 System.out.println("Error while fetching checklistDTOList: " + e.getMessage());
                 CustomErrorAlert.showAlert("Error", "Failed to fetch checklistDTOList.");
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
 
             assert checklistDTOList != null;
@@ -175,7 +178,11 @@ public class ChecklistEditViewController implements Initializable {
         }
 
         boolean isChecklistUpdated;
-        isChecklistUpdated = checklistModel.updateChecklist(currentChecklist);
+        try {
+            isChecklistUpdated = checklistBO.updateChecklist(currentChecklist);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (!isChecklistUpdated) {
             CustomErrorAlert.showAlert("Error", "Failed to update checklist.");
             return;
@@ -247,7 +254,11 @@ public class ChecklistEditViewController implements Initializable {
         currentChecklist.assignedToProperty().set(selectedUserId);
 
         boolean isChecklistUpdated;
-        isChecklistUpdated = checklistModel.updateChecklist(currentChecklist);
+        try {
+            isChecklistUpdated = checklistBO.updateChecklist(currentChecklist);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (isChecklistUpdated) {
             handleSuccessfulAssignment(selectedUser);
         } else {
@@ -344,21 +355,25 @@ public class ChecklistEditViewController implements Initializable {
 
         if (confirmed) {
             System.out.println("Deleting checklist...");
-            if(checklistModel.deleteChecklist(currentChecklist.idProperty())) {
-                System.out.println("Checklist deleted successfully.");
-                CustomAlert.showAlert("Success", "Checklist deleted successfully.");
+            try {
+                if(checklistBO.deleteChecklist(currentChecklist.idProperty())) {
+                    System.out.println("Checklist deleted successfully.");
+                    CustomAlert.showAlert("Success", "Checklist deleted successfully.");
 
-                Stage currentStage = (Stage) TaskEdit.getScene().getWindow();
-                currentStage.close();
+                    Stage currentStage = (Stage) TaskEdit.getScene().getWindow();
+                    currentStage.close();
 
-                if (deletionHandler != null) {
-                    deletionHandler.onChecklistDeleted();
+                    if (deletionHandler != null) {
+                        deletionHandler.onChecklistDeleted();
+                    }else {
+                        System.out.println("deletionHandler is null");
+                    }
                 }else {
-                    System.out.println("deletionHandler is null");
+                    CustomErrorAlert.showAlert("Error", "Failed to delete checklist.");
+                    System.out.println("Error while deleting checklist.");
                 }
-            }else {
-                CustomErrorAlert.showAlert("Error", "Failed to delete checklist.");
-                System.out.println("Error while deleting checklist.");
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
         } else {
             System.out.println("Checklist deletion canceled by user.");

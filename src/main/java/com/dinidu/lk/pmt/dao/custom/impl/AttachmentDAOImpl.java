@@ -2,9 +2,7 @@ package com.dinidu.lk.pmt.dao.custom.impl;
 
 import com.dinidu.lk.pmt.dao.SQLUtil;
 import com.dinidu.lk.pmt.dao.custom.IssueAttachmentDAO;
-import com.dinidu.lk.pmt.dto.IssueAttachmentDTO;
 import com.dinidu.lk.pmt.entity.IssueAttachment;
-import com.dinidu.lk.pmt.utils.CrudUtil;
 
 
 import java.sql.ResultSet;
@@ -66,7 +64,7 @@ public class AttachmentDAOImpl implements IssueAttachmentDAO {
     public List<IssueAttachment> getAttachments(Long issueId) throws SQLException, ClassNotFoundException {
         List<IssueAttachment> attachments = new ArrayList<>();
 
-        try (ResultSet rs = CrudUtil.execute(GET_ATTACHMENTS, issueId)) {
+        try (ResultSet rs = SQLUtil.execute(GET_ATTACHMENTS, issueId)) {
             while (rs.next()) {
                 IssueAttachment attachment = new IssueAttachment();
                 attachment.setId(rs.getLong("id"));

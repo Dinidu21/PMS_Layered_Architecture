@@ -1,13 +1,13 @@
 package com.dinidu.lk.pmt.controller.dashboard.task.checklist;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ChecklistBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ChecklistDTO;
 import com.dinidu.lk.pmt.dto.UserDTO;
-import com.dinidu.lk.pmt.model.ChecklistModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.SessionUser;
@@ -43,6 +43,9 @@ public class ChecklistCreateViewController {
                     getBO(BOFactory.BOTypes.USER);
 
     QueryDAO queryDAO= new QueryDAOImpl();
+    ChecklistBO checklistBO = (ChecklistBO)
+            BOFactory.getInstance().getBO(BOFactory.BOTypes.CHECKLISTS);
+
 
 
     public static void setTaskId(LongProperty id) {
@@ -102,10 +105,9 @@ public class ChecklistCreateViewController {
                 checklistDTO.dueDateProperty().set(deadlineForChecklist.getValue().atStartOfDay());
             }
 
-            ChecklistModel checklistModel = new ChecklistModel();
             boolean isSaved;
             try {
-                isSaved = checklistModel.insertChecklist(checklistDTO);
+                isSaved = checklistBO.insertChecklist(checklistDTO);
                 if (isSaved) {
                     System.out.println("Checklist created successfully!");
                     CustomAlert.showAlert("Checklist created", "Checklist created successfully!");
