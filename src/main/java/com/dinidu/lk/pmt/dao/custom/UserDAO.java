@@ -1,7 +1,6 @@
 package com.dinidu.lk.pmt.dao.custom;
 
 import com.dinidu.lk.pmt.dao.CrudDAO;
-import com.dinidu.lk.pmt.dto.UserDTO;
 import com.dinidu.lk.pmt.entity.User;
 import javafx.scene.image.Image;
 
@@ -15,7 +14,7 @@ public interface UserDAO extends CrudDAO<User> {
     boolean updatePassword(String loggedInUsername, String password) throws SQLException,ClassNotFoundException;
     boolean updatePasswordUsingEmail(String userEmail, String newPassword) throws SQLException,ClassNotFoundException;
     /// Should be Entity
-    UserDTO getUserDetailsByUsername(String loggedInUsername) throws SQLException,ClassNotFoundException;
+    User getUserDetailsByUsername(String loggedInUsername) throws SQLException,ClassNotFoundException;
     void updateProfileImagePath(String username, String imagePath)throws SQLException,ClassNotFoundException;
     String getProfileImagePath(String username) throws SQLException,ClassNotFoundException;
     Long getUserIdByUsername(String username) throws SQLException,ClassNotFoundException;

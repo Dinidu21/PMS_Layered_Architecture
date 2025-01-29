@@ -211,7 +211,7 @@ public class ProjectsDAOImpl implements ProjectDAO {
 
     // Working
     @Override
-    public List<ProjectDTO> getAllProjects() throws SQLException {
+    public List<Project> getAllProjects() throws SQLException {
         String sql = "SELECT * FROM projects ORDER BY created_at DESC";
         Connection connection;
         PreparedStatement pstmt = null;
@@ -223,9 +223,9 @@ public class ProjectsDAOImpl implements ProjectDAO {
         }
         pstmt = connection.prepareStatement(sql);
         rs = pstmt.executeQuery();
-        List<ProjectDTO> projectList = null;
+        List<Project> projectList = null;
         while (rs.next()) {
-            ProjectDTO projectDTO = new ProjectDTO();
+            Project projectDTO = new Project();
             projectDTO.setId(rs.getString("id"));
             projectDTO.setName(rs.getString("name"));
             projectDTO.setDescription(rs.getString("description"));
@@ -249,11 +249,11 @@ public class ProjectsDAOImpl implements ProjectDAO {
 
     // Working
     @Override
-    public List<ProjectDTO> getProjectById(String projectId) throws SQLException, ClassNotFoundException {
+    public List<Project> getProjectById(String projectId) throws SQLException, ClassNotFoundException {
         ResultSet rs = SQLUtil.execute("SELECT * FROM projects WHERE id = ?", projectId);
-        List<ProjectDTO> projectList = new ArrayList<>();
+        List<Project> projectList = new ArrayList<>();
         while (rs.next()) {
-            ProjectDTO projectDTO = new ProjectDTO();
+            Project projectDTO = new Project();
             projectDTO.setId(rs.getString("id"));
             projectDTO.setName(rs.getString("name"));
             projectDTO.setDescription(rs.getString("description"));
@@ -271,10 +271,10 @@ public class ProjectsDAOImpl implements ProjectDAO {
 
     // Working
     @Override
-    public Optional<ProjectDTO> isProjectIdTaken(String projectId) throws SQLException, ClassNotFoundException {
+    public Optional<Project> isProjectIdTaken(String projectId) throws SQLException, ClassNotFoundException {
         ResultSet rs = SQLUtil.execute("SELECT * FROM projects WHERE id = ?", projectId);
         if (rs.next()) {
-            ProjectDTO projectDTO = new ProjectDTO();
+            Project projectDTO = new Project();
             projectDTO.setId(rs.getString("id"));
             return Optional.of(projectDTO);
         }
@@ -289,11 +289,11 @@ public class ProjectsDAOImpl implements ProjectDAO {
 
     // Working
     @Override
-    public List<ProjectDTO> getProjectsByStatus(ProjectStatus projectStatus) throws SQLException, ClassNotFoundException {
+    public List<Project> getProjectsByStatus(ProjectStatus projectStatus) throws SQLException, ClassNotFoundException {
         ResultSet rs = SQLUtil.execute("SELECT * FROM projects WHERE status = ?", projectStatus.toString());
-        List<ProjectDTO> projectList = new ArrayList<>();
+        List<Project> projectList = new ArrayList<>();
         while (rs.next()) {
-            ProjectDTO projectDTO = new ProjectDTO();
+            Project projectDTO = new Project();
             projectDTO.setId(rs.getString("id"));
             projectDTO.setName(rs.getString("name"));
             projectDTO.setDescription(rs.getString("description"));

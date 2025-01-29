@@ -58,11 +58,11 @@ public class UserDAOImpl implements UserDAO {
     }
     //Working
     @Override
-    public UserDTO getUserDetailsByUsername(String loggedInUsername) throws SQLException, ClassNotFoundException {
-        UserDTO userDTO = null;
+    public User getUserDetailsByUsername(String loggedInUsername) throws SQLException, ClassNotFoundException {
+        User userDTO = null;
         ResultSet rs = SQLUtil.execute("SELECT full_name, email, phone_number FROM users WHERE username = ?", loggedInUsername);
         if (rs.next()) {
-            userDTO = new UserDTO();
+            userDTO = new User();
             userDTO.setFull_name(rs.getString("full_name"));
             userDTO.setEmail(rs.getString("email"));
             userDTO.setPhoneNumber(rs.getString("phone_number"));

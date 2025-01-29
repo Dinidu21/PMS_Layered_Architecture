@@ -5,6 +5,7 @@ import com.dinidu.lk.pmt.dao.DAOFactory;
 import com.dinidu.lk.pmt.dao.custom.ProjectDAO;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.entity.Project;
+import com.dinidu.lk.pmt.utils.EntityDTOMapper;
 import com.dinidu.lk.pmt.utils.projectTypes.ProjectStatus;
 
 import java.sql.SQLException;
@@ -21,17 +22,31 @@ public class ProjectsBOImpl implements ProjectsBO {
 
     @Override
     public List<ProjectDTO> getProjectsByStatus(ProjectStatus projectStatus) throws SQLException, ClassNotFoundException {
-        return projectDAO.getProjectsByStatus(projectStatus);
+        return EntityDTOMapper.mapEntityListToDTOList(projectDAO.getProjectsByStatus(projectStatus), ProjectDTO.class);
     }
 
     @Override
     public List<ProjectDTO> getProjectById(String projectId) throws SQLException, ClassNotFoundException {
-        return projectDAO.getProjectById(projectId);
+        List<Project> projectById = projectDAO.getProjectById(projectId);
+        return EntityDTOMapper.mapEntityListToDTOList(projectById, ProjectDTO.class);
     }
 
     @Override
     public Optional<ProjectDTO> isProjectIdTaken(String projectId) throws SQLException, ClassNotFoundException {
-        return projectDAO.isProjectIdTaken(projectId);
+        Optional<Project> projectIdTaken = projectDAO.isProjectIdTaken(projectId);
+        return projectIdTaken.map(project -> new ProjectDTO(
+                project.getId(),
+                project.getName(),
+                project.getDescription(),
+                project.getStartDate(),
+                project.getEndDate(),
+                project.getStatus(),
+                project.getPriority(),
+                project.getVisibility(),
+                project.getCreatedBy(),
+                project.getCreatedAt(),
+                project.getUpdatedAt()
+        ));
     }
 
     @Override
@@ -84,7 +99,8 @@ public class ProjectsBOImpl implements ProjectsBO {
 
     @Override
     public List<ProjectDTO> getAllProjects() throws SQLException, ClassNotFoundException{
-        return projectDAO.getAllProjects();
+        List<Project> allProjects = projectDAO.getAllProjects();
+        return EntityDTOMapper.mapEntityListToDTOList(allProjects, ProjectDTO.class);
     }
 
     @Override

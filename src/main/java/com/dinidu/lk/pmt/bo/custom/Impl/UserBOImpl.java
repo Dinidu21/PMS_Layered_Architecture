@@ -8,6 +8,7 @@ import com.dinidu.lk.pmt.dto.UserDTO;
 import com.dinidu.lk.pmt.entity.User;
 import java.sql.Connection;
 
+import com.dinidu.lk.pmt.utils.EntityDTOMapper;
 import com.dinidu.lk.pmt.utils.permissionTypes.Permission;
 import javafx.scene.image.Image;
 
@@ -37,7 +38,7 @@ public class UserBOImpl implements UserBO {
 
     @Override
     public UserDTO getUserDetailsByUsername(String loggedInUsername) throws SQLException, ClassNotFoundException {
-        return userDAO.getUserDetailsByUsername(loggedInUsername);
+        return EntityDTOMapper.mapEntityToDTO(userDAO.getUserDetailsByUsername(loggedInUsername), UserDTO.class);
     }
 
     @Override
