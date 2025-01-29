@@ -1,10 +1,10 @@
 package com.dinidu.lk.pmt.controller.dashboard.issue;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.IssuesBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dto.IssueDTO;
-import com.dinidu.lk.pmt.model.IssueModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.SessionUser;
@@ -48,6 +48,9 @@ public class CreateIssueViewController implements Initializable {
     UserBO userBO= (UserBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.USER);
+    IssuesBO issuesBO = (IssuesBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.ISSUES);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -60,13 +63,15 @@ public class CreateIssueViewController implements Initializable {
     private void initializeProjectComboBox() {
         ObservableList<String> projectNames = FXCollections.observableArrayList();
         try {
-            ResultSet rs = IssueModel.getActiveProjectNames();
+            ResultSet rs = issuesBO.getActiveProjectNames();
             while (rs.next()) {
                 projectNames.add(rs.getString("name"));
             }
             selectProjectNameComboBox.setItems(projectNames);
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -76,13 +81,15 @@ public class CreateIssueViewController implements Initializable {
             if (selectedProject != null) {
                 ObservableList<String> taskNames = FXCollections.observableArrayList();
                 try {
-                    ResultSet rs = IssueModel.getTasksByProject(selectedProject);
+                    ResultSet rs = issuesBO.getTasksByProject(selectedProject);
                     while (rs.next()) {
                         taskNames.add(rs.getString("name"));
                     }
                     selectTaskNameComboBox.setItems(taskNames);
                 } catch (SQLException e) {
                     e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -102,13 +109,15 @@ public class CreateIssueViewController implements Initializable {
     private void initializeMemberComboBox() {
         ObservableList<String> memberNames = FXCollections.observableArrayList();
         try {
-            ResultSet rs = IssueModel.getActiveMembers();
+            ResultSet rs = issuesBO.getActiveMembers();
             while (rs.next()) {
                 memberNames.add(rs.getString("full_name"));
             }
             selectMemberNameComboBox.setItems(memberNames);
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -147,9 +156,9 @@ public class CreateIssueViewController implements Initializable {
         }
 
         try {
-            String projectId = IssueModel.getProjectIdByName(projectName);
-            Long taskId = IssueModel.getTaskIdByName(taskName);
-            Long memberId = IssueModel.getUserIdByName(memberName);
+            String projectId = issuesBO.getProjectIdByName(projectName);
+            Long taskId = issuesBO.getTaskIdByName(taskName);
+            Long memberId = issuesBO.getUserIdByName(memberName);
             String username = SessionUser.getLoggedInUsername();
 
             if (username == null) {
@@ -174,7 +183,7 @@ public class CreateIssueViewController implements Initializable {
             issueDTO.setPriority(priority);
             issueDTO.setDueDate(Date.valueOf(dueDate));
 
-            boolean isCreated = IssueModel.createIssue(issueDTO);
+            boolean isCreated = issuesBO.createIssue(issueDTO);
             if (isCreated) {
                 new Thread(() -> {
                     String recipientName = null;
@@ -234,6 +243,8 @@ public class CreateIssueViewController implements Initializable {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 }

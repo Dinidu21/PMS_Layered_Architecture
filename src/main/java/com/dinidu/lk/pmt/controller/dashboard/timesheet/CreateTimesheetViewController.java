@@ -1,12 +1,12 @@
 package com.dinidu.lk.pmt.controller.dashboard.timesheet;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.IssuesBO;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
 import com.dinidu.lk.pmt.bo.custom.TimeSheetBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dto.TimesheetDTO;
-import com.dinidu.lk.pmt.model.IssueModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.SessionUser;
@@ -46,6 +46,9 @@ public class CreateTimesheetViewController implements Initializable {
     TimeSheetBO timeSheetBO =
             (TimeSheetBO) BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.TIMESHEET);
+    IssuesBO issuesBO =
+            (IssuesBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.ISSUES);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -71,13 +74,15 @@ public class CreateTimesheetViewController implements Initializable {
     private void initializeProjectComboBox() {
         ObservableList<String> projectNames = FXCollections.observableArrayList();
         try {
-            ResultSet rs = IssueModel.getActiveProjectNames();
+            ResultSet rs = issuesBO.getActiveProjectNames();
             while (rs.next()) {
                 projectNames.add(rs.getString("name"));
             }
             selectProjectNameComboBox.setItems(projectNames);
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -87,13 +92,15 @@ public class CreateTimesheetViewController implements Initializable {
             if (selectedProject != null) {
                 ObservableList<String> taskNames = FXCollections.observableArrayList();
                 try {
-                    ResultSet rs = IssueModel.getTasksByProject(selectedProject);
+                    ResultSet rs = issuesBO.getTasksByProject(selectedProject);
                     while (rs.next()) {
                         taskNames.add(rs.getString("name"));
                     }
                     selectTaskNameComboBox.setItems(taskNames);
                 } catch (SQLException e) {
                     System.out.println("Error: " + e.getMessage());
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -134,7 +141,7 @@ public class CreateTimesheetViewController implements Initializable {
             String id_project = projectBO.getProjectIdByName(project_name);
 
             String task_name = selectTaskNameComboBox.getValue();
-            Long id_task = IssueModel.getTaskIdByName(task_name);
+            Long id_task = issuesBO.getTaskIdByName(task_name);
 
             String user_name = SessionUser.getLoggedInUsername();
             Long idByUsername = userBO.getUserIdByUsername(user_name);

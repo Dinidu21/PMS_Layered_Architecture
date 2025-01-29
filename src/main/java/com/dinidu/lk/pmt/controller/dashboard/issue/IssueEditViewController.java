@@ -1,11 +1,11 @@
 package com.dinidu.lk.pmt.controller.dashboard.issue;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.IssuesBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.IssueDTO;
-import com.dinidu.lk.pmt.model.IssueModel;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomDeleteAlert;
@@ -61,6 +61,9 @@ public class IssueEditViewController implements Initializable {
     UserBO userBO= (UserBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.USER);
+    IssuesBO issuesBO =
+            (IssuesBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.ISSUES);
 
     QueryDAO queryDAO = new QueryDAOImpl();
 
@@ -83,15 +86,17 @@ public class IssueEditViewController implements Initializable {
         currentIssue.setPriority(issuePriorityComboBox.getValue());
 
         try {
-            currentIssue.setProjectId(IssueModel.getProjectIdByName(selectProjectNameComboBox.getValue()));
+            currentIssue.setProjectId(issuesBO.getProjectIdByName(selectProjectNameComboBox.getValue()));
         } catch (SQLException e) {
             System.out.println("Error retrieving project ID: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         try {
             String selectedTaskName = selectTaskNameComboBox.getValue();
             if (selectedTaskName != null) {
-                Long taskId = IssueModel.getTaskIdByName(selectedTaskName);
+                Long taskId = issuesBO.getTaskIdByName(selectedTaskName);
                 if (taskId != null) {
                     currentIssue.setTaskId(taskId);
                 } else {
@@ -101,6 +106,8 @@ public class IssueEditViewController implements Initializable {
             }
         } catch (SQLException e) {
             System.out.println("Error retrieving task ID: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         try {
@@ -119,7 +126,7 @@ public class IssueEditViewController implements Initializable {
         currentIssue.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
         try {
-            boolean issueUpdated = IssueModel.updateIssue(currentIssue);
+            boolean issueUpdated = issuesBO.updateIssue(currentIssue);
 
             if (issueUpdated) {
                 System.out.println("Issue saved successfully.");
@@ -139,6 +146,8 @@ public class IssueEditViewController implements Initializable {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -154,9 +163,11 @@ public class IssueEditViewController implements Initializable {
             List<IssueDTO> issues = null;
 
             try {
-                issues = IssueModel.getAllIssues();
+                issues = issuesBO.getAllIssues();
             } catch (SQLException e) {
                 e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
 
             if (issues != null && !issues.isEmpty()) {
@@ -185,13 +196,15 @@ public class IssueEditViewController implements Initializable {
     private void initializeProjectComboBox() {
         ObservableList<String> projectNames = FXCollections.observableArrayList();
         try {
-            ResultSet rs = IssueModel.getActiveProjectNames();
+            ResultSet rs = issuesBO.getActiveProjectNames();
             while (rs.next()) {
                 projectNames.add(rs.getString("name"));
             }
             selectProjectNameComboBox.setItems(projectNames);
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -201,13 +214,15 @@ public class IssueEditViewController implements Initializable {
             if (selectedProject != null) {
                 ObservableList<String> taskNames = FXCollections.observableArrayList();
                 try {
-                    ResultSet rs = IssueModel.getTasksByProject(selectedProject);
+                    ResultSet rs = issuesBO.getTasksByProject(selectedProject);
                     while (rs.next()) {
                         taskNames.add(rs.getString("name"));
                     }
                     selectTaskNameComboBox.setItems(taskNames);
                 } catch (SQLException e) {
                     e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -216,13 +231,15 @@ public class IssueEditViewController implements Initializable {
     private void initializeMemberComboBox() {
         ObservableList<String> memberNames = FXCollections.observableArrayList();
         try {
-            ResultSet rs = IssueModel.getActiveMembers();
+            ResultSet rs = issuesBO.getActiveMembers();
             while (rs.next()) {
                 memberNames.add(rs.getString("full_name"));
             }
             selectMemberNameComboBox.setItems(memberNames);
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -241,18 +258,20 @@ public class IssueEditViewController implements Initializable {
         try {
             String projectId = currentIssue.getProjectId();
             if (projectId != null) {
-                String projectName = IssueModel.getProjectNameById(projectId);
+                String projectName = issuesBO.getProjectNameById(projectId);
                 selectProjectNameComboBox.setValue(projectName);
             }
 
             long taskId = currentIssue.getTaskId();
             if (taskId != 0) {
-                String taskName = IssueModel.getTaskNameById(taskId);
+                String taskName = issuesBO.getTaskNameById(taskId);
                 selectTaskNameComboBox.setValue(taskName);
             }
 
         } catch (SQLException e) {
             System.out.println("Error retrieving project or task data: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         long assignedTo = currentIssue.getAssignedTo();
@@ -330,7 +349,12 @@ public class IssueEditViewController implements Initializable {
 
         if (confirmed) {
             System.out.println("Deleting issue...");
-            boolean isDeleted = IssueModel.deleteIssue(currentIssue.getId());
+            boolean isDeleted = false;
+            try {
+                isDeleted = issuesBO.deleteIssue(currentIssue.getId());
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             if (isDeleted) {
                 System.out.println("Issue deleted successfully.");
                 CustomAlert.showAlert("Success", "Issue deleted successfully.");

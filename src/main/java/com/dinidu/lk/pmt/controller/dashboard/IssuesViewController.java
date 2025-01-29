@@ -1,6 +1,7 @@
 package com.dinidu.lk.pmt.controller.dashboard;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.IssuesBO;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
@@ -9,7 +10,6 @@ import com.dinidu.lk.pmt.controller.dashboard.issue.CreateIssueSuccessViewContro
 import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.IssueDTO;
-import com.dinidu.lk.pmt.model.IssueModel;
 import com.dinidu.lk.pmt.utils.SessionUser;
 import com.dinidu.lk.pmt.utils.issuesTypes.IssuePriority;
 import com.dinidu.lk.pmt.utils.issuesTypes.IssueStatus;
@@ -73,6 +73,9 @@ public class IssuesViewController extends BaseController implements Initializabl
     ProjectsBO projectBO =
             (ProjectsBO) BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);
+    IssuesBO issuesBO =
+            (IssuesBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.ISSUES);
 
     QueryDAO queryDAO = new QueryDAOImpl();
 
@@ -149,9 +152,11 @@ public class IssuesViewController extends BaseController implements Initializabl
                 String projectName = searchBox.getText().trim();
                 if (!projectName.isEmpty()) {
                     try {
-                        IssueModel.searchIssuesByName(projectName);
+                        issuesBO.searchIssuesByName(projectName);
                     } catch (SQLException e) {
                         System.out.println(e.getMessage());
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException(e);
                     }
                     event.consume();
                 }
@@ -165,9 +170,11 @@ public class IssuesViewController extends BaseController implements Initializabl
                 suggestionList.setVisible(false);
                 List<IssueDTO> filteredIssues = null;
                 try {
-                    filteredIssues = IssueModel.searchIssuesByName(selectedIssueName);
+                    filteredIssues = issuesBO.searchIssuesByName(selectedIssueName);
                 } catch (SQLException e) {
                     e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
 
                 assert filteredIssues != null;
@@ -209,9 +216,11 @@ public class IssuesViewController extends BaseController implements Initializabl
     private void updateIssuesView() {
         List<IssueDTO> issues = null;
         try {
-            issues = IssueModel.getAllIssues();
+            issues = issuesBO.getAllIssues();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         IssueStatus selectedStatus = sortByStatus.getValue();
@@ -308,16 +317,20 @@ public class IssuesViewController extends BaseController implements Initializabl
             
             String projName = null;
             try {
-                 projName = IssueModel.getProjectNameById(issue.getProjectId());
+                 projName = issuesBO.getProjectNameById(issue.getProjectId());
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
 
             String taskName = "";
             try {
-                taskName = IssueModel.getTaskNameById(issue.getTaskId());
+                taskName = issuesBO.getTaskNameById(issue.getTaskId());
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
 
             Label idLabel = new Label("#" + projName + " | "+taskName);
@@ -353,9 +366,11 @@ public class IssuesViewController extends BaseController implements Initializabl
     private void showSearchSuggestions(String query) {
         List<IssueDTO> filteredIssues = null;
         try {
-            filteredIssues = IssueModel.searchIssuesByName(query);
+            filteredIssues = issuesBO.searchIssuesByName(query);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
         assert filteredIssues != null;
         if (!filteredIssues.isEmpty()) {

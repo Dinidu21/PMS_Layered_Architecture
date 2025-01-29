@@ -82,7 +82,6 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
     public ImageView teamMember3Img;
     public ImageView teamMember4Img;
     private IssueDTO issueDTO;
-    private final AttachmentModel attachmentModel = new AttachmentModel();
     private static Long currentIssueId;
     private static Long currentUserId;
     private static final long MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
