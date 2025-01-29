@@ -2,11 +2,11 @@ package com.dinidu.lk.pmt.controller.dashboard;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.ReportsBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.db.DBConnection;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.dto.ReportDTO;
-import com.dinidu.lk.pmt.model.ReportModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.SessionUser;
@@ -64,6 +64,9 @@ public class ReportViewController implements Initializable {
     ProjectsBO projectBO =
             (ProjectsBO) BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);
+    ReportsBO reportBO =
+            (ReportsBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.REPORTS);
 
     @FXML
     public void toggleCardContainer() {
@@ -170,7 +173,12 @@ public class ReportViewController implements Initializable {
         reportDTO.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         reportDTO.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
-        boolean isSuccess = ReportModel.insertReport(reportDTO);
+        boolean isSuccess;
+        try {
+            isSuccess = reportBO.insertReport(reportDTO);
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         if (isSuccess) {
             try {

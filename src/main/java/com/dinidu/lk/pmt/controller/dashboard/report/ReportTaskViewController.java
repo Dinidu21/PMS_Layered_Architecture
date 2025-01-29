@@ -1,8 +1,9 @@
 package com.dinidu.lk.pmt.controller.dashboard.report;
 
+import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.ReportsBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dto.TaskReportData;
-import com.dinidu.lk.pmt.model.ReportModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -32,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
@@ -52,11 +54,10 @@ public class ReportTaskViewController implements Initializable {
 
     @FXML
     private CategoryAxis yAxis;
-    ReportModel taskReportModel;
 
-    public ReportTaskViewController() {
-        taskReportModel = new ReportModel();
-    }
+    ReportsBO  reportsBO = (ReportsBO)
+            BOFactory.getInstance().getBO(BOFactory.BOTypes.REPORTS);
+
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -64,10 +65,15 @@ public class ReportTaskViewController implements Initializable {
         String formattedDateTime = LocalDateTime.now().format(formatter);
         currentDateTime.setText("Calculated " + formattedDateTime);
 
-        int maxTaskCount = ReportModel.getAllTaskReportData().values().stream()
-                .mapToInt(TaskReportData::getTaskCount)
-                .max()
-                .orElse(40);
+        int maxTaskCount = 0;
+        try {
+            maxTaskCount = reportsBO.getAllTaskReportData().values().stream()
+                    .mapToInt(TaskReportData::getTaskCount)
+                    .max()
+                    .orElse(40);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(0);
@@ -75,23 +81,27 @@ public class ReportTaskViewController implements Initializable {
         xAxis.setTickUnit(Math.max(1, maxTaskCount / 10));
 
         XYChart.Series<Number, String> series = new XYChart.Series<>();
-        for (TaskReportData data : ReportModel.getAllTaskReportData().values()) {
-            int totalTaskCount = data.getTaskCount();
-            String memberName = data.getAssigneeName();
+        try {
+            for (TaskReportData data : reportsBO.getAllTaskReportData().values()) {
+                int totalTaskCount = data.getTaskCount();
+                String memberName = data.getAssigneeName();
 
-            System.out.println("Member Name: " + memberName);
-            System.out.println("Total Task Count: " + totalTaskCount);
+                System.out.println("Member Name: " + memberName);
+                System.out.println("Total Task Count: " + totalTaskCount);
 
-            XYChart.Data<Number, String> chartData = new XYChart.Data<>(totalTaskCount, memberName);
-            Label taskCountLabel = new Label(String.valueOf(totalTaskCount));
-            taskCountLabel.getStyleClass().add("task-count-label");
+                XYChart.Data<Number, String> chartData = new XYChart.Data<>(totalTaskCount, memberName);
+                Label taskCountLabel = new Label(String.valueOf(totalTaskCount));
+                taskCountLabel.getStyleClass().add("task-count-label");
 
-            VBox nodeContainer = new VBox(taskCountLabel);
-            nodeContainer.getStyleClass().add("node-container");
-            nodeContainer.setAlignment(Pos.CENTER);
+                VBox nodeContainer = new VBox(taskCountLabel);
+                nodeContainer.getStyleClass().add("node-container");
+                nodeContainer.setAlignment(Pos.CENTER);
 
-            chartData.setNode(nodeContainer);
-            series.getData().add(chartData);
+                chartData.setNode(nodeContainer);
+                series.getData().add(chartData);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         taskChart.setData(FXCollections.observableArrayList(series));
@@ -111,13 +121,15 @@ public class ReportTaskViewController implements Initializable {
         if (file != null) {
             try (FileWriter writer = new FileWriter(file); CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("Assignee", "Role", "Task ID", "Task Name", "Task Status", "Project Name", "Due Date", "Assigned Date", "Task Count"))) {
 
-                for (TaskReportData data : ReportModel.getAllTaskReportData().values()) {
+                for (TaskReportData data : reportsBO.getAllTaskReportData().values()) {
                     csvPrinter.printRecord(data.getAssigneeName(), data.getRole(), data.getTaskId(), data.getTaskName(), data.getTaskStatus(), data.getProjectName(), data.getDueDate(), data.getAssignedDate(), data.getTaskCount());
                 }
                 csvPrinter.flush();
                 CustomAlert.showAlert("SUCCESS", "Report saved successfully.");
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -145,7 +157,7 @@ public class ReportTaskViewController implements Initializable {
                 headerRow.createCell(8).setCellValue("Task Count");
 
                 int rowNum = 1;
-                for (TaskReportData data : ReportModel.getAllTaskReportData().values()) {
+                for (TaskReportData data : reportsBO.getAllTaskReportData().values()) {
                     Row row = sheet.createRow(rowNum++);
 
                     row.createCell(0).setCellValue(data.getAssigneeName());
@@ -170,6 +182,8 @@ public class ReportTaskViewController implements Initializable {
                 CustomAlert.showAlert("SUCCESS", "Report saved successfully.");
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
         }
     }

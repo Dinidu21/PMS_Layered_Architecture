@@ -9,6 +9,4 @@ import java.util.Map;
 
 public interface ReportsDAO extends CrudDAO<Report> {
     Map<Long, TaskReportData> getAllTaskReportData() throws SQLException,ClassNotFoundException;
-    int getTaskCountForUser(long userId) throws SQLException,ClassNotFoundException;
-
 }

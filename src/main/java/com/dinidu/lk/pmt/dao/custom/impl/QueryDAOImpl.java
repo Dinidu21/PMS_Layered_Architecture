@@ -2,7 +2,7 @@ package com.dinidu.lk.pmt.dao.custom.impl;
 
 import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.SQLUtil;
-import com.dinidu.lk.pmt.dto.TeamAssignmentDTO;
+import com.dinidu.lk.pmt.dto.TaskReportData;
 import com.dinidu.lk.pmt.dto.UserDTO;
 import com.dinidu.lk.pmt.entity.TeamAssignment;
 import com.dinidu.lk.pmt.utils.permissionTypes.Permission;
@@ -10,10 +10,8 @@ import com.dinidu.lk.pmt.utils.userTypes.UserRole;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
 
 public class QueryDAOImpl implements QueryDAO {
     // Working
@@ -166,7 +164,7 @@ public class QueryDAOImpl implements QueryDAO {
         System.out.println("\nEmails: " + emails+"\n");
         return emails;
     }
-
+    // Working
     @Override
     public List<TeamAssignment> getAssignmentsByTaskId(Long taskId) throws SQLException, ClassNotFoundException {
         String sql = "SELECT * FROM team_assignments ta " +
@@ -185,5 +183,60 @@ public class QueryDAOImpl implements QueryDAO {
             assignments.add(assignment);
         }
         return assignments;
+    }
+    // Working
+    @Override
+    public Map<Long, TaskReportData> getAllTaskReportData() throws SQLException, ClassNotFoundException {
+        Map<Long, TaskReportData> reportDataMap = new LinkedHashMap<>();
+        String query = """
+                SELECT u.full_name, r.role_name, t.id AS task_id, t.name AS task_name,
+                       t.status AS task_status, p.name AS project_name, t.due_date,
+                       ta.assigned_at, u.id AS user_id
+                FROM users u
+                LEFT JOIN team_assignments ta ON ta.user_id = u.id
+                LEFT JOIN tasks t ON t.id = ta.task_id
+                LEFT JOIN projects p ON p.id = t.project_id
+                LEFT JOIN roles r ON r.id = u.role_id
+                WHERE u.status = 'ACTIVE' 
+                  AND r.id NOT IN (1, 2, 3, 7)
+                """;
+
+        try (ResultSet rs = SQLUtil.execute(query)) {
+            while (rs.next()) {
+                long userId = rs.getLong("user_id");
+                String assigneeName = rs.getString("full_name");
+                String role = rs.getString("role_name");
+                long taskId = rs.getLong("task_id");
+                String taskName = rs.getString("task_name");
+                String taskStatus = rs.getString("task_status");
+                String projectName = rs.getString("project_name");
+                String dueDate = rs.getString("due_date");
+                String assignedDate = rs.getString("assigned_at");
+
+                int taskCount = getTaskCountForUser(userId);
+
+                TaskReportData data = reportDataMap.getOrDefault(userId,
+                        new TaskReportData(assigneeName, role, taskId, taskName, taskStatus, projectName, dueDate, assignedDate, taskCount));
+
+                data.setTaskCount(taskCount);
+                reportDataMap.put(userId, data);
+            }
+        }
+        return reportDataMap;
+    }
+    // Working
+    private int getTaskCountForUser(long userId) throws SQLException, ClassNotFoundException {
+        String countQuery = """
+                SELECT COUNT(DISTINCT ta.task_id) AS total_task_count
+                FROM team_assignments ta
+                WHERE ta.user_id = ?
+                """;
+
+        try (ResultSet rs = SQLUtil.execute(countQuery, userId)) {
+            if (rs.next()) {
+                return rs.getInt("total_task_count");
+            }
+        }
+        return 0;
     }
 }

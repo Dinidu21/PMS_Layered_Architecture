@@ -2,6 +2,7 @@ package com.dinidu.lk.pmt.controller;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.ReportsBO;
 import com.dinidu.lk.pmt.bo.custom.TasksBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.NotifyViewController;
@@ -10,7 +11,6 @@ import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TaskReportData;
-import com.dinidu.lk.pmt.model.ReportModel;
 import com.dinidu.lk.pmt.utils.ProfileImageManager;
 import com.dinidu.lk.pmt.utils.SessionUser;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
@@ -78,6 +78,10 @@ public class DashboardViewController extends BaseController {
     TasksBO tasksBO= (TasksBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.TASKS);
+
+    ReportsBO reportsBO= (ReportsBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.REPORTS);
 
     QueryDAO queryDAO = new QueryDAOImpl();
 
@@ -293,7 +297,12 @@ public class DashboardViewController extends BaseController {
     }
 
     private void setupPieChart() {
-        Map<Long, TaskReportData> reportDataMap = ReportModel.getAllTaskReportData();
+        Map<Long, TaskReportData> reportDataMap;
+        try {
+            reportDataMap = reportsBO.getAllTaskReportData();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
 
         String[] colors = {
