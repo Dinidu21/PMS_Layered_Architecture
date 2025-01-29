@@ -3,6 +3,7 @@ package com.dinidu.lk.pmt.controller.dashboard.task;
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
 import com.dinidu.lk.pmt.bo.custom.TasksBO;
+import com.dinidu.lk.pmt.bo.custom.TeamAssignmentBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.controller.dashboard.task.checklist.ChecklistCreateViewController;
@@ -105,6 +106,10 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
     TasksBO tasksBO = (TasksBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.TASKS);
+
+    TeamAssignmentBO teamAssignmentBO = (TeamAssignmentBO)
+                    BOFactory.getInstance().
+                            getBO(BOFactory.BOTypes.TEAM_ASSIGNMENTS);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -472,7 +477,12 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
 
         for (TasksDTO task : tasks) {
             if (teamMemberCount >= 4) break;
-            List<TeamAssignmentDTO> assignments = TeamAssignmentModel.getAssignmentsByTaskId(task.getId().get());
+            List<TeamAssignmentDTO> assignments = null;
+            try {
+                assignments = teamAssignmentBO.getAssignmentsByTaskId(task.getId().get());
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
 
             for (TeamAssignmentDTO assignment : assignments) {
                 if (teamMemberCount >= 4) break;

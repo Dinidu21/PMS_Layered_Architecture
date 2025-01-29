@@ -1,8 +1,8 @@
 package com.dinidu.lk.pmt.utils.notification;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
+import com.dinidu.lk.pmt.bo.custom.TeamAssignmentBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
-import com.dinidu.lk.pmt.model.TeamAssignmentModel;
 import com.dinidu.lk.pmt.utils.DateUtil;
 import com.dinidu.lk.pmt.utils.MessageType;
 import com.dinidu.lk.pmt.utils.mail.MailUtil;
@@ -25,6 +25,8 @@ public class NotificationManager {
     static UserBO userBO = (UserBO) BOFactory.getInstance().
                 getBO(BOFactory.
                         BOTypes.USER);
+    static TeamAssignmentBO teamAssignmentBO = (TeamAssignmentBO) BOFactory.getInstance().
+            getBO(BOFactory.BOTypes.TEAM_ASSIGNMENTS);
 
     private NotificationManager() {
         this.scheduler = Executors.newScheduledThreadPool(4);
@@ -118,7 +120,8 @@ public class NotificationManager {
         executor.submit(() -> {
             try {
                 validateEmails(newAssigneeEmail, existingTeamEmails);
-                List<String> teamMemberNames = TeamAssignmentModel.getAllTeamMembersNamesByTask(taskName);
+                List<String> teamMemberNames = teamAssignmentBO.getAllTeamMembersNamesByTask(taskName);
+                System.out.println("\nNotification Manager: Team Member Names: " + teamMemberNames);
 
                 Map<String, String> baseVariables = new HashMap<>();
                 baseVariables.put("projectName", projectName);

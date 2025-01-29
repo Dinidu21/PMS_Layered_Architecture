@@ -3,6 +3,7 @@ package com.dinidu.lk.pmt.controller.dashboard.project;
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
 import com.dinidu.lk.pmt.bo.custom.TasksBO;
+import com.dinidu.lk.pmt.bo.custom.TeamAssignmentBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.DashboardViewController;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
@@ -10,7 +11,6 @@ import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TeamAssignmentDTO;
-import com.dinidu.lk.pmt.model.TeamAssignmentModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.listeners.ProjectDeletionHandler;
 import com.dinidu.lk.pmt.utils.listeners.ProjectUpdateListener;
@@ -100,6 +100,9 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.TASKS);
 
+    TeamAssignmentBO teamAssignmentBO = (TeamAssignmentBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.TEAM_ASSIGNMENTS);
 
     @FXML
     private Label projectId;
@@ -206,7 +209,12 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
         }
 
         for (TasksDTO task : tasks) {
-            List<TeamAssignmentDTO> taskAssignments = TeamAssignmentModel.getAssignmentsByTaskId(task.getId().get());
+            List<TeamAssignmentDTO> taskAssignments = null;
+            try {
+                taskAssignments = teamAssignmentBO.getAssignmentsByTaskId(task.getId().get());
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             assignments.addAll(taskAssignments);
         }
 

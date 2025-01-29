@@ -3,6 +3,7 @@ package com.dinidu.lk.pmt.controller.dashboard.issue;
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
 import com.dinidu.lk.pmt.bo.custom.TasksBO;
+import com.dinidu.lk.pmt.bo.custom.TeamAssignmentBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dao.QueryDAO;
@@ -102,6 +103,9 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
     TasksBO tasksBO = (TasksBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.TASKS);
+    TeamAssignmentBO teamAssignmentBO = (TeamAssignmentBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.TEAM_ASSIGNMENTS);
 
     private boolean isFileSizeValid(File file) {
         if (file == null || !file.exists()) {
@@ -489,7 +493,12 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
         }
 
         for (TasksDTO task : tasks) {
-            List<TeamAssignmentDTO> taskAssignments = TeamAssignmentModel.getAssignmentsByTaskId(task.getId().get());
+            List<TeamAssignmentDTO> taskAssignments = null;
+            try {
+                taskAssignments = teamAssignmentBO.getAssignmentsByTaskId(task.getId().get());
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             assignments.addAll(taskAssignments);
         }
 

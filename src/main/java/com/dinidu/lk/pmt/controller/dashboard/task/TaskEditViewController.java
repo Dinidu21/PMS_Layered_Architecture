@@ -3,13 +3,13 @@ package com.dinidu.lk.pmt.controller.dashboard.task;
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
 import com.dinidu.lk.pmt.bo.custom.TasksBO;
+import com.dinidu.lk.pmt.bo.custom.TeamAssignmentBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.TasksDTO;
 import com.dinidu.lk.pmt.dto.TeamAssignmentDTO;
 import com.dinidu.lk.pmt.dto.UserDTO;
-import com.dinidu.lk.pmt.model.TeamAssignmentModel;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomDeleteAlert;
@@ -73,6 +73,10 @@ public class TaskEditViewController implements Initializable {
     TasksBO tasksBO = (TasksBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.TASKS);
+    TeamAssignmentBO teamAssignmentBO = (TeamAssignmentBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.TEAM_ASSIGNMENTS);
+
     QueryDAO queryDAO= new QueryDAOImpl();
 
     public static void setTask(TasksDTO task) {
@@ -198,13 +202,14 @@ public class TaskEditViewController implements Initializable {
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-            List<Long> existingUserIds = TeamAssignmentModel.getTeamMemberIdsByTask(currentTask.idProperty().get());
-
+            List<Long> existingUserIds = teamAssignmentBO.getTeamMemberIdsByTask(currentTask.idProperty().get());
+            System.out.println("\n================= TASK EDIT VIEW =================\n");
+            System.out.println("Existing user ids: " + existingUserIds);
+            System.out.println("\n================= TASK EDIT VIEW =================\n");
             if (!existingUserIds.contains(userIdByFullName)) {
                 TeamAssignmentDTO newAssignment = createTeamAssignment(userIdByFullName);
-                TeamAssignmentModel teamAssignmentModel = new TeamAssignmentModel();
-
-                if (teamAssignmentModel.saveAssignment(newAssignment)) {
+                if (teamAssignmentBO.saveAssignment(newAssignment)) {
+                    System.out.println("\n===== Team assignment saved successfully.====\n");
                     handleSuccessfulAssignment(selectedUser);
                 } else {
                     CustomErrorAlert.showAlert("Error", "Failed to save team assignment.");
@@ -213,6 +218,8 @@ public class TaskEditViewController implements Initializable {
         } catch (SQLException e) {
             System.out.println("Error while handling team assignment: " + e.getMessage());
             CustomErrorAlert.showAlert("Error", "Database error while saving assignment.");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -229,7 +236,10 @@ public class TaskEditViewController implements Initializable {
             CustomAlert.showAlert("SUCCESS", "User successfully assigned.");
             System.out.println("New user assigned: " + selectedUser);
 
-            List<String> existingTeamEmails = TeamAssignmentModel.getTeamMemberEmailsByTask(currentTask.idProperty().get());
+            List<String> existingTeamEmails = teamAssignmentBO.getTeamMemberEmailsByTask(currentTask.idProperty().get());
+            System.out.println("\n================= TASK EDIT VIEW =================\n");
+            System.out.println("Existing team emails: " + existingTeamEmails);
+            System.out.println("\n================= TASK EDIT VIEW =================\n");
             String newAssigneeEmail = userBO.getUserEmailByFullName(selectedUser);
             String projectName = projectBO.getProjectNameById(currentTask.projectIdProperty().get());
             String username = SessionUser.getLoggedInUsername();
