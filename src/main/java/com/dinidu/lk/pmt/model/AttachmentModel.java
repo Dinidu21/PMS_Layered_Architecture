@@ -1,14 +1,21 @@
 package com.dinidu.lk.pmt.model;
 
 
+import com.dinidu.lk.pmt.dto.IssueAttachmentDTO;
+import com.dinidu.lk.pmt.utils.CrudUtil;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class AttachmentModel {
 
     private static final String INSERT_ATTACHMENT = "INSERT INTO issue_attachments (issue_id, file_name, uploaded_at, uploaded_by, file_url, file_data) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String GET_ATTACHMENTS = "SELECT * FROM issue_attachments WHERE issue_id = ?";
     private static final String DELETE_ATTACHMENT = "DELETE FROM issue_attachments WHERE id = ?";
 
-/*
-    public void saveAttachment(IssueAttachmentDTO attachment) throws SQLException {
+/*    public void saveAttachment(IssueAttachmentDTO attachment) throws SQLException {
         Boolean isSaved = CrudUtil.execute(INSERT_ATTACHMENT, attachment.getIssueId(), attachment.getFileName(), attachment.getUploadedAt(), attachment.getUploadedBy(), attachment.getFileUrl(), attachment.getFileData());
 
         if (isSaved) {
@@ -19,9 +26,7 @@ public class AttachmentModel {
             }
         }
     }
-*/
 
-/*
     public List<IssueAttachmentDTO> getAttachments(Long issueId) throws SQLException {
         List<IssueAttachmentDTO> attachments = new ArrayList<>();
 
@@ -40,11 +45,8 @@ public class AttachmentModel {
         }
         return attachments;
     }
-*/
 
-/*
     public boolean deleteAttachment(Long attachmentId) {
         return CrudUtil.execute(DELETE_ATTACHMENT, attachmentId);
-    }
-*/
+    }*/
 }

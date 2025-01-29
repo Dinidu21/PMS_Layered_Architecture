@@ -204,15 +204,10 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
                     Thread.sleep(20);
                 }
 
-                boolean isSaved = issueAttachmentBO.saveAttachment(attachment);
+                issueAttachmentBO.saveAttachment(attachment);
 
                 System.out.println("=================CREATE ISSUE SUCCESS VIEW CONTROLLER=================");
                 System.out.println("Here is the Uploaded id "+ attachment.getId());
-
-                if (!isSaved) {
-                    CustomErrorAlert.showAlert("Error", "Failed to upload the attachment.");
-                    System.out.println("Failed to upload the attachment");
-                }
                 return attachment;
             }
         };
@@ -264,7 +259,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
     }
 
     private void loadExistingAttachments() {
-        javafx.concurrent.Task<List<IssueAttachmentDTO>> loadTask = new javafx.concurrent.Task<>() {
+        Task<List<IssueAttachmentDTO>> loadTask = new Task<>() {
             @Override
             protected List<IssueAttachmentDTO> call() throws Exception {
                 return issueAttachmentBO.getAttachments(currentIssueId);
@@ -294,7 +289,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
         File file = fileChooser.showSaveDialog(attachmentContainer.getScene().getWindow());
 
         if (file != null) {
-            javafx.concurrent.Task<Void> downloadTask = new javafx.concurrent.Task<>() {
+            Task<Void> downloadTask = new Task<>() {
                 @Override
                 protected Void call() throws Exception {
                     try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -313,6 +308,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
     }
 
     private void deleteAttachment(IssueAttachmentDTO attachment, HBox attachmentRow) {
+        long currentIssueAttachmentId = 0;
         if (attachment == null) {
             System.out.println("❌ ERROR: Attachment object is null!");
             return;
@@ -321,7 +317,12 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
 
         if (attachment.getId() == null) {
             System.out.println("❌ ERROR: Attachment ID is null! Cannot delete.");
-            return;
+            System.out.println("Fetching Last Added Attachment ID...");
+            try {
+                currentIssueAttachmentId = issueAttachmentBO.getLastAddedAttachmentId(currentIssueId);
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         boolean confirmed = CustomDeleteAlert.showAlert(
@@ -334,11 +335,17 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
             return;
         }
 
-        javafx.concurrent.Task<Boolean> deleteTask = new javafx.concurrent.Task<>() {
+        long finalCurrentIssueAttachmentId = currentIssueAttachmentId;
+        Task<Boolean> deleteTask = new Task<>() {
             @Override
             protected Boolean call() throws Exception {
                 System.out.println("🔍 Calling deleteAttachment() with ID: " + attachment.getId());
-                return issueAttachmentBO.deleteAttachment(attachment.getId());
+                if(attachment.getId() == null) {
+                    System.out.println("dto id is null...");
+                    System.out.println("Fetching Last Added Attachment ID...: "+ finalCurrentIssueAttachmentId);
+
+                }
+                return issueAttachmentBO.deleteAttachment(attachment.getId() == null ? finalCurrentIssueAttachmentId : attachment.getId());
             }
         };
 

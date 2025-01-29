@@ -7,7 +7,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface IssueAttachmentBO extends SuperBO {
-    boolean saveAttachment(IssueAttachmentDTO attachment) throws SQLException,ClassNotFoundException;
+    void saveAttachment(IssueAttachmentDTO attachment) throws SQLException,ClassNotFoundException;
     boolean deleteAttachment(Long attachmentId) throws SQLException,ClassNotFoundException;
     List<IssueAttachmentDTO> getAttachments(Long issueId) throws SQLException,ClassNotFoundException;
+    long getLastAddedAttachmentId(Long currentIssueId) throws SQLException,ClassNotFoundException;
 }

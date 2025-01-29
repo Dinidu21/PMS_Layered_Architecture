@@ -9,5 +9,7 @@ import java.util.List;
 
 public interface IssueAttachmentDAO extends CrudDAO<IssueAttachment> {
     boolean deleteAttachment(Long attachmentId)throws SQLException,ClassNotFoundException;
-    List<IssueAttachmentDTO> getAttachments(Long issueId) throws SQLException,ClassNotFoundException;
+    List<IssueAttachment> getAttachments(Long issueId) throws SQLException,ClassNotFoundException;
+    void saveAttachment(IssueAttachment attachment) throws SQLException ,ClassNotFoundException;
+    long getLastAddedAttachmentId(Long currentIssueId) throws SQLException, ClassNotFoundException;
 }
