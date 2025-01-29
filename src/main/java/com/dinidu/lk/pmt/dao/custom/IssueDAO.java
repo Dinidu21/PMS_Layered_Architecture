@@ -5,6 +5,7 @@ import com.dinidu.lk.pmt.entity.Issue;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public interface IssueDAO extends CrudDAO<Issue> {
     String getTaskNameById(Long taskId) throws SQLException ,ClassNotFoundException;
@@ -12,9 +13,9 @@ public interface IssueDAO extends CrudDAO<Issue> {
     String getProjectNameById(String projectId) throws SQLException ,ClassNotFoundException;
     String getProjectIdByName(String projectName) throws SQLException ,ClassNotFoundException;
     Long getUserIdByName(String userName) throws SQLException ,ClassNotFoundException;
-    ResultSet getActiveProjectNames() throws SQLException ,ClassNotFoundException;
-    ResultSet getTasksByProject(String projectName) throws SQLException ,ClassNotFoundException;
-    ResultSet getActiveMembers() throws SQLException ,ClassNotFoundException;
+    List<String> getActiveProjectNames() throws SQLException ,ClassNotFoundException;
+    List<String> getTasksByProject(String projectName) throws SQLException ,ClassNotFoundException;
+    List<String> getActiveMembers() throws SQLException ,ClassNotFoundException;
 
 
 

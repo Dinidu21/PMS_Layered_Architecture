@@ -15,6 +15,39 @@ import java.util.Map;
 
 public class IssueDAOImpl implements IssueDAO {
     @Override
+    public List<Issue> searchByName(String issueName) throws SQLException, ClassNotFoundException {
+        String query = "SELECT * FROM issues WHERE description LIKE ?";
+        List<Issue> issues;
+        try (ResultSet resultSet = SQLUtil.execute(query, issueName + "%")) {
+            issues = new ArrayList<>();
+
+            while (resultSet.next()) {
+                Issue issue = new Issue();
+                issue.setId(resultSet.getLong("id"));
+                issue.setProjectId(resultSet.getString("project_id"));
+                issue.setTaskId(resultSet.getLong("task_id"));
+                issue.setDescription(resultSet.getString("description"));
+                issue.setReportedBy(resultSet.getLong("reported_by"));
+                issue.setAssignedTo(resultSet.getLong("assigned_to"));
+                issue.setStatus(IssueStatus.valueOf(resultSet.getString("status")));
+                issue.setPriority(IssuePriority.valueOf(resultSet.getString("priority")));
+                issue.setDueDate(resultSet.getDate("due_date"));
+                issue.setCreatedAt(resultSet.getTimestamp("created_at"));
+                issue.setUpdatedAt(resultSet.getTimestamp("updated_at"));
+
+                issues.add(issue);
+            }
+        }
+        return issues;
+    }
+    @Override
+    public Long getIdByName(String taskName) throws SQLException, ClassNotFoundException {
+        String query = "SELECT id FROM tasks WHERE name = ?";
+        try (ResultSet rs = SQLUtil.execute(query, taskName)) {
+            return rs.next() ? rs.getLong("id") : null;
+        }
+    }
+    @Override
     public String getTaskNameById(Long taskId) throws SQLException, ClassNotFoundException {
         String query = "SELECT name FROM tasks WHERE id = ?";
         try (ResultSet rs = SQLUtil.execute(query, taskId)) {
@@ -59,38 +92,91 @@ public class IssueDAOImpl implements IssueDAO {
     }
 
     @Override
-    public ResultSet getActiveProjectNames() throws SQLException, ClassNotFoundException {
+    public List<String> getActiveProjectNames() throws SQLException, ClassNotFoundException {
         String query = "SELECT name FROM projects WHERE status != 'CANCELLED'";
-        return SQLUtil.execute(query);
+        List<String> projectNames = new ArrayList<>();
+
+        try (ResultSet rs = SQLUtil.execute(query)) {
+            while (rs.next()) {
+                projectNames.add(rs.getString("name"));
+            }
+        }
+
+        return projectNames;
     }
 
+
     @Override
-    public ResultSet getTasksByProject(String projectName) throws SQLException, ClassNotFoundException {
+    public List<String> getTasksByProject(String projectName) throws SQLException, ClassNotFoundException {
         String query = """
-                 SELECT t.name\s
-                 FROM tasks t\s
-                 JOIN projects p ON t.project_id = p.id\s
-                 WHERE p.name = ? AND p.status != 'CANCELLED'
-                \s""";
-        return SQLUtil.execute(query, projectName);
+             SELECT t.name
+             FROM tasks t
+             JOIN projects p ON t.project_id = p.id
+             WHERE p.name = ? AND p.status != 'CANCELLED'
+            """;
+        List<String> taskNames = new ArrayList<>();
+        try (ResultSet rs = SQLUtil.execute(query, projectName)) {
+            while (rs.next()) {
+                taskNames.add(rs.getString("name"));
+            }
+        }
+        return taskNames;
     }
 
+
     @Override
-    public ResultSet getActiveMembers() throws SQLException, ClassNotFoundException {
+    public List<String> getActiveMembers() throws SQLException, ClassNotFoundException {
         String query = """
-                 SELECT u.full_name\s
-                 FROM users u
-                 JOIN roles r ON u.role_id = r.id
-                 WHERE u.status = 'ACTIVE'\s
-                 AND r.id NOT IN (1, 2, 3, 7)
-                \s""";
-        return SQLUtil.execute(query);
+             SELECT u.full_name
+             FROM users u
+             JOIN roles r ON u.role_id = r.id
+             WHERE u.status = 'ACTIVE'
+             AND r.id NOT IN (1, 2, 3, 7)
+            """;
+        List<String> memberNames = new ArrayList<>();
+
+        try (ResultSet rs = SQLUtil.execute(query)) {
+            while (rs.next()) {
+                memberNames.add(rs.getString("full_name"));
+            }
+        }
+
+        return memberNames;
     }
 
     @Override
-    public boolean save(Issue dto) throws SQLException, ClassNotFoundException {
-        return false;
+    public List<Issue> fetchAll() throws SQLException, ClassNotFoundException {
+        String query = "SELECT * FROM issues ORDER BY created_at DESC";
+        List<Issue> issues;
+        try (ResultSet resultSet = SQLUtil.execute(query)) {
+            issues = new ArrayList<>();
+
+            while (resultSet.next()) {
+                Issue issue = new Issue();
+                issue.setId(resultSet.getLong("id"));
+                issue.setProjectId(resultSet.getString("project_id"));
+                issue.setTaskId(resultSet.getLong("task_id"));
+                issue.setDescription(resultSet.getString("description"));
+                issue.setReportedBy(resultSet.getLong("reported_by"));
+                issue.setAssignedTo(resultSet.getLong("assigned_to"));
+                issue.setStatus(IssueStatus.valueOf(resultSet.getString("status")));
+                issue.setPriority(IssuePriority.valueOf(resultSet.getString("priority")));
+                issue.setDueDate(resultSet.getDate("due_date"));
+                issue.setCreatedAt(resultSet.getTimestamp("created_at"));
+                issue.setUpdatedAt(resultSet.getTimestamp("updated_at"));
+
+                issues.add(issue);
+            }
+        }
+        return issues;
     }
+
+
+
+
+
+
+
 
     @Override
     public boolean update(Issue currentIssue) throws SQLException, ClassNotFoundException {
@@ -156,69 +242,14 @@ public class IssueDAOImpl implements IssueDAO {
     }
 
     @Override
-    public List<Issue> fetchAll() throws SQLException, ClassNotFoundException {
-        String query = "SELECT * FROM issues ORDER BY created_at DESC";
-        List<Issue> issues;
-        try (ResultSet resultSet = SQLUtil.execute(query)) {
-            issues = new ArrayList<>();
-
-            while (resultSet.next()) {
-                Issue issue = new Issue();
-                issue.setId(resultSet.getLong("id"));
-                issue.setProjectId(resultSet.getString("project_id"));
-                issue.setTaskId(resultSet.getLong("task_id"));
-                issue.setDescription(resultSet.getString("description"));
-                issue.setReportedBy(resultSet.getLong("reported_by"));
-                issue.setAssignedTo(resultSet.getLong("assigned_to"));
-                issue.setStatus(IssueStatus.valueOf(resultSet.getString("status")));
-                issue.setPriority(IssuePriority.valueOf(resultSet.getString("priority")));
-                issue.setDueDate(resultSet.getDate("due_date"));
-                issue.setCreatedAt(resultSet.getTimestamp("created_at"));
-                issue.setUpdatedAt(resultSet.getTimestamp("updated_at"));
-
-                issues.add(issue);
-            }
-        }
-        return issues;
-    }
-
-    @Override
     public Map<String, String> getAllNames() throws SQLException, ClassNotFoundException {
         return Map.of();
     }
 
     @Override
-    public List<Issue> searchByName(String issueName) throws SQLException, ClassNotFoundException {
-        String query = "SELECT * FROM issues WHERE description LIKE ?";
-        List<Issue> issues;
-        try (ResultSet resultSet = SQLUtil.execute(query, issueName + "%")) {
-            issues = new ArrayList<>();
-
-            while (resultSet.next()) {
-                Issue issue = new Issue();
-                issue.setId(resultSet.getLong("id"));
-                issue.setProjectId(resultSet.getString("project_id"));
-                issue.setTaskId(resultSet.getLong("task_id"));
-                issue.setDescription(resultSet.getString("description"));
-                issue.setReportedBy(resultSet.getLong("reported_by"));
-                issue.setAssignedTo(resultSet.getLong("assigned_to"));
-                issue.setStatus(IssueStatus.valueOf(resultSet.getString("status")));
-                issue.setPriority(IssuePriority.valueOf(resultSet.getString("priority")));
-                issue.setDueDate(resultSet.getDate("due_date"));
-                issue.setCreatedAt(resultSet.getTimestamp("created_at"));
-                issue.setUpdatedAt(resultSet.getTimestamp("updated_at"));
-
-                issues.add(issue);
-            }
-        }
-        return issues;
+    public boolean save(Issue dto) throws SQLException, ClassNotFoundException {
+        return false;
     }
 
-    @Override
-    public Long getIdByName(String taskName) throws SQLException, ClassNotFoundException {
-        String query = "SELECT id FROM tasks WHERE name = ?";
-        try (ResultSet rs = SQLUtil.execute(query, taskName)) {
-            return rs.next() ? rs.getLong("id") : null;
-        }
-    }
+
 }

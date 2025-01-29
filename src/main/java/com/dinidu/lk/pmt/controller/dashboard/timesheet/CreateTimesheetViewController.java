@@ -22,6 +22,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class CreateTimesheetViewController implements Initializable {
@@ -74,15 +75,11 @@ public class CreateTimesheetViewController implements Initializable {
     private void initializeProjectComboBox() {
         ObservableList<String> projectNames = FXCollections.observableArrayList();
         try {
-            ResultSet rs = issuesBO.getActiveProjectNames();
-            while (rs.next()) {
-                projectNames.add(rs.getString("name"));
-            }
+            List<String> projects = issuesBO.getActiveProjectNames();  // Now returns a List<String>
+            projectNames.addAll(projects);  // Add all the projects to the ObservableList
             selectProjectNameComboBox.setItems(projectNames);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             System.out.println("Error: " + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -92,19 +89,16 @@ public class CreateTimesheetViewController implements Initializable {
             if (selectedProject != null) {
                 ObservableList<String> taskNames = FXCollections.observableArrayList();
                 try {
-                    ResultSet rs = issuesBO.getTasksByProject(selectedProject);
-                    while (rs.next()) {
-                        taskNames.add(rs.getString("name"));
-                    }
+                    List<String> tasks = issuesBO.getTasksByProject(selectedProject);
+                    taskNames.addAll(tasks);
                     selectTaskNameComboBox.setItems(taskNames);
-                } catch (SQLException e) {
+                } catch (SQLException | ClassNotFoundException e) {
                     System.out.println("Error: " + e.getMessage());
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
                 }
             }
         });
     }
+
 
     public void cancelOnClick() {
         selectProjectNameComboBox.getSelectionModel().clearSelection();

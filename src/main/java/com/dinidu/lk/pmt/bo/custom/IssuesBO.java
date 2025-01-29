@@ -28,9 +28,9 @@ public interface IssuesBO extends SuperBO {
 
     Long getUserIdByName(String memberName) throws SQLException, ClassNotFoundException;
 
-    ResultSet getActiveProjectNames() throws SQLException, ClassNotFoundException;
+    List<String> getActiveProjectNames() throws SQLException, ClassNotFoundException;
 
-    ResultSet getTasksByProject(String selectedProject) throws SQLException, ClassNotFoundException;
+    List<String> getTasksByProject(String selectedProject) throws SQLException, ClassNotFoundException;
 
-    ResultSet getActiveMembers() throws SQLException, ClassNotFoundException;
+    List<String> getActiveMembers() throws SQLException, ClassNotFoundException;
 }

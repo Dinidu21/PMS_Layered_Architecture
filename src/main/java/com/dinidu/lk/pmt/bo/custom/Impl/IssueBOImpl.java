@@ -67,17 +67,17 @@ public class IssueBOImpl implements IssuesBO {
     }
 
     @Override
-    public ResultSet getActiveProjectNames() throws SQLException, ClassNotFoundException {
+    public List<String> getActiveProjectNames() throws SQLException, ClassNotFoundException {
         return issueDAO.getActiveProjectNames();
     }
 
     @Override
-    public ResultSet getTasksByProject(String selectedProject) throws SQLException, ClassNotFoundException {
+    public List<String> getTasksByProject(String selectedProject) throws SQLException, ClassNotFoundException {
         return issueDAO.getTasksByProject(selectedProject);
     }
 
     @Override
-    public ResultSet getActiveMembers() throws SQLException, ClassNotFoundException {
+    public List<String> getActiveMembers() throws SQLException, ClassNotFoundException {
         return issueDAO.getActiveMembers();
     }
 }

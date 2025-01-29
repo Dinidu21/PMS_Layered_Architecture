@@ -1,3 +1,4 @@
+/*
 package com.dinidu.lk.pmt.model;
 
 import com.dinidu.lk.pmt.dto.IssueDTO;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IssueModel {
+*/
+/*
     public static boolean createIssue(IssueDTO issueDTO) throws SQLException {
         String insertQuery = """
                      INSERT INTO issues (project_id,\s
@@ -21,7 +24,11 @@ public class IssueModel {
 
         return CrudUtil.execute(insertQuery, issueDTO.getProjectId(), issueDTO.getTaskId(), issueDTO.getDescription(), issueDTO.getReportedBy(), issueDTO.getAssignedTo(), issueDTO.getStatus().toString(), issueDTO.getPriority().toString());
     }
+*//*
 
+
+*/
+/*
     public static String getProjectNameById(String projectId) throws SQLException {
         String query = "SELECT name FROM projects WHERE id = ?";
         try (ResultSet rs = CrudUtil.execute(query, projectId)) {
@@ -31,8 +38,11 @@ public class IssueModel {
         }
         return null;
     }
+*//*
 
-    public static String getTaskNameById(Long taskId) throws SQLException {
+
+*/
+/*    public static String getTaskNameById(Long taskId) throws SQLException {
         String query = "SELECT name FROM tasks WHERE id = ?";
         try (ResultSet rs = CrudUtil.execute(query, taskId)) {
             if (rs.next()) {
@@ -40,8 +50,11 @@ public class IssueModel {
             }
         }
         return null;
-    }
+    }*//*
 
+
+*/
+/*
     public static List<IssueDTO> getAllIssues() throws SQLException {
         String query = "SELECT * FROM issues ORDER BY created_at DESC";
         List<IssueDTO> issues;
@@ -67,7 +80,11 @@ public class IssueModel {
         }
         return issues;
     }
+*//*
 
+
+*/
+/*
     public static List<IssueDTO> searchIssuesByName(String issueName) throws SQLException {
         String query = "SELECT * FROM issues WHERE description LIKE ?";
         List<IssueDTO> issues;
@@ -93,7 +110,11 @@ public class IssueModel {
         }
         return issues;
     }
+*//*
 
+
+*/
+/*
     public static boolean updateIssue(IssueDTO currentIssue) throws SQLException {
         StringBuilder queryBuilder = new StringBuilder("UPDATE issues SET ");
         List<Object> parameters = new ArrayList<>();
@@ -139,40 +160,54 @@ public class IssueModel {
         String updateQuery = queryBuilder.toString();
         return CrudUtil.execute(updateQuery, parameters.toArray());
     }
+*//*
 
 
+*/
+/*
     public static boolean deleteIssue(Long id) {
         String deleteQuery = "DELETE FROM issues WHERE id = ?";
         return CrudUtil.execute(deleteQuery, id);
     }
+*//*
 
-    public static String getProjectIdByName(String projectName) throws SQLException {
+
+*/
+/*    public static String getProjectIdByName(String projectName) throws SQLException {
         String query = "SELECT id FROM projects WHERE name = ?";
         try (ResultSet rs = CrudUtil.execute(query, projectName)) {
             return rs.next() ? rs.getString("id") : null;
         }
-    }
+    }*//*
 
-    public static Long getTaskIdByName(String taskName) throws SQLException {
+
+*/
+/*    public static Long getTaskIdByName(String taskName) throws SQLException {
         String query = "SELECT id FROM tasks WHERE name = ?";
         try (ResultSet rs = CrudUtil.execute(query, taskName)) {
             return rs.next() ? rs.getLong("id") : null;
         }
-    }
+    }*//*
 
-    public static Long getUserIdByName(String userName) throws SQLException {
+
+*/
+/*    public static Long getUserIdByName(String userName) throws SQLException {
         String query = "SELECT id FROM users WHERE full_name = ?";
         try (ResultSet rs = CrudUtil.execute(query, userName)) {
             return rs.next() ? rs.getLong("id") : null;
         }
-    }
+    }*//*
 
+*/
+/*
     public static ResultSet getActiveProjectNames() throws SQLException {
         String query = "SELECT name FROM projects WHERE status != 'CANCELLED'";
         return CrudUtil.execute(query);
-    }
+    }*//*
 
-    public static ResultSet getTasksByProject(String projectName) throws SQLException {
+
+*/
+/*    public static ResultSet getTasksByProject(String projectName) throws SQLException {
         String query = """
                  SELECT t.name\s
                  FROM tasks t\s
@@ -180,7 +215,8 @@ public class IssueModel {
                  WHERE p.name = ? AND p.status != 'CANCELLED'
                 \s""";
         return CrudUtil.execute(query, projectName);
-    }
+    }*//*
+
 
     public static ResultSet getActiveMembers() throws SQLException {
         String query = """
@@ -193,3 +229,4 @@ public class IssueModel {
         return CrudUtil.execute(query);
     }
 }
+*/

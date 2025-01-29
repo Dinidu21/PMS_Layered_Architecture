@@ -27,6 +27,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class CreateIssueViewController implements Initializable {
@@ -63,15 +64,11 @@ public class CreateIssueViewController implements Initializable {
     private void initializeProjectComboBox() {
         ObservableList<String> projectNames = FXCollections.observableArrayList();
         try {
-            ResultSet rs = issuesBO.getActiveProjectNames();
-            while (rs.next()) {
-                projectNames.add(rs.getString("name"));
-            }
+            List<String> projects = issuesBO.getActiveProjectNames();  // Now returns a List<String>
+            projectNames.addAll(projects);
             selectProjectNameComboBox.setItems(projectNames);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -81,18 +78,16 @@ public class CreateIssueViewController implements Initializable {
             if (selectedProject != null) {
                 ObservableList<String> taskNames = FXCollections.observableArrayList();
                 try {
-                    ResultSet rs = issuesBO.getTasksByProject(selectedProject);
-                    while (rs.next()) {
-                        taskNames.add(rs.getString("name"));
-                    }
+                    List<String> tasks = issuesBO.getTasksByProject(selectedProject);
+                    taskNames.addAll(tasks);
                     selectTaskNameComboBox.setItems(taskNames);
-                } catch (SQLException e) {
+                } catch (SQLException | ClassNotFoundException e) {
                     e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
                 }
             }
         });
+
+
 
         dueDatePicker.setDayCellFactory(picker -> new DateCell() {
             @Override
@@ -109,17 +104,14 @@ public class CreateIssueViewController implements Initializable {
     private void initializeMemberComboBox() {
         ObservableList<String> memberNames = FXCollections.observableArrayList();
         try {
-            ResultSet rs = issuesBO.getActiveMembers();
-            while (rs.next()) {
-                memberNames.add(rs.getString("full_name"));
-            }
+            List<String> members = issuesBO.getActiveMembers();  // Now returns a List<String>
+            memberNames.addAll(members);  // Add all member names to the ObservableList
             selectMemberNameComboBox.setItems(memberNames);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
+
 
 
     private void initializePriorityComboBox() {
