@@ -9,22 +9,11 @@ import java.util.List;
 
 public interface TasksDAO extends CrudDAO<Tasks> {
     String getTaskNameById(Long taskId) throws SQLException, ClassNotFoundException;
-
     List<Tasks> getByStatus(TaskStatus taskStatus) throws SQLException, ClassNotFoundException;
-
     List<Tasks> getTasksCurrentProjectByStatus(String projectId, TaskStatus taskStatus) throws SQLException, ClassNotFoundException;
-
     List<Tasks> getTaskByProjectId(String id) throws SQLException, ClassNotFoundException;
-
     void updateTask(Tasks currentTask) throws SQLException, ClassNotFoundException;
-
     boolean insertTask(Tasks task) throws SQLException, ClassNotFoundException;
-
     long getLastInsertedTaskId() throws SQLException, ClassNotFoundException;
-
     boolean insertAssignment(long lastInsertedTaskId, Long aLong) throws SQLException, ClassNotFoundException;
-
-    String getProjectIdByTaskId(long l) throws SQLException, ClassNotFoundException;
-
-    List<Tasks> getTasksByAssignee(String username) throws SQLException, ClassNotFoundException;
 }

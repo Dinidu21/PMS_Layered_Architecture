@@ -65,7 +65,7 @@ public class ReportTaskViewController implements Initializable {
         String formattedDateTime = LocalDateTime.now().format(formatter);
         currentDateTime.setText("Calculated " + formattedDateTime);
 
-        int maxTaskCount = 0;
+        int maxTaskCount;
         try {
             maxTaskCount = reportsBO.getAllTaskReportData().values().stream()
                     .mapToInt(TaskReportData::getTaskCount)

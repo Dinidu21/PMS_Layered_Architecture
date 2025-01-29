@@ -3,7 +3,6 @@ package com.dinidu.lk.pmt.controller.dashboard;
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
 import com.dinidu.lk.pmt.bo.custom.TasksBO;
-import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
 import com.dinidu.lk.pmt.controller.dashboard.task.CreateTaskSuccessViewController;
 import com.dinidu.lk.pmt.controller.dashboard.task.TaskEditViewController;
@@ -53,10 +52,6 @@ public class TaskViewController extends BaseController implements Initializable 
     public AnchorPane tasksPage;
     public Label noTasksFoundLabel;
     public Button resetBTN;
-
-    UserBO userBO= (UserBO)
-            BOFactory.getInstance().
-                    getBO(BOFactory.BOTypes.USER);
 
     QueryDAO queryDAO = new QueryDAOImpl();
 
@@ -134,7 +129,7 @@ public class TaskViewController extends BaseController implements Initializable 
         String username = SessionUser.getLoggedInUsername();
 
         if (username == null) {
-            System.out.println("User not logged in. username: " + username);
+            System.out.println("User not logged in. username: " + null);
         }
         UserRole userRoleByUsername;
         try {
@@ -144,7 +139,7 @@ public class TaskViewController extends BaseController implements Initializable 
         }
 
         if (userRoleByUsername == null) {
-            System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
+            System.out.println("User not logged in. userRoleByUsername: " + null);
         }
         System.out.println("User role: " + userRoleByUsername);
         if (userRoleByUsername != UserRole.ADMIN && userRoleByUsername != UserRole.PROJECT_MANAGER && userRoleByUsername != UserRole.PRODUCT_OWNER) {
@@ -155,7 +150,7 @@ public class TaskViewController extends BaseController implements Initializable 
     }
 
     private void updateTaskView() {
-        List<TasksDTO> tasks = null;
+        List<TasksDTO> tasks;
         try {
             tasks = tasksBO.getAllTasks();
         } catch (SQLException | ClassNotFoundException e) {

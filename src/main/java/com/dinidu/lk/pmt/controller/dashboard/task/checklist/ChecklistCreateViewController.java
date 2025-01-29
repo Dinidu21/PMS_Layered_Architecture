@@ -147,7 +147,7 @@ public class ChecklistCreateViewController {
         }
 
         String loggedInUsername = SessionUser.getLoggedInUsername();
-        Long userIdByUsername = null;
+        Long userIdByUsername;
         try {
             userIdByUsername = userBO.getUserIdByUsername(loggedInUsername);
         } catch (SQLException | ClassNotFoundException e) {

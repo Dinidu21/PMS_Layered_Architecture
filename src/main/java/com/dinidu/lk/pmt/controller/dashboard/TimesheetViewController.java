@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.image.ImageView;
 import javafx.geometry.Pos;
 import java.net.URL;
 import java.time.LocalDate;
@@ -18,7 +17,6 @@ public class TimesheetViewController implements Initializable {
     @FXML private FlowPane issuesPane;
     @FXML private Label dateRangeLabel;
     @FXML private Label spentTimeLabel;
-    @FXML private ImageView userAvatar;
     @FXML private Button prevWeekButton;
     @FXML private Button nextWeekButton;
     @FXML private Button todayButton;
@@ -43,7 +41,7 @@ public class TimesheetViewController implements Initializable {
         }
     }
 
-    private Map<LocalDate, List<TimeEntry>> timeEntries = new HashMap<>();
+    private final Map<LocalDate, List<TimeEntry>> timeEntries = new HashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {

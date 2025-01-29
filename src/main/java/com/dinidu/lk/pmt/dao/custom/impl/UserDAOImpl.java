@@ -3,7 +3,6 @@ package com.dinidu.lk.pmt.dao.custom.impl;
 import com.dinidu.lk.pmt.dao.SQLUtil;
 import com.dinidu.lk.pmt.dao.custom.UserDAO;
 import com.dinidu.lk.pmt.db.DBConnection;
-import com.dinidu.lk.pmt.dto.UserDTO;
 import com.dinidu.lk.pmt.entity.User;
 import javafx.scene.image.Image;
 import org.mindrot.jbcrypt.BCrypt;

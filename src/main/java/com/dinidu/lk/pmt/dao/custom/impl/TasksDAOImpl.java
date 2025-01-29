@@ -252,14 +252,6 @@ public class TasksDAOImpl implements TasksDAO {
         return false;
     }
     @Override
-    public String getProjectIdByTaskId(long l) throws SQLException, ClassNotFoundException {
-        return "";
-    }
-    @Override
-    public List<Tasks> getTasksByAssignee(String username) throws SQLException, ClassNotFoundException {
-        return List.of();
-    }
-    @Override
     public Map<String, String> getAllNames() throws SQLException, ClassNotFoundException {
         return Map.of();
     }

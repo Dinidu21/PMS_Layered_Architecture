@@ -2,7 +2,6 @@ package com.dinidu.lk.pmt.controller.dashboard;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
-import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
 import com.dinidu.lk.pmt.controller.dashboard.project.CreateProjectSuccessViewController;
 import com.dinidu.lk.pmt.controller.dashboard.project.ProjectEditViewController;
@@ -70,10 +69,7 @@ public class ProjectViewController extends BaseController implements Initializab
 
     public static String backgroundColor = null;
 
-    UserBO userBO= (UserBO)
-            BOFactory.getInstance().
-                    getBO(BOFactory.BOTypes.USER);
-   static ProjectsBO projectBO =
+    static ProjectsBO projectBO =
             (ProjectsBO) BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);
 
@@ -153,7 +149,7 @@ public class ProjectViewController extends BaseController implements Initializab
             if (selectedProjectName != null) {
                 searchBox.setText(selectedProjectName);
                 suggestionList.setVisible(false);
-                List<ProjectDTO> filteredProjects = null;
+                List<ProjectDTO> filteredProjects;
                 try {
                     filteredProjects = projectBO.searchProjectsByName(selectedProjectName);
                 } catch (SQLException | ClassNotFoundException e) {
@@ -171,7 +167,7 @@ public class ProjectViewController extends BaseController implements Initializab
         String username = SessionUser.getLoggedInUsername();
 
         if (username == null) {
-            System.out.println("User not logged in. username: " + username);
+            System.out.println("User not logged in. username: " + null);
         }
 
         UserRole userRoleByUsername;
@@ -183,7 +179,7 @@ public class ProjectViewController extends BaseController implements Initializab
         }
 
         if (userRoleByUsername == null) {
-            System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
+            System.out.println("User not logged in. userRoleByUsername: " + null);
         }
         System.out.println("User role: " + userRoleByUsername);
         if (userRoleByUsername != UserRole.ADMIN &&
@@ -312,7 +308,7 @@ public class ProjectViewController extends BaseController implements Initializab
     }
 
     private void showSearchSuggestions(String query) {
-        List<ProjectDTO> filteredProjects = null;
+        List<ProjectDTO> filteredProjects;
         try {
             filteredProjects = projectBO.searchProjectsByName(query);
         } catch (SQLException | ClassNotFoundException e) {

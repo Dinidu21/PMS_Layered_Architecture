@@ -15,7 +15,4 @@ public interface IssueDAO extends CrudDAO<Issue> {
     List<String> getActiveProjectNames() throws SQLException ,ClassNotFoundException;
     List<String> getTasksByProject(String projectName) throws SQLException ,ClassNotFoundException;
     List<String> getActiveMembers() throws SQLException ,ClassNotFoundException;
-
-
-
 }

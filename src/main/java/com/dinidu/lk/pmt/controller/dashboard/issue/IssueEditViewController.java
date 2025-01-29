@@ -27,7 +27,6 @@ import lombok.Setter;
 
 import java.net.URL;
 import java.sql.Date;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -266,7 +265,7 @@ public class IssueEditViewController implements Initializable {
 
         long assignedTo = currentIssue.getAssignedTo();
         if (assignedTo != 0) {
-            String assigneeName = null;
+            String assigneeName;
             try {
                 assigneeName = userBO.getUserFullNameById(assignedTo);
             } catch (SQLException | ClassNotFoundException e) {
@@ -306,7 +305,7 @@ public class IssueEditViewController implements Initializable {
         System.out.println("Deleting Issue for user: " + username);
 
         if (username == null) {
-            System.out.println("User not logged in. username: " + username);
+            System.out.println("User not logged in. username: " + null);
         }
 
         UserRole userRoleByUsername;
@@ -316,7 +315,7 @@ public class IssueEditViewController implements Initializable {
             throw new RuntimeException(e);
         }
         if (userRoleByUsername == null) {
-            System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
+            System.out.println("User not logged in. userRoleByUsername: " + null);
             return;
         }
 
@@ -339,7 +338,7 @@ public class IssueEditViewController implements Initializable {
 
         if (confirmed) {
             System.out.println("Deleting issue...");
-            boolean isDeleted = false;
+            boolean isDeleted;
             try {
                 isDeleted = issuesBO.deleteIssue(currentIssue.getId());
             } catch (SQLException | ClassNotFoundException e) {

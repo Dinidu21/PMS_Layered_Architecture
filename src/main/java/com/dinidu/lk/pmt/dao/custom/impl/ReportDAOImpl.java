@@ -20,9 +20,10 @@ public class ReportDAOImpl implements ReportsDAO {
 
     @Override
     public boolean insert(Report report) throws SQLException, ClassNotFoundException {
-        return SQLUtil.execute("INSERT INTO reports (project_id, user_id, \" +\n" +
-                        "                \"report_type, content, created_at, updated_at) \" +\n" +
-                        "                \"VALUES (?, ?, ?, ?, ?, ?)",
+        return SQLUtil.execute("""
+                        INSERT INTO reports (project_id, user_id, " +
+                                        "report_type, content, created_at, updated_at) " +
+                                        "VALUES (?, ?, ?, ?, ?, ?)""",
                 report.getProjectId(),
                 report.getUserId(),
                 report.getReportType().name(),

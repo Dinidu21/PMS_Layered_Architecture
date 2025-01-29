@@ -1,4 +1,3 @@
-// NotifyViewController.java
 package com.dinidu.lk.pmt.controller.dashboard;
 
 import javafx.animation.FadeTransition;

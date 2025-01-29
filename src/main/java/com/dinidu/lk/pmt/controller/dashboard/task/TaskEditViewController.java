@@ -283,7 +283,7 @@ public class TaskEditViewController implements Initializable {
         TaskPriorityCombo.getItems().setAll(TaskPriority.values());
 
         if (currentTask == null) {
-            List<TasksDTO> tasks = null;
+            List<TasksDTO> tasks;
             try {
                 tasks = tasksBO.getAllTasks();
             } catch (SQLException | ClassNotFoundException e) {
@@ -325,7 +325,7 @@ public class TaskEditViewController implements Initializable {
         TaskDescriptionField.setText(currentTask.descriptionProperty().get() != null ? currentTask.descriptionProperty().get() : "");
         TaskStatusCombo.setValue(currentTask.statusProperty().get());
         TaskPriorityCombo.setValue(currentTask.priorityProperty().get());
-        String userFullNameById = null;
+        String userFullNameById;
         try {
             userFullNameById = userBO.getUserFullNameById(currentTask.getAssignedTo().get());
         } catch (SQLException | ClassNotFoundException e) {
@@ -370,7 +370,7 @@ public class TaskEditViewController implements Initializable {
         System.out.println("Deleting task for user: " + username);
 
         if (username == null) {
-            System.out.println("User not logged in. username: " + username);
+            System.out.println("User not logged in. username: " + null);
         }
 
         UserRole userRoleByUsername;
@@ -380,7 +380,7 @@ public class TaskEditViewController implements Initializable {
             throw new RuntimeException(e);
         }
         if (userRoleByUsername == null) {
-            System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
+            System.out.println("User not logged in. userRoleByUsername: " + null);
             return;
         }
 

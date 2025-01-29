@@ -63,7 +63,7 @@ public class OTPViewController extends BaseController implements Initializable {
     private void setNumericField(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
-                textField.setText(newValue.replaceAll("[^\\d]", ""));
+                textField.setText(newValue.replaceAll("\\D", ""));
             }
             if (newValue.length() > 1) {
                 textField.setText(newValue.substring(0, 1));

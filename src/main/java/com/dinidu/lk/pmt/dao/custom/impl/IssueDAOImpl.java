@@ -2,7 +2,6 @@ package com.dinidu.lk.pmt.dao.custom.impl;
 
 import com.dinidu.lk.pmt.dao.SQLUtil;
 import com.dinidu.lk.pmt.dao.custom.IssueDAO;
-import com.dinidu.lk.pmt.dto.IssueDTO;
 import com.dinidu.lk.pmt.entity.Issue;
 import com.dinidu.lk.pmt.utils.issuesTypes.IssuePriority;
 import com.dinidu.lk.pmt.utils.issuesTypes.IssueStatus;

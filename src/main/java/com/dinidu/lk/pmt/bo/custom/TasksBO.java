@@ -17,5 +17,4 @@ public interface TasksBO extends SuperBO {
     List<TasksDTO> getTasksByStatus(TaskStatus taskStatus) throws SQLException , ClassNotFoundException;
     List<TasksDTO> getTasksCurrentProjectByStatus(String projectId, TaskStatus taskStatus) throws SQLException , ClassNotFoundException;
     boolean insertTask(TasksDTO tasksDTO) throws SQLException , ClassNotFoundException;
-    List<TasksDTO> getTasksByAssignee(String username) throws SQLException, ClassNotFoundException;
 }

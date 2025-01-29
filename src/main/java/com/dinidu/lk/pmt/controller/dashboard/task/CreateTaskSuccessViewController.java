@@ -6,7 +6,6 @@ import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.controller.dashboard.task.checklist.ChecklistCreateViewController;
 import com.dinidu.lk.pmt.controller.dashboard.task.checklist.ChecklistEditViewController;
 import com.dinidu.lk.pmt.dao.QueryDAO;
-import com.dinidu.lk.pmt.dao.custom.ChecklistDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.ChecklistDTO;
 import com.dinidu.lk.pmt.dto.ProjectDTO;
@@ -154,7 +153,7 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
     }
 
     private void applyInitialStyles() {
-        List<ChecklistDTO> checklists = null;
+        List<ChecklistDTO> checklists;
         try {
             checklists = checklistBO.getChecklistsByTaskId(tasksDTO.getId());
         } catch (SQLException | ClassNotFoundException e) {
@@ -446,7 +445,7 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
             String projectIdWith2DigitsString = project.get(0).getId().split("-")[0];
             projectIdWith2Digits.setText(projectIdWith2DigitsString);
             System.out.println("Project ID: " + projectIdWith2DigitsString);
-            Image profilePic = null;
+            Image profilePic;
             try {
                 profilePic = userBO.getUserProfilePicByUserId(projectDTO.getCreatedBy());
             } catch (SQLException | FileNotFoundException | ClassNotFoundException e) {
@@ -477,7 +476,7 @@ public class CreateTaskSuccessViewController implements Initializable, TaskDelet
 
         for (TasksDTO task : tasks) {
             if (teamMemberCount >= 4) break;
-            List<TeamAssignmentDTO> assignments = null;
+            List<TeamAssignmentDTO> assignments;
             try {
                 assignments = teamAssignmentBO.getAssignmentsByTaskId(task.getId().get());
             } catch (SQLException | ClassNotFoundException e) {

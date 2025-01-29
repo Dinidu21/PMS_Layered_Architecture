@@ -144,7 +144,7 @@ public class SettingsViewController extends BaseController {
         if (username == null) {
             System.out.println("User not logged in. username: " + null);
         }
-        UserRole userRoleByUsername = null;
+        UserRole userRoleByUsername;
         try {
             userRoleByUsername = queryDAO.getUserRoleByUsername(username);
         } catch (SQLException | ClassNotFoundException e) {
@@ -178,7 +178,7 @@ public class SettingsViewController extends BaseController {
         String loggedInUsername = SessionUser.getLoggedInUsername();
         System.out.println("Before get db Current user role: " + currentUserRole);
         System.out.println("Current user: " + loggedInUsername);
-        UserRole userRoleByUsername = null;
+        UserRole userRoleByUsername;
         try {
             userRoleByUsername = queryDAO.getUserRoleByUsername(loggedInUsername);
         } catch (SQLException | ClassNotFoundException e) {

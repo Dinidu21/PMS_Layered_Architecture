@@ -325,7 +325,7 @@ public class ProfileViewController extends BaseController {
         }
     }
 
-    public void changePwOnClick(MouseEvent sme) {
+    public void changePwOnClick() {
         ModalLoaderUtil.showModal("/view/nav-buttons/change-pw.fxml", "/asserts/icons/PN.png", (Stage) profileId.getScene().getWindow());
     }
 

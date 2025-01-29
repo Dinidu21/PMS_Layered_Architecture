@@ -173,7 +173,7 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
 
             Long assignedUserId = assignment.getUserId();
             if (assignedUserId != null) {
-                String memberName = null;
+                String memberName;
                 try {
                     memberName = userBO.getUserFullNameById(assignedUserId);
                 } catch (SQLException | ClassNotFoundException e) {
@@ -201,7 +201,7 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
 
     public List<TeamAssignmentDTO> getTeamAssignmentsForProject(String projectId) {
         List<TeamAssignmentDTO> assignments = new ArrayList<>();
-        List<TasksDTO> tasks = null;
+        List<TasksDTO> tasks ;
         try {
             tasks = tasksBO.getTaskByProjectId(projectId);
         } catch (SQLException | ClassNotFoundException e) {
@@ -209,7 +209,7 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
         }
 
         for (TasksDTO task : tasks) {
-            List<TeamAssignmentDTO> taskAssignments = null;
+            List<TeamAssignmentDTO> taskAssignments;
             try {
                 taskAssignments = teamAssignmentBO.getAssignmentsByTaskId(task.getId().get());
             } catch (SQLException | ClassNotFoundException e) {
@@ -284,9 +284,7 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
 
         String username = SessionUser.getLoggedInUsername();
 
-        if (username == null) {
-            System.out.println("User not logged in. username: " + username);
-        }
+
         UserRole userRoleByUsername;
         try {
             userRoleByUsername = queryDAO.getUserRoleByUsername(username);
@@ -295,7 +293,7 @@ public class CreateProjectSuccessViewController implements Initializable, Projec
         }
 
         if (userRoleByUsername == null) {
-            System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
+            System.out.println("User not logged in. userRoleByUsername: " + null);
         }
         System.out.println("User role: " + userRoleByUsername);
         if (userRoleByUsername != UserRole.ADMIN &&

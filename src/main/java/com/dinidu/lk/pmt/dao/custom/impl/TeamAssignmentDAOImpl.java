@@ -4,7 +4,6 @@ import com.dinidu.lk.pmt.dao.SQLUtil;
 import com.dinidu.lk.pmt.dao.custom.TeamAssignmentDAO;
 import com.dinidu.lk.pmt.entity.TeamAssignment;
 
-import javax.xml.transform.Result;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import java.util.Map;
 public class TeamAssignmentDAOImpl implements TeamAssignmentDAO {
 
     QueryDAO queryDAO=new QueryDAOImpl();
-
     // Working
     @Override
     public List<String> getTeamMemberEmailsByTask(long taskId) throws SQLException, ClassNotFoundException {
@@ -56,8 +54,6 @@ public class TeamAssignmentDAOImpl implements TeamAssignmentDAO {
                 teamAssignment.getAssignedAt()
         );
     }
-
-
 
     @Override
     public boolean update(TeamAssignment dto) throws SQLException, ClassNotFoundException {

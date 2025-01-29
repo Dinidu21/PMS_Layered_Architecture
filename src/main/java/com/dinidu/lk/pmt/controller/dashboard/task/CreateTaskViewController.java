@@ -120,7 +120,7 @@ public class CreateTaskViewController {
         }
 
         String loggedInUsername = SessionUser.getLoggedInUsername();
-        Long userIdByUsername = null;
+        Long userIdByUsername;
         try {
             userIdByUsername = userBO.getUserIdByUsername(loggedInUsername);
         } catch (SQLException | ClassNotFoundException e) {
@@ -214,7 +214,7 @@ public class CreateTaskViewController {
                         } catch (SQLException | ClassNotFoundException e) {
                             throw new RuntimeException(e);
                         }
-                        String taskCreatorName = null;
+                        String taskCreatorName;
                         try {
                             taskCreatorName = userBO.getUserFullNameById(idByUsername);
                         } catch (SQLException | ClassNotFoundException e) {

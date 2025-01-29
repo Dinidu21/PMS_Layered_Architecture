@@ -24,7 +24,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import java.net.URL;
 import java.sql.Date;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -154,12 +153,12 @@ public class CreateIssueViewController implements Initializable {
             String username = SessionUser.getLoggedInUsername();
 
             if (username == null) {
-                System.out.println("User not logged in. username: " + username);
+                System.out.println("User not logged in. username: " + null);
             }
 
-            Long idByUsername = null;
+            Long idByUsername;
             try {
-                idByUsername = userBO.getUserIdByUsername(username);
+                idByUsername = userBO.getUserIdByUsername(null);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -178,20 +177,20 @@ public class CreateIssueViewController implements Initializable {
             boolean isCreated = issuesBO.createIssue(issueDTO);
             if (isCreated) {
                 new Thread(() -> {
-                    String recipientName = null;
+                    String recipientName ;
                     try {
                         recipientName = userBO.getUserFullNameById(issueDTO.assignedToProperty().get());
                     } catch (SQLException | ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
                     String uName = SessionUser.getLoggedInUsername();
-                    Long issueCreatorId = null;
+                    Long issueCreatorId ;
                     try {
                         issueCreatorId = userBO.getUserIdByUsername(uName);
                     } catch (SQLException | ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
-                    String issueCreatorName = null;
+                    String issueCreatorName ;
                     try {
                         issueCreatorName = userBO.getUserFullNameById(issueCreatorId);
                     } catch (SQLException | ClassNotFoundException e) {

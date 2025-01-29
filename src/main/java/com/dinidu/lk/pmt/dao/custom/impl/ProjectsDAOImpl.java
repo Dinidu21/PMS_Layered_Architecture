@@ -214,8 +214,8 @@ public class ProjectsDAOImpl implements ProjectDAO {
     public List<Project> getAllProjects() throws SQLException {
         String sql = "SELECT * FROM projects ORDER BY created_at DESC";
         Connection connection;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+        PreparedStatement pstmt;
+        ResultSet rs;
         connection = DBConnection.getInstance().getConnection();
         if (connection == null || connection.isClosed()) {
             System.out.println("Database connection is closed!");
@@ -307,17 +307,6 @@ public class ProjectsDAOImpl implements ProjectDAO {
             projectList.add(projectDTO);
         }
         return projectList;
-    }
-
-
-    @Override
-    public ResultSet getActiveProjectNames() throws SQLException, ClassNotFoundException {
-        return null;
-    }
-
-    @Override
-    public ResultSet getTasksByProject(String projectName) throws SQLException, ClassNotFoundException {
-        return null;
     }
 
     @Override

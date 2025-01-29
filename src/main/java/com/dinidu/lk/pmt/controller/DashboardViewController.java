@@ -4,7 +4,6 @@ import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
 import com.dinidu.lk.pmt.bo.custom.ReportsBO;
 import com.dinidu.lk.pmt.bo.custom.TasksBO;
-import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.NotifyViewController;
 import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
@@ -69,9 +68,6 @@ public class DashboardViewController extends BaseController {
     private boolean isNotificationVisible = false;
 
 
-    UserBO userBO= (UserBO)
-            BOFactory.getInstance().
-                    getBO(BOFactory.BOTypes.USER);
     ProjectsBO projectsBO= (ProjectsBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);

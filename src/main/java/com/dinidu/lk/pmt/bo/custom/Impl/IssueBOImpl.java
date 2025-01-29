@@ -7,7 +7,6 @@ import com.dinidu.lk.pmt.dto.IssueDTO;
 import com.dinidu.lk.pmt.entity.Issue;
 import com.dinidu.lk.pmt.utils.EntityDTOMapper;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 

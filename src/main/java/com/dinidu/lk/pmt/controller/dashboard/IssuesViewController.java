@@ -3,7 +3,6 @@ package com.dinidu.lk.pmt.controller.dashboard;
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.IssuesBO;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
-import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.BaseController;
 import com.dinidu.lk.pmt.controller.dashboard.issue.IssueEditViewController;
 import com.dinidu.lk.pmt.controller.dashboard.issue.CreateIssueSuccessViewController;
@@ -67,9 +66,6 @@ public class IssuesViewController extends BaseController implements Initializabl
     @FXML
     private ListView<String> suggestionList;
 
-    UserBO userBO= (UserBO)
-            BOFactory.getInstance().
-                    getBO(BOFactory.BOTypes.USER);
     ProjectsBO projectBO =
             (ProjectsBO) BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);

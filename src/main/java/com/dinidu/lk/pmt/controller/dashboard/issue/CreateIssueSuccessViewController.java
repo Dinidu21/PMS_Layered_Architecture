@@ -6,7 +6,6 @@ import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
 import com.dinidu.lk.pmt.dto.*;
-import com.dinidu.lk.pmt.model.*;
 import com.dinidu.lk.pmt.utils.*;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomDeleteAlert;
@@ -424,7 +423,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
                     throw new RuntimeException(e);
                 }
 
-                Image memberProfilePic = null;
+                Image memberProfilePic ;
                 try {
                     memberProfilePic = userBO.getUserProfilePicByUserId(assignedUserId);
                 } catch (SQLException | FileNotFoundException | ClassNotFoundException e) {
@@ -451,7 +450,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
     }
 
     private void setProjectDetails(String projectId) {
-        List<ProjectDTO> projectDtoList = null;
+        List<ProjectDTO> projectDtoList;
         try {
             projectDtoList = projectsBO.getProjectById(projectId);
         } catch (SQLException | ClassNotFoundException e) {
@@ -470,7 +469,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
                 throw new RuntimeException(e);
             }
             projectOwnerName.setText(" " + ownerName);
-            Image profilePic = null;
+            Image profilePic ;
             try {
                 profilePic = userBO.getUserProfilePicByUserId(createdBy);
             } catch (SQLException | ClassNotFoundException | FileNotFoundException e) {
@@ -485,7 +484,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
 
     private void setAssigneeName(Long assignedTo) {
         if (assignedTo != null) {
-            String assigneeFullName = null;
+            String assigneeFullName;
             try {
                 assigneeFullName = userBO.getUserFullNameById(assignedTo);
             } catch (SQLException | ClassNotFoundException e) {
@@ -515,7 +514,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
 
     public List<TeamAssignmentDTO> getTeamAssignmentsForProject(String projectId) {
         List<TeamAssignmentDTO> assignments = new ArrayList<>();
-        List<TasksDTO> tasks = null;
+        List<TasksDTO> tasks ;
         try {
             tasks = tasksBO.getTaskByProjectId(projectId);
         } catch (SQLException | ClassNotFoundException e) {
@@ -523,7 +522,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
         }
 
         for (TasksDTO task : tasks) {
-            List<TeamAssignmentDTO> taskAssignments = null;
+            List<TeamAssignmentDTO> taskAssignments ;
             try {
                 taskAssignments = teamAssignmentBO.getAssignmentsByTaskId(task.getId().get());
             } catch (SQLException | ClassNotFoundException e) {
@@ -588,7 +587,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
         }
 
         if (username == null) {
-            System.out.println("User not logged in. username: " + username);
+            System.out.println("User not logged in. username: " + null);
         }
         UserRole userRoleByUsername;
         try {
@@ -598,7 +597,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
         }
 
         if (userRoleByUsername == null) {
-            System.out.println("User not logged in. userRoleByUsername: " + userRoleByUsername);
+            System.out.println("User not logged in. userRoleByUsername: " + null);
         }
         System.out.println("User role: " + userRoleByUsername);
                 if (userRoleByUsername != UserRole.ADMIN &&

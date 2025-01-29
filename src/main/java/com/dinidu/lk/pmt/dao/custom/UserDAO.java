@@ -13,7 +13,6 @@ public interface UserDAO extends CrudDAO<User> {
     boolean isEmailRegistered(String email) throws SQLException,ClassNotFoundException;
     boolean updatePassword(String loggedInUsername, String password) throws SQLException,ClassNotFoundException;
     boolean updatePasswordUsingEmail(String userEmail, String newPassword) throws SQLException,ClassNotFoundException;
-    /// Should be Entity
     User getUserDetailsByUsername(String loggedInUsername) throws SQLException,ClassNotFoundException;
     void updateProfileImagePath(String username, String imagePath)throws SQLException,ClassNotFoundException;
     String getProfileImagePath(String username) throws SQLException,ClassNotFoundException;

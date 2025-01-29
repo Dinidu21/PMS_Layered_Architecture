@@ -11,7 +11,6 @@ import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.taskTypes.TaskStatus;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -106,10 +105,5 @@ public class TasksBOImpl implements TasksBO {
         }
 
         return isSavedInsertedTask;
-    }
-
-    @Override
-    public List<TasksDTO> getTasksByAssignee(String username) throws SQLException, ClassNotFoundException {
-        return List.of();
     }
 }

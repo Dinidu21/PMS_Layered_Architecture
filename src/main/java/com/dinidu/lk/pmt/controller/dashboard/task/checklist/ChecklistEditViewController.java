@@ -67,7 +67,7 @@ public class ChecklistEditViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        List<UserDTO> allActiveMembers = null;
+        List<UserDTO> allActiveMembers;
         try {
             allActiveMembers = queryDAO.getAllActiveMembersNames();
         } catch (SQLException | ClassNotFoundException e) {
@@ -221,7 +221,7 @@ public class ChecklistEditViewController implements Initializable {
         checklistPriorityComboBox.setValue(currentChecklist.priorityProperty().get());
 
         if (currentChecklist.assignedToProperty().get() != 0) {
-            String userFullNameById = null;
+            String userFullNameById;
             try {
                 userFullNameById = userBO.getUserFullNameById(currentChecklist.assignedToProperty().get());
             } catch (SQLException | ClassNotFoundException e) {

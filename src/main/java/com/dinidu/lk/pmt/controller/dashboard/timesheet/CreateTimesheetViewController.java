@@ -19,7 +19,6 @@ import javafx.scene.layout.AnchorPane;
 
 import java.net.URL;
 import java.sql.Date;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -114,7 +113,6 @@ public class CreateTimesheetViewController implements Initializable {
         String description = descriptionIdField.getText();
         LocalDate dueDate = datePicker.getValue();
         //String hrs = hoursSpent.getValue();
-        String memberName = SessionUser.getLoggedInUsername();
 
         System.out.println("Project name: " + projectName);
         System.out.println("Task name: " + taskName);

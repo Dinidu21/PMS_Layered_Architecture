@@ -2,7 +2,6 @@ package com.dinidu.lk.pmt.dao.custom.impl;
 
 import com.dinidu.lk.pmt.dao.SQLUtil;
 import com.dinidu.lk.pmt.dao.custom.ChecklistDAO;
-import com.dinidu.lk.pmt.dto.ChecklistDTO;
 import com.dinidu.lk.pmt.entity.Checklist;
 import com.dinidu.lk.pmt.utils.checklistTypes.ChecklistPriority;
 import com.dinidu.lk.pmt.utils.checklistTypes.ChecklistStatus;
@@ -17,7 +16,7 @@ import java.util.Map;
 
 public class CheckListDAOImpl implements ChecklistDAO {
     @Override
-    public Checklist mapResultSetToChecklistDTO(ResultSet resultSet) throws SQLException, ClassNotFoundException {
+    public Checklist mapResultSetToChecklistDTO(ResultSet resultSet) throws SQLException {
         Checklist checklist = new Checklist();
         checklist.idProperty().set(resultSet.getLong("id"));
         checklist.taskIdProperty().set(resultSet.getLong("task_id"));
