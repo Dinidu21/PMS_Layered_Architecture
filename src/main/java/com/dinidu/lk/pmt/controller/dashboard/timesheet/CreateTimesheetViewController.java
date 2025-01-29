@@ -2,11 +2,11 @@ package com.dinidu.lk.pmt.controller.dashboard.timesheet;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
 import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
+import com.dinidu.lk.pmt.bo.custom.TimeSheetBO;
 import com.dinidu.lk.pmt.bo.custom.UserBO;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dto.TimesheetDTO;
 import com.dinidu.lk.pmt.model.IssueModel;
-import com.dinidu.lk.pmt.model.TimeSheetModel;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomAlert;
 import com.dinidu.lk.pmt.utils.customAlerts.CustomErrorAlert;
 import com.dinidu.lk.pmt.utils.SessionUser;
@@ -43,6 +43,9 @@ public class CreateTimesheetViewController implements Initializable {
     ProjectsBO projectBO =
             (ProjectsBO) BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.PROJECTS);
+    TimeSheetBO timeSheetBO =
+            (TimeSheetBO) BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.TIMESHEET);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -149,7 +152,7 @@ public class CreateTimesheetViewController implements Initializable {
 
             System.out.println("TimesheetDTO: " + timesheetDTO);
 
-            boolean isCreated = TimeSheetModel.createTimeSheet(timesheetDTO);
+            boolean isCreated = timeSheetBO.createTimeSheet(timesheetDTO);
             if (isCreated) {
                 System.out.println("Issue created successfully.");
                 CustomAlert.showAlert("SUCCESS", "Issue created successfully.");
