@@ -1,10 +1,7 @@
 package com.dinidu.lk.pmt.controller.dashboard.issue;
 
 import com.dinidu.lk.pmt.bo.BOFactory;
-import com.dinidu.lk.pmt.bo.custom.ProjectsBO;
-import com.dinidu.lk.pmt.bo.custom.TasksBO;
-import com.dinidu.lk.pmt.bo.custom.TeamAssignmentBO;
-import com.dinidu.lk.pmt.bo.custom.UserBO;
+import com.dinidu.lk.pmt.bo.custom.*;
 import com.dinidu.lk.pmt.controller.dashboard.ProjectViewController;
 import com.dinidu.lk.pmt.dao.QueryDAO;
 import com.dinidu.lk.pmt.dao.custom.impl.QueryDAOImpl;
@@ -106,6 +103,9 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
     TeamAssignmentBO teamAssignmentBO = (TeamAssignmentBO)
             BOFactory.getInstance().
                     getBO(BOFactory.BOTypes.TEAM_ASSIGNMENTS);
+    IssueAttachmentBO issueAttachmentBO = (IssueAttachmentBO)
+            BOFactory.getInstance().
+                    getBO(BOFactory.BOTypes.ATTACHMENTS);
 
     private boolean isFileSizeValid(File file) {
         if (file == null || !file.exists()) {
@@ -203,8 +203,16 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
                     updateProgress(i, 100);
                     Thread.sleep(20);
                 }
-                
-                attachmentModel.saveAttachment(attachment);
+
+                boolean isSaved = issueAttachmentBO.saveAttachment(attachment);
+
+                System.out.println("=================CREATE ISSUE SUCCESS VIEW CONTROLLER=================");
+                System.out.println("Here is the Uploaded id "+ attachment.getId());
+
+                if (!isSaved) {
+                    CustomErrorAlert.showAlert("Error", "Failed to upload the attachment.");
+                    System.out.println("Failed to upload the attachment");
+                }
                 return attachment;
             }
         };
@@ -259,7 +267,7 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
         javafx.concurrent.Task<List<IssueAttachmentDTO>> loadTask = new javafx.concurrent.Task<>() {
             @Override
             protected List<IssueAttachmentDTO> call() throws Exception {
-                return attachmentModel.getAttachments(currentIssueId);
+                return issueAttachmentBO.getAttachments(currentIssueId);
             }
         };
 
@@ -272,6 +280,8 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
             }
             for (IssueAttachmentDTO attachment : attachments) {
                 addAttachmentRow(attachment);
+                System.out.println("=================CREATE ISSUE SUCCESS VIEW CONTROLLER=================");
+                System.out.println("Here is the load Existing Attachments method: Here is Id "+ attachment.getId());
             }
         });
 
@@ -303,6 +313,17 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
     }
 
     private void deleteAttachment(IssueAttachmentDTO attachment, HBox attachmentRow) {
+        if (attachment == null) {
+            System.out.println("❌ ERROR: Attachment object is null!");
+            return;
+        }
+
+
+        if (attachment.getId() == null) {
+            System.out.println("❌ ERROR: Attachment ID is null! Cannot delete.");
+            return;
+        }
+
         boolean confirmed = CustomDeleteAlert.showAlert(
                 (Stage) attachmentContainer.getScene().getWindow(),
                 "Confirm Delete",
@@ -316,7 +337,8 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
         javafx.concurrent.Task<Boolean> deleteTask = new javafx.concurrent.Task<>() {
             @Override
             protected Boolean call() throws Exception {
-                return attachmentModel.deleteAttachment(attachment.getId());
+                System.out.println("🔍 Calling deleteAttachment() with ID: " + attachment.getId());
+                return issueAttachmentBO.deleteAttachment(attachment.getId());
             }
         };
 
@@ -330,7 +352,9 @@ public class CreateIssueSuccessViewController implements Initializable, IssueUpd
         });
 
         deleteTask.setOnFailed(e -> {
-            CustomErrorAlert.showAlert("Error", "An unexpected error occurred while deleting the attachment.");
+            Throwable ex = deleteTask.getException();
+            ex.printStackTrace();
+            CustomErrorAlert.showAlert("Error", "An unexpected error occurred: " + ex.getMessage());
         });
 
         new Thread(deleteTask).start();
