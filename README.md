@@ -166,6 +166,6 @@ For more, check out the [full set of screenshots](https://drive.google.com/file/
 
 ## License
 
-This project is licensed under a Commercial Licens - see the [LICENSE](https://github.com/Dinidu21/PMT/blob/main/LICENSE.md) file for details.
+This project is licensed under a Commercial Licens - see the [LICENSE](https://github.com/Dinidu21/PMS_Layered_Architecture/blob/main/LICENSE.md) file for details.
 
 ---
