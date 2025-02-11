@@ -1,4 +1,7 @@
-# Project Management System Layered Architecture REFACTORED
+# Project Management System Layered Architecture REFACTORED  [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Dinidu21/PMS_Layered_Architecture/blob/main/MIT%20License.md)[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/Dinidu21/PMS_Layered_Architecture/blob/main/LICENSE.md)
+
+> [!IMPORTANT]
+> Before downloading or cloning this project, please read the [LICENSE]() carefully to understand the terms and conditions. Unauthorized use, distribution, or modification is strictly prohibited under the Commercial License.
 
 ## Overview
 
@@ -167,5 +170,9 @@ For more, check out the [full set of screenshots](https://drive.google.com/file/
 ## License
 
 This project is licensed under a Commercial Licens - see the [LICENSE](https://github.com/Dinidu21/PMS_Layered_Architecture/blob/main/LICENSE.md) file for details.
+> [!WARNING]
+> Downloading, copying, or cloning this project is **at your own risk.** Unauthorized distribution, modification, or reverse engineering is strictly prohibited under the terms of the **Commercial License.**
 
+> [!CAUTION]
+> This project is licensed under a **Commercial License.** Ensure you comply with the license terms before using this software. See the [LICENSE](https://github.com/Dinidu21/PMS_Layered_Architecture/blob/main/LICENSE.md) file for details.
 ---
